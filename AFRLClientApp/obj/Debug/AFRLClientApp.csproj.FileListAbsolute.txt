@@ -1,0 +1,2 @@
+C:\Users\Jackson\Documents\Senior design\AFRLClientApp\AFRLClientApp\bin\Debug\AFRLClientApp.exe.config
+C:\Users\Jackson\Documents\Senior design\HololensSMEClient\AFRLClientApp\bin\Debug\AFRLClientApp.exe.config
