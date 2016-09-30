@@ -56,6 +56,9 @@ namespace AFRLClientApp
         /// </summary>
         private int _y;
 
+        /// <summary>
+        /// Number of thumbnail images
+        /// </summary>
         private const int NUMTHUMBNAILS = 5;
 
         #endregion
