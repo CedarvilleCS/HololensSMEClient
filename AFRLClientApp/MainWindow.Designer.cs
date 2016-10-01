@@ -38,6 +38,7 @@
             this.pictureBoxThumbnail3 = new System.Windows.Forms.PictureBox();
             this.pictureBoxThumbnail4 = new System.Windows.Forms.PictureBox();
             this.pictureBoxThumbnail5 = new System.Windows.Forms.PictureBox();
+            this.buttonConnect = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCapturedImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail1)).BeginInit();
@@ -58,7 +59,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(499, 404);
+            this.button1.Location = new System.Drawing.Point(516, 404);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(136, 23);
             this.button1.TabIndex = 1;
@@ -79,7 +80,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(499, 433);
+            this.button2.Location = new System.Drawing.Point(516, 433);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(136, 23);
             this.button2.TabIndex = 3;
@@ -131,11 +132,22 @@
             this.pictureBoxThumbnail5.TabStop = false;
             this.pictureBoxThumbnail5.Click += new System.EventHandler(this.pictureBoxThumbnail5_Click);
             // 
+            // buttonConnect
+            // 
+            this.buttonConnect.Location = new System.Drawing.Point(13, 433);
+            this.buttonConnect.Name = "buttonConnect";
+            this.buttonConnect.Size = new System.Drawing.Size(75, 23);
+            this.buttonConnect.TabIndex = 9;
+            this.buttonConnect.Text = "Connect";
+            this.buttonConnect.UseVisualStyleBackColor = true;
+            this.buttonConnect.Click += new System.EventHandler(this.buttonConnect_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1351, 478);
+            this.Controls.Add(this.buttonConnect);
             this.Controls.Add(this.pictureBoxThumbnail5);
             this.Controls.Add(this.pictureBoxThumbnail4);
             this.Controls.Add(this.pictureBoxThumbnail3);
@@ -170,6 +182,7 @@
         private System.Windows.Forms.PictureBox pictureBoxThumbnail3;
         private System.Windows.Forms.PictureBox pictureBoxThumbnail4;
         private System.Windows.Forms.PictureBox pictureBoxThumbnail5;
+        private System.Windows.Forms.Button buttonConnect;
     }
 }
 

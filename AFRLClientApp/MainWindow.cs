@@ -61,6 +61,11 @@ namespace AFRLClientApp
         /// </summary>
         private const int NUMTHUMBNAILS = 5;
 
+        /// <summary>
+        /// Allows communication over the network
+        /// </summary>
+        private NetworkManager networkManager;
+
         #endregion
 
         #region Constructor
@@ -211,5 +216,19 @@ namespace AFRLClientApp
 
         #endregion
 
+        private void buttonConnect_Click(object sender, EventArgs e)
+        {
+            CreateConnectionWindow connectionWindow = new CreateConnectionWindow();
+            connectionWindow.ShowDialog();
+
+            if (!connectionWindow.isCanceled)
+            {
+                networkManager = new NetworkManager();
+
+                networkManager.connect(connectionWindow.Hostname,
+                                       connectionWindow.Port,
+                                       connectionWindow.Port);
+            }
+        }
     }
 }
