@@ -45,6 +45,7 @@
             this.buttonUploadImage = new System.Windows.Forms.Button();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.colorDialog2 = new System.Windows.Forms.ColorDialog();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCapturedImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail1)).BeginInit();
@@ -193,11 +194,22 @@
             this.buttonConnect.UseVisualStyleBackColor = true;
             this.buttonConnect.Click += new System.EventHandler(this.buttonConnect_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(1012, 395);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(60, 13);
+            this.label1.TabIndex = 13;
+            this.label1.Text = "Brush Size:";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1446, 421);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.buttonConnect);
             this.Controls.Add(this.buttonUploadImage);
             this.Controls.Add(this.numericUpDownBrushSize);
@@ -223,6 +235,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrushSize)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
     }
 
@@ -244,6 +257,7 @@
         private System.Windows.Forms.Button buttonUploadImage;
         private System.Windows.Forms.Button buttonConnect;
         private System.Windows.Forms.ColorDialog colorDialog2;
+        private System.Windows.Forms.Label label1;
     }
 }
 
