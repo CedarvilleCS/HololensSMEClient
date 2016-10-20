@@ -362,7 +362,8 @@ namespace AFRLClientApp
         private void buttonConnect_Click(object sender, EventArgs e)
         {
             CreateConnectionWindow connectionWindow = new CreateConnectionWindow();
-            connectionWindow.ShowDialog();
+            connectionWindow.StartPosition = FormStartPosition.CenterParent;
+            connectionWindow.ShowDialog(this);
 
             if (!connectionWindow.isCanceled)
             {
@@ -370,26 +371,41 @@ namespace AFRLClientApp
                     connectionWindow.ServerEndpoint);
                 _connection.ConnectionEstablished += ConnectionEstablished;
                 _connection.ConnectionClosed += ConnectionClosed;
+                _connection.ConnectionTimedOut += ConnectionTimedOut;
                 _connection.Connect();
             }
         }
 
+        private void ConnectionTimedOut(object sender, EventArgs e)
+        {
+            MessageBox.Show("Connection to HoloLens timed out.", "Connection Timeout", 
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
         private void ConnectionClosed(object sender, EventArgs e)
         {
-            buttonConnect.Enabled = true;
-            buttonSend.Enabled = false;
+            buttonConnect.Invoke((Action)delegate () { buttonConnect.Enabled = true; });
+            buttonSend.Invoke((Action)delegate () { buttonSend.Enabled = false; });
             toolStripStatusLabelConnected.GetCurrentParent().Invoke(
-                        new Action(() => toolStripStatusLabelConnected.BackColor = Color.Red)
-                    );
+                        (Action)delegate ()
+                        {
+                            toolStripStatusLabelConnected.BackColor = Color.Red;
+                            toolStripStatusLabelConnected.Text = "Disconnected";
+                        });
+            MessageBox.Show("Connection to HoloLens lost.", "Connection Lost",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void ConnectionEstablished(object sender, EventArgs e)
         {
-            buttonConnect.Enabled = false;
-            buttonSend.Enabled = true;
+            buttonConnect.Invoke((Action)delegate () { buttonConnect.Enabled = false; });
+            buttonSend.Invoke((Action)delegate () { buttonSend.Enabled = true; });
             toolStripStatusLabelConnected.GetCurrentParent().Invoke(
-                        new Action(() => toolStripStatusLabelConnected.BackColor = Color.Green)
-                    );
+                        (Action)delegate ()
+                        {
+                            toolStripStatusLabelConnected.BackColor = Color.Green;
+                            toolStripStatusLabelConnected.Text = "Connected";
+                        });
         }
 
         private void buttonSendClick(object sender, EventArgs e)

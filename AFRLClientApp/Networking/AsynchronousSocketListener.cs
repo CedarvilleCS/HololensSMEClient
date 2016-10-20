@@ -135,8 +135,16 @@ namespace AFRLClientApp.Networking
         /// <param name="ar">IAsyncResult parameter</param>
         private void ConnectCallback(IAsyncResult ar)
         {
-            _client.EndConnect(ar);
-            ConnectionEstablished?.Invoke(this, new EventArgs());
+            try
+            {
+                _client.EndConnect(ar);
+                Connected = true;
+                ConnectionEstablished?.Invoke(this, new EventArgs());
+            }
+            catch(System.Net.Sockets.SocketException e)
+            {
+                ConnectionTimedOut?.Invoke(this, new EventArgs());
+            }
             ///
             /// Start polling to know the connection is alive
             ///
@@ -166,9 +174,15 @@ namespace AFRLClientApp.Networking
                 }
 
                 byte[] combinedData = CombineArrs(lengthBytes, typeBytes, data);
-
-                _client.BeginSend(combinedData, 0, combinedData.Length, SocketFlags.None,
-                    new AsyncCallback(SendCallback), _client);
+                try
+                {
+                    _client.BeginSend(combinedData, 0, combinedData.Length, SocketFlags.None,
+                        new AsyncCallback(SendCallback), _client);
+                }
+                catch
+                {
+                    NotifyConnectionLost();
+                }
             }
         }
 
@@ -207,14 +221,19 @@ namespace AFRLClientApp.Networking
             /// 
             if (part1 && part2)
             {
-                Connected = false;
-                _connectionAliveTimer.Stop();
-                ConnectionClosed?.Invoke(this, new EventArgs());
+                NotifyConnectionLost();
             }
             else
             {
                 Connected = true;
             }
+        }
+
+        private void NotifyConnectionLost()
+        {
+            Connected = false;
+            _connectionAliveTimer.Stop();
+            ConnectionClosed?.Invoke(this, new EventArgs());
         }
 
         #endregion
@@ -239,6 +258,11 @@ namespace AFRLClientApp.Networking
         /// Connection to server closed or lost
         /// </summary>
         public event EventHandler ConnectionClosed;
+
+        /// <summary>
+        /// Connection timed out during connection attempt
+        /// </summary>
+        public event EventHandler ConnectionTimedOut;
 
         #endregion
 

@@ -185,7 +185,7 @@
             this.buttonUploadImage.Name = "buttonUploadImage";
             this.buttonUploadImage.Size = new System.Drawing.Size(99, 23);
             this.buttonUploadImage.TabIndex = 11;
-            this.buttonUploadImage.Text = "Upload Image";
+            this.buttonUploadImage.Text = "Import Image";
             this.buttonUploadImage.UseVisualStyleBackColor = true;
             this.buttonUploadImage.Click += new System.EventHandler(this.buttonUploadImage_Click);
             // 
@@ -222,8 +222,8 @@
             // 
             this.toolStripStatusLabelConnected.BackColor = System.Drawing.Color.Red;
             this.toolStripStatusLabelConnected.Name = "toolStripStatusLabelConnected";
-            this.toolStripStatusLabelConnected.Size = new System.Drawing.Size(65, 17);
-            this.toolStripStatusLabelConnected.Text = "Connected";
+            this.toolStripStatusLabelConnected.Size = new System.Drawing.Size(79, 17);
+            this.toolStripStatusLabelConnected.Text = "Disconnected";
             // 
             // MainWindow
             // 
@@ -246,7 +246,8 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.axWindowsMediaPlayer1);
             this.Name = "MainWindow";
-            this.Text = "Form1";
+            this.RightToLeftLayout = true;
+            this.Text = "HoloLens Client";
             this.Load += new System.EventHandler(this.MainWindow_Load);
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCapturedImage)).EndInit();
