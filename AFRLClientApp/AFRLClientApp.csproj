@@ -58,6 +58,7 @@
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Networking\AsynchronousSocketListener.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CreateConnectionWindow.resx">
@@ -92,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Backend\" />
-    <Folder Include="Networking\" />
     <Folder Include="UnitTests\" />
   </ItemGroup>
   <ItemGroup>

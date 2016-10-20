@@ -6,9 +6,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AFRLClientApp.Networking;
 
 namespace AFRLClientApp
 {
@@ -75,7 +77,7 @@ namespace AFRLClientApp
         /// <summary>
         /// Allows communication over the network
         /// </summary>
-        //private NetworkManager networkManager;
+        private AsynchronousSocketListener _connection;
 
         #endregion
 
@@ -364,22 +366,41 @@ namespace AFRLClientApp
 
             if (!connectionWindow.isCanceled)
             {
-              /*  
-                
-                networkManager = new NetworkManager();
+                _connection = new AsynchronousSocketListener(
+                    connectionWindow.ServerEndpoint);
+                _connection.ConnectionEstablished += ConnectionEstablished;
+                _connection.ConnectionClosed += ConnectionClosed;
+                _connection.Connect();
+            }
+        }
 
-                networkManager.connect(connectionWindow.Hostname,
-                                       connectionWindow.Port,
-                                       connectionWindow.Port);
-               */
+        private void ConnectionClosed(object sender, EventArgs e)
+        {
+            buttonConnect.Enabled = true;
+            buttonSend.Enabled = false;
+            toolStripStatusLabelConnected.GetCurrentParent().Invoke(
+                        new Action(() => toolStripStatusLabelConnected.BackColor = Color.Red)
+                    );
+        }
+
+        private void ConnectionEstablished(object sender, EventArgs e)
+        {
+            buttonConnect.Enabled = false;
+            buttonSend.Enabled = true;
+            toolStripStatusLabelConnected.GetCurrentParent().Invoke(
+                        new Action(() => toolStripStatusLabelConnected.BackColor = Color.Green)
+                    );
+        }
+
+        private void buttonSendClick(object sender, EventArgs e)
+        {
+            if (_connection.Connected)
+            {
+                _connection.SendBitmap(_activeBMP);
             }
         }
 
         #endregion
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

@@ -32,7 +32,7 @@
             this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             this.button1 = new System.Windows.Forms.Button();
             this.pictureBoxCapturedImage = new System.Windows.Forms.PictureBox();
-            this.button2 = new System.Windows.Forms.Button();
+            this.buttonSend = new System.Windows.Forms.Button();
             this.pictureBoxThumbnail1 = new System.Windows.Forms.PictureBox();
             this.pictureBoxThumbnail2 = new System.Windows.Forms.PictureBox();
             this.pictureBoxThumbnail3 = new System.Windows.Forms.PictureBox();
@@ -46,6 +46,8 @@
             this.buttonConnect = new System.Windows.Forms.Button();
             this.colorDialog2 = new System.Windows.Forms.ColorDialog();
             this.label1 = new System.Windows.Forms.Label();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabelConnected = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCapturedImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail1)).BeginInit();
@@ -54,6 +56,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrushSize)).BeginInit();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // axWindowsMediaPlayer1
@@ -88,14 +91,16 @@
             this.pictureBoxCapturedImage.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBoxCapturedImage_MouseMove);
             this.pictureBoxCapturedImage.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBoxCapturedImage_MouseUp);
             // 
-            // button2
+            // buttonSend
             // 
-            this.button2.Location = new System.Drawing.Point(94, 387);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(136, 23);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Send Screenshot";
-            this.button2.UseVisualStyleBackColor = true;
+            this.buttonSend.Enabled = false;
+            this.buttonSend.Location = new System.Drawing.Point(94, 387);
+            this.buttonSend.Name = "buttonSend";
+            this.buttonSend.Size = new System.Drawing.Size(136, 23);
+            this.buttonSend.TabIndex = 3;
+            this.buttonSend.Text = "Send Screenshot";
+            this.buttonSend.UseVisualStyleBackColor = true;
+            this.buttonSend.Click += new System.EventHandler(this.buttonSendClick);
             // 
             // pictureBoxThumbnail1
             // 
@@ -202,13 +207,30 @@
             this.label1.Size = new System.Drawing.Size(60, 13);
             this.label1.TabIndex = 13;
             this.label1.Text = "Brush Size:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabelConnected});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 432);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(1446, 22);
+            this.statusStrip1.TabIndex = 14;
+            this.statusStrip1.Text = "statusStrip";
+            // 
+            // toolStripStatusLabelConnected
+            // 
+            this.toolStripStatusLabelConnected.BackColor = System.Drawing.Color.Red;
+            this.toolStripStatusLabelConnected.Name = "toolStripStatusLabelConnected";
+            this.toolStripStatusLabelConnected.Size = new System.Drawing.Size(65, 17);
+            this.toolStripStatusLabelConnected.Text = "Connected";
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1446, 421);
+            this.ClientSize = new System.Drawing.Size(1446, 454);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.buttonConnect);
             this.Controls.Add(this.buttonUploadImage);
@@ -219,7 +241,7 @@
             this.Controls.Add(this.pictureBoxThumbnail3);
             this.Controls.Add(this.pictureBoxThumbnail2);
             this.Controls.Add(this.pictureBoxThumbnail1);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.buttonSend);
             this.Controls.Add(this.pictureBoxCapturedImage);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.axWindowsMediaPlayer1);
@@ -234,6 +256,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownBrushSize)).EndInit();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -244,7 +268,7 @@
         private AxWMPLib.AxWindowsMediaPlayer axWindowsMediaPlayer1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.PictureBox pictureBoxCapturedImage;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button buttonSend;
         private System.Windows.Forms.PictureBox pictureBoxThumbnail1;
         private System.Windows.Forms.PictureBox pictureBoxThumbnail2;
         private System.Windows.Forms.PictureBox pictureBoxThumbnail3;
@@ -258,6 +282,8 @@
         private System.Windows.Forms.Button buttonConnect;
         private System.Windows.Forms.ColorDialog colorDialog2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelConnected;
     }
 }
 
