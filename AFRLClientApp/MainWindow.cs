@@ -6,9 +6,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AFRLClientApp.Networking;
 
 namespace AFRLClientApp
 {
@@ -75,7 +77,7 @@ namespace AFRLClientApp
         /// <summary>
         /// Allows communication over the network
         /// </summary>
-        //private NetworkManager networkManager;
+        private AsynchronousSocketListener _connection;
 
         #endregion
 
@@ -205,9 +207,9 @@ namespace AFRLClientApp
             Graphics gfxScreenshot = Graphics.FromImage(bmpScreenshot);
 
             // Take the screenshot according to the positioning of the video player.
-            gfxScreenshot.CopyFromScreen(axWindowsMediaPlayer1.PointToScreen(new System.Drawing.Point()).X,
-                                        axWindowsMediaPlayer1.PointToScreen(new System.Drawing.Point()).Y,
-                                        0, 0, axWindowsMediaPlayer1.Bounds.Size,
+            gfxScreenshot.CopyFromScreen(axWindowsMediaPlayer.PointToScreen(new System.Drawing.Point()).X,
+                                        axWindowsMediaPlayer.PointToScreen(new System.Drawing.Point()).Y,
+                                        0, 0, axWindowsMediaPlayer.Bounds.Size,
                                         CopyPixelOperation.SourceCopy);
 
             // Print out the screenshot to the picture box.
@@ -342,7 +344,7 @@ namespace AFRLClientApp
                 string fileName = openFileDialog.FileName;
                 Bitmap imageUpload = (Bitmap)Image.FromFile(fileName);
                 Bitmap resizedImage = ResizeImage(imageUpload, pictureBoxCapturedImage.Width, pictureBoxCapturedImage.Height);
-                //imageUpload.SetResolution(pictureBoxCapturedImage.Width, pictureBoxCapturedImage.Height);
+                
                 // Print out the screenshot to the picture box.
                 pictureBoxCapturedImage.Image = resizedImage;
 
@@ -360,26 +362,68 @@ namespace AFRLClientApp
         private void buttonConnect_Click(object sender, EventArgs e)
         {
             CreateConnectionWindow connectionWindow = new CreateConnectionWindow();
-            connectionWindow.ShowDialog();
+            connectionWindow.StartPosition = FormStartPosition.CenterParent;
+            connectionWindow.ShowDialog(this);
 
             if (!connectionWindow.isCanceled)
             {
-              /*  
-                
-                networkManager = new NetworkManager();
+                _connection = new AsynchronousSocketListener(
+                    connectionWindow.ServerEndpoint);
+                _connection.ConnectionEstablished += ConnectionEstablished;
+                _connection.ConnectionClosed += ConnectionClosed;
+                _connection.ConnectionTimedOut += ConnectionTimedOut;
+                _connection.Connect();
 
-                networkManager.connect(connectionWindow.Hostname,
-                                       connectionWindow.Port,
-                                       connectionWindow.Port);
-               */
+                string streamURL = String.Format("http://{0}/api/holographic/stream/live_high.mp4" +
+                    "?holo=false&pv=true&mic=false&loopback=false",
+                    connectionWindow.ServerEndpoint.Address.ToString());
+                axWindowsMediaPlayer.URL = streamURL;
+                axWindowsMediaPlayer.Ctlcontrols.play();
+            }
+        }
+
+        private void ConnectionTimedOut(object sender, EventArgs e)
+        {
+            MessageBox.Show("Connection to HoloLens timed out.", "Connection Timeout", 
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void ConnectionClosed(object sender, EventArgs e)
+        {
+            buttonConnect.Invoke((Action)delegate () { buttonConnect.Enabled = true; });
+            buttonSend.Invoke((Action)delegate () { buttonSend.Enabled = false; });
+            toolStripStatusLabelConnected.GetCurrentParent().Invoke(
+                        (Action)delegate ()
+                        {
+                            toolStripStatusLabelConnected.BackColor = Color.Red;
+                            toolStripStatusLabelConnected.Text = "Disconnected";
+                        });
+            MessageBox.Show("Connection to HoloLens lost.", "Connection Lost",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            axWindowsMediaPlayer.Invoke((Action)delegate () { axWindowsMediaPlayer.Ctlcontrols.stop(); });
+        }
+
+        private void ConnectionEstablished(object sender, EventArgs e)
+        {
+            buttonConnect.Invoke((Action)delegate () { buttonConnect.Enabled = false; });
+            buttonSend.Invoke((Action)delegate () { buttonSend.Enabled = true; });
+            toolStripStatusLabelConnected.GetCurrentParent().Invoke(
+                        (Action)delegate ()
+                        {
+                            toolStripStatusLabelConnected.BackColor = Color.Green;
+                            toolStripStatusLabelConnected.Text = "Connected";
+                        });
+        }
+
+        private void buttonSendClick(object sender, EventArgs e)
+        {
+            if (_connection.Connected)
+            {
+                _connection.SendBitmap(_activeBMP);
             }
         }
 
         #endregion
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
