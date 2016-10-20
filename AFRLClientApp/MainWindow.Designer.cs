@@ -29,7 +29,7 @@
     private void InitializeComponent()
     {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
+            this.axWindowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer();
             this.button1 = new System.Windows.Forms.Button();
             this.pictureBoxCapturedImage = new System.Windows.Forms.PictureBox();
             this.buttonSend = new System.Windows.Forms.Button();
@@ -48,7 +48,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelConnected = new System.Windows.Forms.ToolStripStatusLabel();
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCapturedImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail2)).BeginInit();
@@ -59,14 +59,14 @@
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // axWindowsMediaPlayer1
+            // axWindowsMediaPlayer
             // 
-            this.axWindowsMediaPlayer1.Enabled = true;
-            this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(13, 21);
-            this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
-            this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
-            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(640, 360);
-            this.axWindowsMediaPlayer1.TabIndex = 0;
+            this.axWindowsMediaPlayer.Enabled = true;
+            this.axWindowsMediaPlayer.Location = new System.Drawing.Point(13, 21);
+            this.axWindowsMediaPlayer.Name = "axWindowsMediaPlayer";
+            this.axWindowsMediaPlayer.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer.OcxState")));
+            this.axWindowsMediaPlayer.Size = new System.Drawing.Size(640, 360);
+            this.axWindowsMediaPlayer.TabIndex = 0;
             // 
             // button1
             // 
@@ -244,12 +244,12 @@
             this.Controls.Add(this.buttonSend);
             this.Controls.Add(this.pictureBoxCapturedImage);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.axWindowsMediaPlayer1);
+            this.Controls.Add(this.axWindowsMediaPlayer);
             this.Name = "MainWindow";
             this.RightToLeftLayout = true;
             this.Text = "HoloLens Client";
             this.Load += new System.EventHandler(this.MainWindow_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCapturedImage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxThumbnail2)).EndInit();
@@ -266,7 +266,7 @@
 
         #endregion
 
-        private AxWMPLib.AxWindowsMediaPlayer axWindowsMediaPlayer1;
+        private AxWMPLib.AxWindowsMediaPlayer axWindowsMediaPlayer;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.PictureBox pictureBoxCapturedImage;
         private System.Windows.Forms.Button buttonSend;

@@ -207,9 +207,9 @@ namespace AFRLClientApp
             Graphics gfxScreenshot = Graphics.FromImage(bmpScreenshot);
 
             // Take the screenshot according to the positioning of the video player.
-            gfxScreenshot.CopyFromScreen(axWindowsMediaPlayer1.PointToScreen(new System.Drawing.Point()).X,
-                                        axWindowsMediaPlayer1.PointToScreen(new System.Drawing.Point()).Y,
-                                        0, 0, axWindowsMediaPlayer1.Bounds.Size,
+            gfxScreenshot.CopyFromScreen(axWindowsMediaPlayer.PointToScreen(new System.Drawing.Point()).X,
+                                        axWindowsMediaPlayer.PointToScreen(new System.Drawing.Point()).Y,
+                                        0, 0, axWindowsMediaPlayer.Bounds.Size,
                                         CopyPixelOperation.SourceCopy);
 
             // Print out the screenshot to the picture box.
@@ -344,7 +344,7 @@ namespace AFRLClientApp
                 string fileName = openFileDialog.FileName;
                 Bitmap imageUpload = (Bitmap)Image.FromFile(fileName);
                 Bitmap resizedImage = ResizeImage(imageUpload, pictureBoxCapturedImage.Width, pictureBoxCapturedImage.Height);
-                //imageUpload.SetResolution(pictureBoxCapturedImage.Width, pictureBoxCapturedImage.Height);
+                
                 // Print out the screenshot to the picture box.
                 pictureBoxCapturedImage.Image = resizedImage;
 
@@ -373,6 +373,12 @@ namespace AFRLClientApp
                 _connection.ConnectionClosed += ConnectionClosed;
                 _connection.ConnectionTimedOut += ConnectionTimedOut;
                 _connection.Connect();
+
+                string streamURL = String.Format("http://{0}/api/holographic/stream/live_high.mp4" +
+                    "?holo=false&pv=true&mic=false&loopback=false",
+                    connectionWindow.ServerEndpoint.Address.ToString());
+                axWindowsMediaPlayer.URL = streamURL;
+                axWindowsMediaPlayer.Ctlcontrols.play();
             }
         }
 
@@ -394,6 +400,7 @@ namespace AFRLClientApp
                         });
             MessageBox.Show("Connection to HoloLens lost.", "Connection Lost",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
+            axWindowsMediaPlayer.Invoke((Action)delegate () { axWindowsMediaPlayer.Ctlcontrols.stop(); });
         }
 
         private void ConnectionEstablished(object sender, EventArgs e)
