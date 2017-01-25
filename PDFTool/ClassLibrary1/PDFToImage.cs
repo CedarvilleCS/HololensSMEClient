@@ -38,7 +38,21 @@ namespace PDFToImage
         /// <returns>Byte array containing bitmap image data</returns>
         public static byte[] getImage(string filename, int page)
         {
-            LibPdf pdf; 
+            LibPdf pdf = loadPdf(filename);
+
+            return pdf.GetImage(page, ImageType.BMP);
+        }
+
+        public static int getNumPages(string filename)
+        {
+            LibPdf pdf = loadPdf(filename);
+
+            return (int)pdf.NumPages;
+        }
+
+        private static LibPdf loadPdf(string filename)
+        {
+            LibPdf pdf;
 
             bool cached = cache.TryGetValue(filename, out pdf);
 
@@ -53,7 +67,7 @@ namespace PDFToImage
                 // Keep the cache from getting to big
                 //
                 long overflow = cacheSize + info.Length - maxCacheSize;
-                while(overflow > 0)
+                while (overflow > 0)
                 {
                     Tuple<string, long> cacheItem = fifo.Dequeue();
                     cache.Remove(cacheItem.Item1);
@@ -72,7 +86,7 @@ namespace PDFToImage
                 fifo.Enqueue(new Tuple<string, long>(filename, info.Length));
             }
 
-            return pdf.GetImage(page, ImageType.BMP);
+            return pdf;
         }
     }
 }
