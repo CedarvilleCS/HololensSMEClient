@@ -21,14 +21,21 @@ namespace PDFViewer
     /// </summary>
     public partial class PDFViewerDialog : Window
     {
+        public const int INITIAL_PAGE_TO_DISPLAY = 1;
+
         public string pdfFile { get; private set; }
+        public BitmapImage selectedImage { get; private set; } = null;
+
+        private int totalPages;
 
         public PDFViewerDialog(string pdfFile)
         {
             InitializeComponent();
 
             this.pdfFile = pdfFile;
-            displayPage(1);
+            textBoxPageNumber.Text = Convert.ToString(INITIAL_PAGE_TO_DISPLAY);
+
+            totalPages = PDFManager.getNumPages(pdfFile);
         }
 
         private void displayPage(int pageNumber)
@@ -52,10 +59,25 @@ namespace PDFViewer
             imagePageDisplay.Source = page;
         }
 
+        private bool changePageBy(int delta)
+        {
+            int currentPage = Convert.ToInt32(textBoxPageNumber.Text);
+            int newPage = currentPage + delta;
+
+            if(newPage > 0 && newPage < totalPages)
+            {
+                textBoxPageNumber.Text = Convert.ToString(newPage);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private void onTextChangedTextBoxPageNumber(object sender, TextChangedEventArgs e)
         {
             int pageNumber = -1;
-            int totalPages = PDFManager.getNumPages(pdfFile);
             string text = textBoxPageNumber.Text;
 
             //
@@ -91,7 +113,18 @@ namespace PDFViewer
 
         private void onClickButtonSelect(object sender, RoutedEventArgs e)
         {
+            selectedImage = (BitmapImage)imagePageDisplay.Source;
+            this.Close();
+        }
 
+        private void onClickButtonBack(object sender, RoutedEventArgs e)
+        {
+            changePageBy(-1);
+        }
+
+        private void onClickButtonForward(object sender, RoutedEventArgs e)
+        {
+            changePageBy(1);
         }
     }
 }
