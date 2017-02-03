@@ -48,7 +48,7 @@ namespace ARTAPclient
             InitializeComponent();
             this.SourceInitialized += Window_SourceInitialized;
 
-            _connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_low.mp4?holo=false&pv=true&mic=false&loopback=false",
+            _connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_low.mp4?holo=true&pv=true&mic=false&loopback=false",
                 user, password, ip);
         }
 

@@ -79,6 +79,9 @@
     <Compile Include="ScreenshotAnnotationsWindow.xaml.cs">
       <DependentUpon>ScreenshotAnnotationsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SizePicker.xaml.cs">
+      <DependentUpon>SizePicker.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -96,6 +99,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ScreenshotAnnotationsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SizePicker.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -134,6 +141,12 @@
     <Resource Include="background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Documents\WPFColorPicker\WPFColorPickerLib\WPFColorPickerLib.csproj">
+      <Project>{587acfba-1a74-4a38-98c4-69442eccb7dc}</Project>
+      <Name>WPFColorPickerLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
