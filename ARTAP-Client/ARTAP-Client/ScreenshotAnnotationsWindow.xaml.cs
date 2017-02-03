@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
@@ -14,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -76,6 +78,16 @@ namespace ARTAPclient
         private Point _currentPoint = new Point();
 
         /// <summary>
+        /// Color used for canvas annotations, default to Red
+        /// </summary>
+        private Color _brushColor = Colors.Red;
+
+        /// <summary>
+        /// Size used for canvas annotations, default to 5
+        /// </summary>
+        private double _brushSize = 5;
+
+        /// <summary>
         /// X DPI of the screen
         /// </summary>
         private const int DPIX = 96;
@@ -110,7 +122,7 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-            _listener.ConnectionClosed += _listener_ConnectionClosed;
+            //_listener.ConnectionClosed += _listener_ConnectionClosed;
         }
 
         #endregion
@@ -178,6 +190,7 @@ namespace ARTAPclient
 
             _annotationIndex = index;
             ImageBrush ib = new ImageBrush();
+            ib.Stretch = Stretch.Uniform;
             ib.ImageSource = _imageOriginals[_currentImage];
             capturedImage.Background = ib;
             _activeBMP = _imageOriginals[_currentImage];
@@ -203,8 +216,8 @@ namespace ARTAPclient
             {
                 Polyline polyLine;
                 polyLine = new Polyline();
-                polyLine.Stroke = new SolidColorBrush(Colors.Black);
-                polyLine.StrokeThickness = 5;
+                polyLine.Stroke = new SolidColorBrush(_brushColor);
+                polyLine.StrokeThickness = _brushSize;
 
                 capturedImage.Children.Add(polyLine);
                 _annotations[_currentImage][_annotationIndex] = polyLine;
@@ -218,8 +231,8 @@ namespace ARTAPclient
                 if (capturedImage.Children.Count == 0)
                 {
                     _polyLine = new Polyline();
-                    _polyLine.Stroke = new SolidColorBrush(Colors.Black);
-                    _polyLine.StrokeThickness = 5;
+                    _polyLine.Stroke = new SolidColorBrush(_brushColor);
+                    _polyLine.StrokeThickness = _brushSize;
 
                     capturedImage.Children.Add(_polyLine);
                     _annotations[_currentImage][0] = _polyLine;
@@ -244,6 +257,7 @@ namespace ARTAPclient
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
             _activeBMP = screenshot;
             ImageBrush ib = new ImageBrush();
+            ib.Stretch = Stretch.Uniform;
             ib.ImageSource = screenshot;
             capturedImage.Children.Clear();
             capturedImage.Background = ib;
@@ -325,12 +339,66 @@ namespace ARTAPclient
         {
             _listener.SendBitmap(_imageHistory[_currentImage]);
         }
-
-        #endregion
-
         private void Window_Closed(object sender, EventArgs e)
         {
             _listener.CloseConnection();
+        }
+
+        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
+        {
+            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
+            colorDialog.SelectedColor = _brushColor;
+            colorDialog.Owner = this;
+            if ((bool)colorDialog.ShowDialog())
+            {
+                _brushColor = colorDialog.SelectedColor;
+                _brushSize = 5;
+            }
+        }
+
+        private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                ImageSource screenshot = new BitmapImage(imageUri);
+
+                _activeBMP = screenshot;
+                ImageBrush ib = new ImageBrush();
+                ib.Stretch = Stretch.Uniform;
+                ib.ImageSource = screenshot;
+                               
+                capturedImage.Children.Clear();
+                capturedImage.Background = ib;
+                if (_imageHistory.Count >= 5)
+                {
+                    _imageHistory.RemoveAt(4);
+                    _imageOriginals.RemoveAt(4);
+                }
+                _imageHistory.Insert(0, screenshot.Clone());
+                _imageOriginals.Insert(0, screenshot.Clone());
+                UIElement[] elementArray = new UIElement[10];
+                _annotations.Insert(0, elementArray);
+                _currentImage = 0;
+                UpdateThumbnails();
+               
+            }
+
+        }
+
+
+        #endregion
+
+        private void buttonChangeSize_Click(object sender, RoutedEventArgs e)
+        {
+            SizePicker sizePicker = new SizePicker();
+            sizePicker.sizeNum = _brushSize;
+            sizePicker.Owner = this;
+            if ((bool)sizePicker.ShowDialog())
+            {
+                _brushSize = sizePicker.sizeNum;
+            }
         }
     }
 }
