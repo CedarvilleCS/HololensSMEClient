@@ -36,6 +36,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClassLibrary1">
+      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\ClassLibrary1.dll</HintPath>
+    </Reference>
+    <Reference Include="libpdf">
+      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\libpdf.dll</HintPath>
+    </Reference>
+    <Reference Include="PDFViewer">
+      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\PDFViewer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />

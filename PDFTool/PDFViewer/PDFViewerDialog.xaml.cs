@@ -32,6 +32,7 @@ namespace PDFViewer
         {
             InitializeComponent();
 
+            this.DialogResult = false;
             this.pdfFile = pdfFile;
             textBoxPageNumber.Text = Convert.ToString(INITIAL_PAGE_TO_DISPLAY);
 
@@ -114,6 +115,7 @@ namespace PDFViewer
         private void onClickButtonSelect(object sender, RoutedEventArgs e)
         {
             selectedImage = (BitmapImage)imagePageDisplay.Source;
+            this.DialogResult = true;
             this.Close();
         }
 

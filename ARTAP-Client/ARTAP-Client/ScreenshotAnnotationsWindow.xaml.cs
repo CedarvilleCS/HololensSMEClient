@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using PDFViewer;
 
 namespace ARTAPclient
 {
@@ -331,6 +332,27 @@ namespace ARTAPclient
         private void Window_Closed(object sender, EventArgs e)
         {
             _listener.CloseConnection();
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
+
+            openDialog.DefaultExt = ".pdf";
+            openDialog.Filter = "PDF Documents (.pdf) | *.pdf";
+
+            Nullable<bool> result = openDialog.ShowDialog();
+
+            if(result == true)
+            {
+                string pdfFile = openDialog.FileName;
+                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+                result = pdfDialog.ShowDialog();
+                if(result == true)
+                {
+
+                }
+            }
         }
     }
 }

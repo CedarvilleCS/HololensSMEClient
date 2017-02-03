@@ -6,20 +6,33 @@
         xmlns:local="clr-namespace:ARTAPclient"
         mc:Ignorable="d"
         Title="Annotations" Height="488.52" Width="783.006" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
-    <Grid Margin="0,0,0,635">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="269*"/>
-            <ColumnDefinition Width="190*"/>
-        </Grid.ColumnDefinitions>
-        <Canvas x:Name="capturedImage" Height="360" Margin="8,6,181,-366" VerticalAlignment="Top" MouseDown="capturedImage_MouseDown" MouseMove="capturedImage_MouseMove" Background="#FF818181" x:FieldModifier="public" Cursor="Pen" MouseUp="capturedImage_MouseUp" MinWidth="640" MinHeight="360" MaxWidth="640" MaxHeight="360" Grid.ColumnSpan="2"/>
-        <Button x:Name="buttonCaptureScreenshot" Content="Capture Screenshot" HorizontalAlignment="Left" Height="25" Margin="202,67,0,-92" Grid.Row="2" VerticalAlignment="Top" Width="111" Click="buttonCaptureScreenshot_Click" Grid.Column="1"/>
-        <Image x:Name="imageThumb" Height="72" Margin="8,372,0,-444" VerticalAlignment="Top" MouseUp="imageThumb_MouseUp" Width="128" HorizontalAlignment="Left"/>
-        <Image x:Name="imageThumb1" Height="72" Margin="141,372,0,-444" VerticalAlignment="Top" Width="128" MouseUp="imageThumb1_MouseUp" HorizontalAlignment="Left"/>
-        <Image x:Name="imageThumb2" Height="72" Margin="274,372,0,-444" VerticalAlignment="Top" MouseUp="imageThumb2_MouseUp" Width="128" HorizontalAlignment="Left"/>
-        <Image x:Name="imageThumb3" Height="72" Margin="407,372,0,-444" VerticalAlignment="Top" Width="128" MouseUp="imageThumb3_MouseUp" HorizontalAlignment="Left" Grid.ColumnSpan="2"/>
-        <Image x:Name="imageThumb4" Height="72" Margin="54,372,0,-444" VerticalAlignment="Top" MouseUp="imageThumb4_MouseUp" Width="128" Grid.Column="1" HorizontalAlignment="Left"/>
-        <Button x:Name="undoButton" Content="Undo" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="202,7,0,-32" VerticalAlignment="Top" Width="111" Click="undoButton_Click"/>
-        <Button x:Name="clearButton" Content="Clear" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="202,37,0,-62" VerticalAlignment="Top" Width="111" Click="clearButton_Click"/>
-        <Button x:Name="buttonSendScreenshot" Content="Send Screenshot" HorizontalAlignment="Left" Height="25" Margin="202,97,0,-122" Grid.Row="2" VerticalAlignment="Top" Width="111" Grid.Column="1" Click="buttonSendScreenshot_Click"/>
-    </Grid>
+    <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Menu>
+                    <MenuItem Header="File">
+                        <MenuItem Header="Load PDF..." Click="MenuItem_Click"/>
+                    </MenuItem>
+                </Menu>
+            </ToolBar>
+        </ToolBarTray>
+        <Grid Margin="0,0,0,635">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="269*"/>
+                <ColumnDefinition Width="190*"/>
+            </Grid.ColumnDefinitions>
+
+            <Canvas x:Name="capturedImage" Height="360" Margin="8,6,181,-366" VerticalAlignment="Top" MouseDown="capturedImage_MouseDown" MouseMove="capturedImage_MouseMove" Background="#FF818181" x:FieldModifier="public" Cursor="Pen" MouseUp="capturedImage_MouseUp" MinWidth="640" MinHeight="360" MaxWidth="640" MaxHeight="360" Grid.ColumnSpan="2"/>
+            <Button x:Name="buttonCaptureScreenshot" Content="Capture Screenshot" HorizontalAlignment="Left" Height="25" Margin="202,67,0,-92" Grid.Row="2" VerticalAlignment="Top" Width="111" Click="buttonCaptureScreenshot_Click" Grid.Column="1"/>
+            <Image x:Name="imageThumb" Height="72" Margin="8,372,0,-444" VerticalAlignment="Top" MouseUp="imageThumb_MouseUp" Width="128" HorizontalAlignment="Left"/>
+            <Image x:Name="imageThumb1" Height="72" Margin="141,372,0,-444" VerticalAlignment="Top" Width="128" MouseUp="imageThumb1_MouseUp" HorizontalAlignment="Left"/>
+            <Image x:Name="imageThumb2" Height="72" Margin="274,372,0,-444" VerticalAlignment="Top" MouseUp="imageThumb2_MouseUp" Width="128" HorizontalAlignment="Left"/>
+            <Image x:Name="imageThumb3" Height="72" Margin="407,372,0,-444" VerticalAlignment="Top" Width="128" MouseUp="imageThumb3_MouseUp" HorizontalAlignment="Left" Grid.ColumnSpan="2"/>
+            <Image x:Name="imageThumb4" Height="72" Margin="54,372,0,-444" VerticalAlignment="Top" MouseUp="imageThumb4_MouseUp" Width="128" Grid.Column="1" HorizontalAlignment="Left"/>
+            <Button x:Name="undoButton" Content="Undo" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="202,7,0,-32" VerticalAlignment="Top" Width="111" Click="undoButton_Click"/>
+            <Button x:Name="clearButton" Content="Clear" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="202,37,0,-62" VerticalAlignment="Top" Width="111" Click="clearButton_Click"/>
+            <Button x:Name="buttonSendScreenshot" Content="Send Screenshot" HorizontalAlignment="Left" Height="25" Margin="202,97,0,-122" Grid.Row="2" VerticalAlignment="Top" Width="111" Grid.Column="1" Click="buttonSendScreenshot_Click"/>
+        </Grid>
+    </DockPanel>
+    
 </Window>
