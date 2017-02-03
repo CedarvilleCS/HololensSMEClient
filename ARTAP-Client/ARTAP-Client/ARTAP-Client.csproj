@@ -36,6 +36,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClassLibrary1">
+      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\ClassLibrary1.dll</HintPath>
+    </Reference>
+    <Reference Include="libpdf">
+      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\libpdf.dll</HintPath>
+    </Reference>
+    <Reference Include="PDFViewer">
+      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\PDFViewer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -70,6 +79,9 @@
     <Compile Include="ScreenshotAnnotationsWindow.xaml.cs">
       <DependentUpon>ScreenshotAnnotationsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SizePicker.xaml.cs">
+      <DependentUpon>SizePicker.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -87,6 +99,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ScreenshotAnnotationsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SizePicker.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -125,6 +141,12 @@
     <Resource Include="background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WPFColorPickerLib\WPFColorPickerLib.csproj">
+      <Project>{587acfba-1a74-4a38-98c4-69442eccb7dc}</Project>
+      <Name>WPFColorPickerLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
