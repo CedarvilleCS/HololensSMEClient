@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
@@ -14,8 +15,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using WpfApplication1;
+<<<<<<< HEAD
 using PDFViewer;
+=======
+using WpfApplication1;
+>>>>>>> Jackson_PDF_Tools
 
 namespace ARTAPclient
 {
@@ -255,7 +259,23 @@ namespace ARTAPclient
         private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
         {
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
-            ChangeActiveImage(screenshot);
+            _activeBMP = screenshot;
+            ImageBrush ib = new ImageBrush();
+            ib.Stretch = Stretch.Uniform;
+            ib.ImageSource = screenshot;
+            capturedImage.Children.Clear();
+            capturedImage.Background = ib;
+            if (_imageHistory.Count >= 5)
+            {
+                _imageHistory.RemoveAt(4);
+                _imageOriginals.RemoveAt(4);
+            }
+            _imageHistory.Insert(0, screenshot.Clone());
+            _imageOriginals.Insert(0, screenshot.Clone());
+            UIElement[] elementArray = new UIElement[10];
+            _annotations.Insert(0, elementArray);
+            _currentImage = 0;
+            UpdateThumbnails();
         }
 
         private BitmapImage ConvertBitmapType(System.Drawing.Bitmap bitmap)
@@ -328,6 +348,63 @@ namespace ARTAPclient
             _listener.CloseConnection();
         }
 
+        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
+        {
+            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
+            colorDialog.SelectedColor = _brushColor;
+            colorDialog.Owner = this;
+            if ((bool)colorDialog.ShowDialog())
+            {
+                _brushColor = colorDialog.SelectedColor;
+                _brushSize = 5;
+            }
+        }
+
+        private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                ImageSource screenshot = new BitmapImage(imageUri);
+
+                _activeBMP = screenshot;
+                ImageBrush ib = new ImageBrush();
+                ib.Stretch = Stretch.Uniform;
+                ib.ImageSource = screenshot;
+                               
+                capturedImage.Children.Clear();
+                capturedImage.Background = ib;
+                if (_imageHistory.Count >= 5)
+                {
+                    _imageHistory.RemoveAt(4);
+                    _imageOriginals.RemoveAt(4);
+                }
+                _imageHistory.Insert(0, screenshot.Clone());
+                _imageOriginals.Insert(0, screenshot.Clone());
+                UIElement[] elementArray = new UIElement[10];
+                _annotations.Insert(0, elementArray);
+                _currentImage = 0;
+                UpdateThumbnails();
+               
+            }
+
+        }
+
+
+        #endregion
+
+        private void buttonChangeSize_Click(object sender, RoutedEventArgs e)
+        {
+            SizePicker sizePicker = new SizePicker();
+            sizePicker.sizeNum = _brushSize;
+            sizePicker.Owner = this;
+            if ((bool)sizePicker.ShowDialog())
+            {
+                _brushSize = sizePicker.sizeNum;
+            }
+        }
+
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
@@ -344,72 +421,8 @@ namespace ARTAPclient
                 result = pdfDialog.ShowDialog();
                 if(result == true)
                 {
-                    ChangeActiveImage(pdfDialog.selectedImage);
+
                 }
-            }
-        }
-
-        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
-        {
-            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
-            colorDialog.SelectedColor = _brushColor;
-            colorDialog.Owner = this;
-            if ((bool)colorDialog.ShowDialog())
-            {
-                _brushColor = colorDialog.SelectedColor;
-                _brushSize = 5;
-            }
-        }
-
-        private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
-                ChangeActiveImage(new BitmapImage(imageUri));
-               
-            }
-
-        }
-
-        /// <summary>
-        /// Changes the Image that is being edited and updates the
-        /// history thumbnails.
-        /// </summary>
-        /// <param name="source">Image to be displayed</param>
-        private void ChangeActiveImage(ImageSource source)
-        {
-            _activeBMP = source;
-            ImageBrush ib = new ImageBrush();
-            ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = source;
-
-            capturedImage.Children.Clear();
-            capturedImage.Background = ib;
-            if (_imageHistory.Count >= 5)
-            {
-                _imageHistory.RemoveAt(4);
-                _imageOriginals.RemoveAt(4);
-            }
-            _imageHistory.Insert(0, source.Clone());
-            _imageOriginals.Insert(0, source.Clone());
-            UIElement[] elementArray = new UIElement[10];
-            _annotations.Insert(0, elementArray);
-            _currentImage = 0;
-            UpdateThumbnails();
-        }
-
-        #endregion
-
-        private void buttonChangeSize_Click(object sender, RoutedEventArgs e)
-        {
-            SizePicker sizePicker = new SizePicker();
-            sizePicker.sizeNum = _brushSize;
-            sizePicker.Owner = this;
-            if ((bool)sizePicker.ShowDialog())
-            {
-                _brushSize = sizePicker.sizeNum;
             }
         }
     }

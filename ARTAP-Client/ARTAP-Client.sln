@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARTAP-Client", "ARTAP-Client\ARTAP-Client.csproj", "{80667721-C827-4B6F-A241-A9A975EC256C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFColorPickerLib", "..\..\Documents\WPFColorPicker\WPFColorPickerLib\WPFColorPickerLib.csproj", "{587ACFBA-1A74-4A38-98C4-69442ECCB7DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFColorPickerLib", "WPFColorPickerLib\WPFColorPickerLib.csproj", "{587ACFBA-1A74-4A38-98C4-69442ECCB7DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

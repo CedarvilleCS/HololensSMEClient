@@ -143,7 +143,7 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Documents\WPFColorPicker\WPFColorPickerLib\WPFColorPickerLib.csproj">
+    <ProjectReference Include="..\WPFColorPickerLib\WPFColorPickerLib.csproj">
       <Project>{587acfba-1a74-4a38-98c4-69442eccb7dc}</Project>
       <Name>WPFColorPickerLib</Name>
     </ProjectReference>
