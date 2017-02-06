@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="libpdf">
-      <HintPath>..\..\..\..\..\Desktop\libpdf.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\binaries\libpdf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
