@@ -36,14 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ClassLibrary1">
-      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\ClassLibrary1.dll</HintPath>
-    </Reference>
-    <Reference Include="libpdf">
-      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\libpdf.dll</HintPath>
-    </Reference>
-    <Reference Include="PDFViewer">
-      <HintPath>..\..\PDFTool\PDFViewer\bin\Release\PDFViewer.dll</HintPath>
+    <Reference Include="Ghostscript.NET, Version=1.2.1.0, Culture=neutral, PublicKeyToken=f85051de34525b59, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ghostscript.NET.1.2.1\lib\net40\Ghostscript.NET.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -125,6 +120,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -143,6 +139,10 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PDFViewer\PDFViewer.csproj">
+      <Project>{378340ef-f1f5-490e-8d0c-fbf22b811f25}</Project>
+      <Name>PDFViewer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WPFColorPickerLib\WPFColorPickerLib.csproj">
       <Project>{587acfba-1a74-4a38-98c4-69442eccb7dc}</Project>
       <Name>WPFColorPickerLib</Name>
