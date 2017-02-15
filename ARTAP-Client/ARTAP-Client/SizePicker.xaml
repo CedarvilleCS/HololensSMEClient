@@ -1,0 +1,17 @@
+﻿<Window x:Name="___No_Name_" x:Class="WpfApplication1.SizePicker"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApplication1"
+        mc:Ignorable="d"
+        Title="Change Brush Size" Height="112" Width="305.5">
+    <Grid>
+        <Slider x:Name="sizeSlider" Margin="13,10,13,0" VerticalAlignment="Top" Maximum="25" Minimum="1" SmallChange="1" TickPlacement="BottomRight" ValueChanged="slider_ValueChanged" Value="5" IsMoveToPointEnabled="True" IsSnapToTickEnabled="True"/>
+        <TextBox x:Name="sizeTextBox" HorizontalAlignment="Left" Height="20" Margin="72,46,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="57" IsReadOnly="True"/>
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,46,0,0" TextWrapping="Wrap" Text="Brush Size:" VerticalAlignment="Top"/>
+        <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="134,46,0,0" VerticalAlignment="Top" Width="75" Click="cancelButton_Click"/>
+        <Button x:Name="okButton" Content="OK" HorizontalAlignment="Left" Margin="214,46,0,0" VerticalAlignment="Top" Width="75" Click="okButton_Click"/>
+
+    </Grid>
+</Window>

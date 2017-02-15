@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARTAP-Client", "ARTAP-Client\ARTAP-Client.csproj", "{80667721-C827-4B6F-A241-A9A975EC256C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFColorPickerLib", "WPFColorPickerLib\WPFColorPickerLib.csproj", "{587ACFBA-1A74-4A38-98C4-69442ECCB7DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFViewer", "PDFViewer\PDFViewer.csproj", "{378340EF-F1F5-490E-8D0C-FBF22B811F25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFToImage", "PDFToImage\PDFToImage.csproj", "{0C7E4FB9-50D4-4E46-BA97-7B6CFF41351F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{80667721-C827-4B6F-A241-A9A975EC256C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80667721-C827-4B6F-A241-A9A975EC256C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80667721-C827-4B6F-A241-A9A975EC256C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{587ACFBA-1A74-4A38-98C4-69442ECCB7DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{587ACFBA-1A74-4A38-98C4-69442ECCB7DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{587ACFBA-1A74-4A38-98C4-69442ECCB7DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{587ACFBA-1A74-4A38-98C4-69442ECCB7DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{378340EF-F1F5-490E-8D0C-FBF22B811F25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{378340EF-F1F5-490E-8D0C-FBF22B811F25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{378340EF-F1F5-490E-8D0C-FBF22B811F25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{378340EF-F1F5-490E-8D0C-FBF22B811F25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C7E4FB9-50D4-4E46-BA97-7B6CFF41351F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C7E4FB9-50D4-4E46-BA97-7B6CFF41351F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C7E4FB9-50D4-4E46-BA97-7B6CFF41351F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C7E4FB9-50D4-4E46-BA97-7B6CFF41351F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

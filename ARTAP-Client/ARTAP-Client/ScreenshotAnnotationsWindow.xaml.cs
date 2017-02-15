@@ -14,6 +14,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfApplication1;
+using PDFViewer;
 
 namespace ARTAPclient
 {
@@ -76,6 +78,16 @@ namespace ARTAPclient
         private Point _currentPoint = new Point();
 
         /// <summary>
+        /// Color used for canvas annotations, default to Red
+        /// </summary>
+        private Color _brushColor = Colors.Red;
+
+        /// <summary>
+        /// Size used for canvas annotations, default to 5
+        /// </summary>
+        private double _brushSize = 5;
+
+        /// <summary>
         /// X DPI of the screen
         /// </summary>
         private const int DPIX = 96;
@@ -97,11 +109,20 @@ namespace ARTAPclient
 
         #endregion
 
+        thumbnailWindow thumbWin = null;
+
         #region Constructor
 
         public ScreenshotAnnotationsWindow(VideoStreamWindow videoStreamWindow, AsynchronousSocketListener listener)
         {
             InitializeComponent();
+            thumbWin = new thumbnailWindow(this);
+            thumbWin.Show();
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb1);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb2);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb3);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb4);
             _pictureBoxThumbnails.Add(imageThumb);
             _pictureBoxThumbnails.Add(imageThumb1);
             _pictureBoxThumbnails.Add(imageThumb2);
@@ -135,6 +156,7 @@ namespace ARTAPclient
             for (int i = 0; i < numActiveThumbnails; i++)
             {
                 //ImageSource test = new Media();
+                thumbWin.PictureBoxThumbnails[i].Source = _imageHistory[i].Clone();
                 _pictureBoxThumbnails[i].Source = _imageHistory[i].Clone();
             }
         }
@@ -163,7 +185,7 @@ namespace ARTAPclient
             }
         }
 
-        private void thumbnailSelect(int thumbnailNum)
+        public void thumbnailSelect(int thumbnailNum)
         {
             _currentImage = thumbnailNum;
 
@@ -178,6 +200,7 @@ namespace ARTAPclient
 
             _annotationIndex = index;
             ImageBrush ib = new ImageBrush();
+            ib.Stretch = Stretch.Uniform;
             ib.ImageSource = _imageOriginals[_currentImage];
             capturedImage.Background = ib;
             _activeBMP = _imageOriginals[_currentImage];
@@ -203,8 +226,8 @@ namespace ARTAPclient
             {
                 Polyline polyLine;
                 polyLine = new Polyline();
-                polyLine.Stroke = new SolidColorBrush(Colors.Black);
-                polyLine.StrokeThickness = 5;
+                polyLine.Stroke = new SolidColorBrush(_brushColor);
+                polyLine.StrokeThickness = _brushSize;
 
                 capturedImage.Children.Add(polyLine);
                 _annotations[_currentImage][_annotationIndex] = polyLine;
@@ -218,8 +241,8 @@ namespace ARTAPclient
                 if (capturedImage.Children.Count == 0)
                 {
                     _polyLine = new Polyline();
-                    _polyLine.Stroke = new SolidColorBrush(Colors.Black);
-                    _polyLine.StrokeThickness = 5;
+                    _polyLine.Stroke = new SolidColorBrush(_brushColor);
+                    _polyLine.StrokeThickness = _brushSize;
 
                     capturedImage.Children.Add(_polyLine);
                     _annotations[_currentImage][0] = _polyLine;
@@ -242,22 +265,7 @@ namespace ARTAPclient
         private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
         {
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
-            _activeBMP = screenshot;
-            ImageBrush ib = new ImageBrush();
-            ib.ImageSource = screenshot;
-            capturedImage.Children.Clear();
-            capturedImage.Background = ib;
-            if (_imageHistory.Count >= 5)
-            {
-                _imageHistory.RemoveAt(4);
-                _imageOriginals.RemoveAt(4);
-            }
-            _imageHistory.Insert(0, screenshot.Clone());
-            _imageOriginals.Insert(0, screenshot.Clone());
-            UIElement[] elementArray = new UIElement[10];
-            _annotations.Insert(0, elementArray);
-            _currentImage = 0;
-            UpdateThumbnails();
+            ChangeActiveImage(screenshot);
         }
 
         private BitmapImage ConvertBitmapType(System.Drawing.Bitmap bitmap)
@@ -325,12 +333,86 @@ namespace ARTAPclient
         {
             _listener.SendBitmap(_imageHistory[_currentImage]);
         }
-
-        #endregion
-
         private void Window_Closed(object sender, EventArgs e)
         {
             _listener.CloseConnection();
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
+
+            openDialog.DefaultExt = ".pdf";
+            openDialog.Filter = "PDF Documents (.pdf) | *.pdf";
+
+            Nullable<bool> result = openDialog.ShowDialog();
+
+            if(result == true)
+            {
+                string pdfFile = openDialog.FileName;
+                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+                result = pdfDialog.ShowDialog();
+                if(result == true)
+                {
+                    ChangeActiveImage(pdfDialog.selectedImage);
+                }
+            }
+        }
+
+        private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                ChangeActiveImage(new BitmapImage(imageUri));
+               
+            }
+
+        }
+
+        /// <summary>
+        /// Changes the Image that is being edited and updates the
+        /// history thumbnails.
+        /// </summary>
+        /// <param name="source">Image to be displayed</param>
+        private void ChangeActiveImage(ImageSource source)
+        {
+            _activeBMP = source;
+            ImageBrush ib = new ImageBrush();
+            ib.Stretch = Stretch.Uniform;
+            ib.ImageSource = source;
+
+            capturedImage.Children.Clear();
+            capturedImage.Background = ib;
+            if (_imageHistory.Count >= 5)
+            {
+                _imageHistory.RemoveAt(4);
+                _imageOriginals.RemoveAt(4);
+            }
+            _imageHistory.Insert(0, source.Clone());
+            _imageOriginals.Insert(0, source.Clone());
+            UIElement[] elementArray = new UIElement[10];
+            _annotations.Insert(0, elementArray);
+            _currentImage = 0;
+            UpdateThumbnails();
+        }
+
+        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
+        {
+            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
+            colorDialog.SelectedColor = _brushColor;
+            colorDialog.SelectedSize = _brushSize;
+            colorDialog.Owner = this;
+            if ((bool)colorDialog.ShowDialog())
+            {
+                _brushColor = colorDialog.SelectedColor;
+                _brushSize = colorDialog.SelectedSize;
+            }
+        }
+
+        #endregion
+
+
     }
 }
