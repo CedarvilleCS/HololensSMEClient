@@ -16,11 +16,8 @@ namespace PDFToImage
         /// <summary>
         /// Stores the version of the Ghostscript DLL to use with Ghostscript.NET
         /// </summary>
-        private static GhostscriptVersionInfo version = 
-            new GhostscriptVersionInfo(new Version(9, 20, 0),
-                                       @"C:\Program Files (x86)\gs\gs9.20\bin\gsdll32.dll",
-                                       string.Empty, 
-                                       Ghostscript.NET.GhostscriptLicense.GPL);
+        private static GhostscriptVersionInfo version = Ghostscript.NET.GhostscriptVersionInfo.GetLastInstalledVersion(GhostscriptLicense.GPL | GhostscriptLicense.AFPL, 
+                                                                                                                       GhostscriptLicense.GPL);
 
         /// <summary>
         /// DPI to render PDF images
@@ -46,6 +43,11 @@ namespace PDFToImage
         /// Current cache size
         /// </summary>
         private static long cacheSize;
+
+        /// <summary>
+        /// Keeps track of when the first rasterizer is created
+        /// </summary>
+        private static bool firstRasterizer = true;
 
         /// <summary>
         /// Retrive a page of a PDF as an image
@@ -92,7 +94,7 @@ namespace PDFToImage
                 }
 
                 pdf = new GhostscriptRasterizer();
-                pdf.Open(filename, version, false);
+                pdf.Open(filename, version, true);
 
                 //
                 // Keep track of the cache size and the
