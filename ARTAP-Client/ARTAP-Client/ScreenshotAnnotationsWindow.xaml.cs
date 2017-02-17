@@ -335,13 +335,7 @@ namespace ARTAPclient
         }
         private void Window_Closed(object sender, EventArgs e)
         {
-            SizePicker sizePicker = new SizePicker();
-            sizePicker.sizeNum = _brushSize;
-            sizePicker.Owner = this;
-            if ((bool)sizePicker.ShowDialog())
-            {
-                _brushSize = sizePicker.sizeNum;
-            }
+
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
