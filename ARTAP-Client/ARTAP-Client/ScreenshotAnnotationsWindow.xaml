@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ARTAPclient"
         mc:Ignorable="d"
-        Title="Annotations" Height="531.24" Width="691.131" WindowStartupLocation="CenterScreen" Closed="Window_Closed" MinWidth="780" MinHeight="540">
+        Title="Annotations" Height="531.24" Width="691.131" WindowStartupLocation="CenterScreen" MinWidth="780" MinHeight="540">
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>

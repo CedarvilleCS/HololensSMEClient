@@ -4,7 +4,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:webEye="clr-namespace:WebEye;assembly=WebEye.StreamPlayerControl"
+        xmlns:ffme="clr-namespace:Unosquare.FFmpegMediaElement;assembly=Unosquare.FFmpegMediaElement"
         xmlns:local="clr-namespace:ARTAPclient"
         mc:Ignorable="d"
         Title="Video Stream" Height="390" Width="640" MinWidth="640" MinHeight="360" UseLayoutRounding="False" Loaded="Window_Loaded" Closed="Window_Closed">
@@ -15,6 +15,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="640*"/>
         </Grid.ColumnDefinitions>
-        <webEye:StreamPlayerControl x:Name="videoControl" StreamFailed="videoControlStreamFailed" Grid.Row="0" Grid.Column="0"/>
+        <!--<webEye:StreamPlayerControl x:Name="videoControl" StreamFailed="videoControlStreamFailed" Grid.Row="0" Grid.Column="0"/>-->
+        <ffme:MediaElement Name="MediaElement" Background="Black" LoadedBehavior="Manual" UnloadedBehavior="Manual" />
     </Grid>
 </Window>

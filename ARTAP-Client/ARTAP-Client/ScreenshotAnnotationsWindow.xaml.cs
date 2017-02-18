@@ -107,9 +107,9 @@ namespace ARTAPclient
         /// </summary>
         private AsynchronousSocketListener _listener;
 
-        #endregion
+        private thumbnailWindow thumbWin = null;
 
-        thumbnailWindow thumbWin = null;
+        #endregion
 
         #region Constructor
 
@@ -268,21 +268,6 @@ namespace ARTAPclient
             ChangeActiveImage(screenshot);
         }
 
-        private BitmapImage ConvertBitmapType(System.Drawing.Bitmap bitmap)
-        {
-            BitmapImage bitmapImage = new BitmapImage();
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-            }
-            return bitmapImage;
-        }
-
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
             if (_annotationIndex > 0)
@@ -333,10 +318,6 @@ namespace ARTAPclient
         {
             _listener.SendBitmap(_imageHistory[_currentImage]);
         }
-        private void Window_Closed(object sender, EventArgs e)
-        {
-
-        }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -385,11 +366,13 @@ namespace ARTAPclient
 
             capturedImage.Children.Clear();
             capturedImage.Background = ib;
+
             if (_imageHistory.Count >= 5)
             {
                 _imageHistory.RemoveAt(4);
                 _imageOriginals.RemoveAt(4);
             }
+
             _imageHistory.Insert(0, source.Clone());
             _imageOriginals.Insert(0, source.Clone());
             UIElement[] elementArray = new UIElement[10];
