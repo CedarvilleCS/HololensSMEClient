@@ -335,7 +335,7 @@ namespace ARTAPclient
             openDialog.DefaultExt = ".pdf";
             openDialog.Filter = "PDF Documents (.pdf) | *.pdf";
 
-            Nullable<bool> result = openDialog.ShowDialog();
+            bool? result = openDialog.ShowDialog();
 
             if(result == true)
             {

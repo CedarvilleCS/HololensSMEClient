@@ -47,15 +47,14 @@ namespace PDFViewer
             //
             BitmapImage page;
 
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream()) {
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
 
-                image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
 
-                page = new BitmapImage();
-                page.BeginInit();
-                page.StreamSource = ms;
-                page.EndInit();
-            }
+            page = new BitmapImage();
+            page.BeginInit();
+            page.StreamSource = ms;
+            page.EndInit();
 
             imagePageDisplay.Source = selectedImage = page;
         }

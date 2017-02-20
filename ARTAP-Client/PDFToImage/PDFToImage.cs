@@ -22,7 +22,7 @@ namespace PDFToImage
         /// <summary>
         /// DPI to render PDF images
         /// </summary>
-        private const int DPI = 200;
+        private const int DPI = 400;
 
         /// <summary>
         /// Caches PDF files that have been loaded from disk
