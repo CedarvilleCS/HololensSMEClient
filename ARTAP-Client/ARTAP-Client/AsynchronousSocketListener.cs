@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -201,7 +202,7 @@ namespace ARTAPclient
             ///
             /// For testing purposes
             ///
-            Console.WriteLine("Sent {0} bytes to server.", bytesSent);
+            Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
         }
 
         /// <summary>

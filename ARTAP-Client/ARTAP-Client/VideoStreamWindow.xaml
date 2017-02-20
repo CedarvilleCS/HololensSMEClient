@@ -15,7 +15,6 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="640*"/>
         </Grid.ColumnDefinitions>
-        <!--<webEye:StreamPlayerControl x:Name="videoControl" StreamFailed="videoControlStreamFailed" Grid.Row="0" Grid.Column="0"/>-->
         <ffme:MediaElement Name="MediaElement" Background="Black" LoadedBehavior="Manual" UnloadedBehavior="Manual" />
     </Grid>
 </Window>
