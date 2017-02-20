@@ -30,13 +30,12 @@ namespace PDFViewer
 
         public PDFViewerDialog(string pdfFile)
         {
+            totalPages = PDFManager.getNumPages(pdfFile);
+            this.pdfFile = pdfFile;
+
             InitializeComponent();
 
-            //this.DialogResult = false;
-            this.pdfFile = pdfFile;
             textBoxPageNumber.Text = Convert.ToString(INITIAL_PAGE_TO_DISPLAY);
-
-            totalPages = PDFManager.getNumPages(pdfFile);
         }
 
         private void displayPage(int pageNumber)
@@ -48,17 +47,16 @@ namespace PDFViewer
             //
             BitmapImage page;
 
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream()) {
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
 
-                image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
 
-                page = new BitmapImage();
-                page.BeginInit();
-                page.StreamSource = ms;
-                page.EndInit();
-            }
+            page = new BitmapImage();
+            page.BeginInit();
+            page.StreamSource = ms;
+            page.EndInit();
 
-            imagePageDisplay.Source = page;
+            imagePageDisplay.Source = selectedImage = page;
         }
 
         private bool changePageBy(int delta)
@@ -66,7 +64,7 @@ namespace PDFViewer
             int currentPage = Convert.ToInt32(textBoxPageNumber.Text);
             int newPage = currentPage + delta;
 
-            if(newPage > 0 && newPage < totalPages)
+            if(newPage > 0 && newPage <= totalPages)
             {
                 textBoxPageNumber.Text = Convert.ToString(newPage);
                 return true;
@@ -88,6 +86,21 @@ namespace PDFViewer
             try
             {
                 pageNumber = Convert.ToInt32(text);
+
+                if (pageNumber < 0 || pageNumber > totalPages)
+                {
+                    System.Windows.MessageBox.Show("Pages number must be between 0 and " + totalPages + ".\nGot " + pageNumber);
+                }
+                else
+                {
+                    //
+                    // Display the page
+                    //
+                    if (pageNumber != -1)
+                    {
+                        displayPage(pageNumber);
+                    }
+                }
             }
             catch (FormatException)
             {
@@ -97,20 +110,6 @@ namespace PDFViewer
             {
                 System.Windows.MessageBox.Show("Number overflows Int32 range.");
             }
-
-            if (pageNumber < 0 || pageNumber > totalPages)
-            {
-                System.Windows.MessageBox.Show("Pages number must be between 0 and " + totalPages + ".");
-            }
-
-            //
-            // Display the page
-            //
-            if (pageNumber != -1)
-            {
-                displayPage(pageNumber);
-            }
-
         }
 
         private void onClickButtonSelect(object sender, RoutedEventArgs e)
