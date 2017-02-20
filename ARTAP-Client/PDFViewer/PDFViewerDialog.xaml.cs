@@ -64,7 +64,7 @@ namespace PDFViewer
             int currentPage = Convert.ToInt32(textBoxPageNumber.Text);
             int newPage = currentPage + delta;
 
-            if(newPage > 0 && newPage < totalPages)
+            if(newPage > 0 && newPage <= totalPages)
             {
                 textBoxPageNumber.Text = Convert.ToString(newPage);
                 return true;
