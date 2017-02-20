@@ -109,11 +109,20 @@ namespace ARTAPclient
 
         #endregion
 
+        thumbnailWindow thumbWin = null;
+
         #region Constructor
 
         public ScreenshotAnnotationsWindow(VideoStreamWindow videoStreamWindow, AsynchronousSocketListener listener)
         {
             InitializeComponent();
+            thumbWin = new thumbnailWindow(this);
+            thumbWin.Show();
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb1);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb2);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb3);
+            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb4);
             _pictureBoxThumbnails.Add(imageThumb);
             _pictureBoxThumbnails.Add(imageThumb1);
             _pictureBoxThumbnails.Add(imageThumb2);
@@ -147,6 +156,7 @@ namespace ARTAPclient
             for (int i = 0; i < numActiveThumbnails; i++)
             {
                 //ImageSource test = new Media();
+                thumbWin.PictureBoxThumbnails[i].Source = _imageHistory[i].Clone();
                 _pictureBoxThumbnails[i].Source = _imageHistory[i].Clone();
             }
         }
@@ -175,7 +185,7 @@ namespace ARTAPclient
             }
         }
 
-        private void thumbnailSelect(int thumbnailNum)
+        public void thumbnailSelect(int thumbnailNum)
         {
             _currentImage = thumbnailNum;
 
@@ -325,7 +335,7 @@ namespace ARTAPclient
         }
         private void Window_Closed(object sender, EventArgs e)
         {
-            _listener.CloseConnection();
+
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -346,18 +356,6 @@ namespace ARTAPclient
                 {
                     ChangeActiveImage(pdfDialog.selectedImage);
                 }
-            }
-        }
-
-        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
-        {
-            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
-            colorDialog.SelectedColor = _brushColor;
-            colorDialog.Owner = this;
-            if ((bool)colorDialog.ShowDialog())
-            {
-                _brushColor = colorDialog.SelectedColor;
-                _brushSize = 5;
             }
         }
 
@@ -400,17 +398,21 @@ namespace ARTAPclient
             UpdateThumbnails();
         }
 
-        #endregion
-
-        private void buttonChangeSize_Click(object sender, RoutedEventArgs e)
+        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
         {
-            SizePicker sizePicker = new SizePicker();
-            sizePicker.sizeNum = _brushSize;
-            sizePicker.Owner = this;
-            if ((bool)sizePicker.ShowDialog())
+            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
+            colorDialog.SelectedColor = _brushColor;
+            colorDialog.SelectedSize = _brushSize;
+            colorDialog.Owner = this;
+            if ((bool)colorDialog.ShowDialog())
             {
-                _brushSize = sizePicker.sizeNum;
+                _brushColor = colorDialog.SelectedColor;
+                _brushSize = colorDialog.SelectedSize;
             }
         }
+
+        #endregion
+
+
     }
 }

@@ -4,20 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{80667721-C827-4B6F-A241-A9A975EC256C}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <ProjectGuid>{378340EF-F1F5-490E-8D0C-FBF22B811F25}</ProjectGuid>
+    <OutputType>library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WpfApplication1</RootNamespace>
-    <AssemblyName>WpfApplication1</AssemblyName>
+    <RootNamespace>PDFViewer</RootNamespace>
+    <AssemblyName>PDFViewer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -27,19 +24,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ghostscript.NET, Version=1.2.1.0, Culture=neutral, PublicKeyToken=f85051de34525b59, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ghostscript.NET.1.2.1\lib\net40\Ghostscript.NET.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -52,64 +45,27 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="WebEye.StreamPlayerControl">
-      <HintPath>..\WebEyeDLL\WebEye.StreamPlayerControl.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Xceed.Wpf.DataGrid">
-      <HintPath>..\..\..\Documents\Extended WPF Toolkit Binaries\Xceed.Wpf.DataGrid.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="PDFViewerDialog.xaml">
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="AsynchronousSocketListener.cs" />
-    <Compile Include="thumbnailWindow.xaml.cs">
-      <DependentUpon>thumbnailWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="VideoStreamWindow.xaml.cs">
-      <DependentUpon>VideoStreamWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ScreenshotAnnotationsWindow.xaml.cs">
-      <DependentUpon>ScreenshotAnnotationsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="SizePicker.xaml.cs">
-      <DependentUpon>SizePicker.xaml</DependentUpon>
-    </Compile>
-    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
+    <Compile Include="PDFViewer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="thumbnailWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="VideoStreamWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="ScreenshotAnnotationsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="SizePicker.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PDFViewerDialog.xaml.cs">
+      <DependentUpon>PDFViewerDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -127,7 +83,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -135,24 +90,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="artap.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="background.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PDFViewer\PDFViewer.csproj">
-      <Project>{378340ef-f1f5-490e-8d0c-fbf22b811f25}</Project>
-      <Name>PDFViewer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WPFColorPickerLib\WPFColorPickerLib.csproj">
-      <Project>{587acfba-1a74-4a38-98c4-69442eccb7dc}</Project>
-      <Name>WPFColorPickerLib</Name>
+    <ProjectReference Include="..\PDFToImage\PDFToImage.csproj">
+      <Project>{0c7e4fb9-50d4-4e46-ba97-7b6cff41351f}</Project>
+      <Name>PDFToImage</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

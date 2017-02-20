@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApplication1"
         mc:Ignorable="d"
-        Title="Change Brush Size" Height="300" Width="300">
+        Title="Change Brush Size" Height="112" Width="305.5">
     <Grid>
-        <Slider x:Name="sizeSlider" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="272" Maximum="25" Minimum="1" SmallChange="1" TickPlacement="BottomRight" ValueChanged="slider_ValueChanged"/>
-        <TextBox x:Name="sizeTextBox" HorizontalAlignment="Left" Height="20" Margin="72,46,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="57"/>
+        <Slider x:Name="sizeSlider" Margin="13,10,13,0" VerticalAlignment="Top" Maximum="25" Minimum="1" SmallChange="1" TickPlacement="BottomRight" ValueChanged="slider_ValueChanged" Value="5" IsMoveToPointEnabled="True" IsSnapToTickEnabled="True"/>
+        <TextBox x:Name="sizeTextBox" HorizontalAlignment="Left" Height="20" Margin="72,46,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="57" IsReadOnly="True"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,46,0,0" TextWrapping="Wrap" Text="Brush Size:" VerticalAlignment="Top"/>
         <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="134,46,0,0" VerticalAlignment="Top" Width="75" Click="cancelButton_Click"/>
         <Button x:Name="okButton" Content="OK" HorizontalAlignment="Left" Margin="214,46,0,0" VerticalAlignment="Top" Width="75" Click="okButton_Click"/>
