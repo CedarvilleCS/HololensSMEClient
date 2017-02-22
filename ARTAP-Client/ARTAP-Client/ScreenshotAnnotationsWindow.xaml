@@ -12,7 +12,7 @@
                 <Menu>
                     <MenuItem Header="File">
                         <MenuItem Header="Load Image" Click="buttonUploadImage_Click"/>
-                        <MenuItem Header="Load PDF..." Click="MenuItem_Click"/>
+                        <MenuItem Header="Load PDF..." Click="LoadPDF_Click"/>
                         <MenuItem Header="Send Image" Click="buttonSendScreenshot_Click"/>
                     </MenuItem>
                     <MenuItem Header="Edit">

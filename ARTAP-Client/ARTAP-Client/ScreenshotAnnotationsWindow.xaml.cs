@@ -338,7 +338,7 @@ namespace ARTAPclient
 
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void LoadPDF_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
 
