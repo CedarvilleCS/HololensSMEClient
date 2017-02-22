@@ -11,14 +11,14 @@
             <ToolBar>
                 <Menu>
                     <MenuItem Header="File">
-                        <MenuItem Header="Load Image" Click="buttonUploadImage_Click"/>
+                        <MenuItem Header="Load Image..." Click="buttonUploadImage_Click"/>
                         <MenuItem Header="Load PDF..." Click="LoadPDF_Click"/>
                         <MenuItem Header="Send Image" Click="buttonSendScreenshot_Click"/>
                     </MenuItem>
                     <MenuItem Header="Edit">
                         <MenuItem Header="Undo" Click="undoButton_Click"/>
                         <MenuItem Header="Clear Annotations" Click="clearButton_Click"/>
-                        <MenuItem Header="Change Brush Color/Size" Click="buttonChangeColor_Click"/>
+                        <MenuItem Header="Change Brush Color/Size..." Click="buttonChangeColor_Click"/>
                     </MenuItem>
                 </Menu>
             </ToolBar>
