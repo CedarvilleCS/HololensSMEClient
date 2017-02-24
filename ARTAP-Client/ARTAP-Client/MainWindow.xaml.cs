@@ -50,7 +50,7 @@ namespace ARTAPclient
                 ValidateText(_userName, "user name") && ValidateText(_password, "password"))
             {
                 IPEndPoint hostEndPoint;
-                if(!TryGetIPEndPoint(_ip, port, out hostEndPoint))
+                if (!TryGetIPEndPoint(_ip, port, out hostEndPoint))
                 {
                     return;
                 }
@@ -60,6 +60,16 @@ namespace ARTAPclient
                 _listener.ConnectionTimedOut += Listener_ConnectionTimedOut;
                 _listener.Connect();
             }
+
+            this.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                VideoStreamWindow video = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password);
+                video.Show();
+
+                ScreenshotAnnotationsWindow annotations = new ARTAPclient.ScreenshotAnnotationsWindow(video, _listener);
+                annotations.Show();
+                this.Close();
+            }));
         }
 
         private void Listener_ConnectionEstablished(object sender, EventArgs e)
