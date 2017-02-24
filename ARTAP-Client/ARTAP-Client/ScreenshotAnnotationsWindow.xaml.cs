@@ -319,7 +319,7 @@ namespace ARTAPclient
             _listener.SendBitmap(_imageHistory[_currentImage]);
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void LoadPDF_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
 

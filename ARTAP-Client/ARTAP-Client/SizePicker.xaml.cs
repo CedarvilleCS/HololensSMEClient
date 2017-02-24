@@ -19,20 +19,8 @@ namespace WpfApplication1
     /// </summary>
     public partial class SizePicker : Window
     {
-        private double _brushSize;
 
-        public double BrushSize
-        {
-            get
-            {
-                return _brushSize;
-            }
-
-            set
-            {
-                _brushSize = value;
-            }
-        }
+        public double BrushSize { get; private set; }
 
         public SizePicker()
         {

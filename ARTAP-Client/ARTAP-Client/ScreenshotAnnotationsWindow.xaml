@@ -11,14 +11,14 @@
             <ToolBar>
                 <Menu>
                     <MenuItem Header="File">
-                        <MenuItem Header="Load Image" Click="buttonUploadImage_Click"/>
-                        <MenuItem Header="Load PDF..." Click="MenuItem_Click"/>
+                        <MenuItem Header="Load Image..." Click="buttonUploadImage_Click"/>
+                        <MenuItem Header="Load PDF..." Click="LoadPDF_Click"/>
                         <MenuItem Header="Send Image" Click="buttonSendScreenshot_Click"/>
                     </MenuItem>
                     <MenuItem Header="Edit">
                         <MenuItem Header="Undo" Click="undoButton_Click"/>
                         <MenuItem Header="Clear Annotations" Click="clearButton_Click"/>
-                        <MenuItem Header="Change Brush Color/Size" Click="buttonChangeColor_Click"/>
+                        <MenuItem Header="Change Brush Color/Size..." Click="buttonChangeColor_Click"/>
                     </MenuItem>
                 </Menu>
             </ToolBar>
@@ -45,7 +45,7 @@
             <Image x:Name="imageThumb3" Height="72" Margin="409,1,0,0" VerticalAlignment="Top" Width="128" MouseUp="imageThumb3_MouseUp" HorizontalAlignment="Left" Grid.Row="1"/>
             <Image x:Name="imageThumb4" Height="72" Margin="542,1,0,0" VerticalAlignment="Top" MouseUp="imageThumb4_MouseUp" Width="128" HorizontalAlignment="Left" Grid.Row="1"/>
 
-            <Button x:Name="clearButton" Grid.Row="0" Grid.Column="1" Height="60" Margin="5,7,0,0" VerticalAlignment="Top" Click="clearButton_Click" HorizontalAlignment="Left" Width="60">
+            <Button x:Name="clearButton" Grid.Row="0" Grid.Column="1" Height="60" Margin="5,7,0,0" VerticalAlignment="Top" Click="clearButton_Click" HorizontalAlignment="Left" Width="60" ToolTip="Clear Annotations">
                 <Path Fill="#FF030104" Stretch="Uniform"  HorizontalAlignment="Left" Width="30.75" Grid.ColumnSpan="2" Height="45" >
                     <Path.Data>
                         <PathGeometry Figures="M63.119 250.254c0 0 3.999 18.222 24.583 18.222h93.072   c20.583 0 24.582-18.222 24.582-18.222l18.374-178.66H44.746L63.119 250.254z M170.035 98.442c0-4.943 4.006-8.949 8.949-8.949   c4.943 0 8.95 4.006 8.95 8.949l-8.95 134.238c0 4.943-4.007 8.949-8.949 8.949c-4.942 0-8.949-4.007-8.949-8.949L170.035 98.442z    M125.289 98.442c0-4.943 4.007-8.949 8.949-8.949c4.943 0 8.949 4.006 8.949 8.949v134.238c0 4.943-4.006 8.949-8.949 8.949   c-4.943 0-8.949-4.007-8.949-8.949V98.442z M89.492 89.492c4.943 0 8.949 4.006 8.949 8.949l8.95 134.238   c0 4.943-4.007 8.949-8.95 8.949c-4.942 0-8.949-4.007-8.949-8.949L80.543 98.442C80.543 93.499 84.55 89.492 89.492 89.492z    M218.36 35.811h-39.376V17.899C178.984 4.322 174.593 0 161.086 0L107.39 0C95.001 0 89.492 6.001 89.492 17.899v17.913H50.116   c-7.914 0-14.319 6.007-14.319 13.43c0 7.424 6.405 13.431 14.319 13.431H218.36c7.914 0 14.319-6.007 14.319-13.431   C232.679 41.819 226.274 35.811 218.36 35.811z M161.086 35.811h-53.695l0.001-17.913h53.695V35.811z" FillRule="EvenOdd"/>
@@ -53,7 +53,7 @@
                 </Path>
             </Button>
 
-            <Button x:Name="undoButton" Margin="5,72,0,0" VerticalAlignment="Top" Click="undoButton_Click" Height="60" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Width="60">
+            <Button x:Name="undoButton" Margin="5,72,0,0" VerticalAlignment="Top" Click="undoButton_Click" Height="60" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Width="60" ToolTip="Undo">
                 <Path Fill="#FF030104" Stretch="Uniform" Height="36.313" Width="50" >
                     <Path.Data>
                         <PathGeometry Figures="M75 23.5H21v-11l-21 18l21 18v-11h50v21H6v14h69c5.523 0 10-4.477 10-10v-29     C85 27.977 80.523 23.5 75 23.5z" FillRule="NonZero"/>
@@ -62,7 +62,7 @@
             </Button>
 
             <Button x:Name="buttonCaptureScreenshot" HorizontalAlignment="Left" Height="60" Width="60" Margin="5,267,0,0" Grid.Row="0" 
-                    VerticalAlignment="Top" Click="buttonCaptureScreenshot_Click" Grid.Column="1">
+                    VerticalAlignment="Top" Click="buttonCaptureScreenshot_Click" Grid.Column="1" ToolTip="Capture Image">
                 <Path Fill="#FF030104" Stretch="Uniform"  HorizontalAlignment="Left" Width="46" Grid.ColumnSpan="2" Height="39.25" >
                     <Path.Data>
                         <PathGeometry Figures="M50 40c-8.285 0-15 6.718-15 15c0 8.285 6.715 15 15 15c8.283 0 15-6.715 15-15    C65 46.718 58.283 40 50 40z M90 25H78c-1.65 0-3.428-1.28-3.949-2.846l-3.102-9.309C70.426 11.28 68.65 10 67 10H33    c-1.65 0-3.428 1.28-3.949 2.846l-3.102 9.309C25.426 23.72 23.65 25 22 25H10C4.5 25 0 29.5 0 35v45c0 5.5 4.5 10 10 10h80    c5.5 0 10-4.5 10-10V35C100 29.5 95.5 25 90 25z M50 80c-13.807 0-25-11.193-25-25c0-13.806 11.193-25 25-25    c13.805 0 25 11.194 25 25C75 68.807 63.805 80 50 80z M86.5 41.993c-1.932 0-3.5-1.566-3.5-3.5c0-1.932 1.568-3.5 3.5-3.5    c1.934 0 3.5 1.568 3.5 3.5C90 40.427 88.433 41.993 86.5 41.993z" FillRule="NonZero"/>
@@ -70,15 +70,15 @@
                 </Path>
             </Button>
 
-            <Button x:Name="buttonSendScreenshot" HorizontalAlignment="Left" Height="60" Width="60" Margin="5,332,0,0" Grid.Row="0" VerticalAlignment="Top" Click="buttonSendScreenshot_Click" Grid.Column="1">
-                <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+            <Button x:Name="buttonSendScreenshot" HorizontalAlignment="Left" Height="60" Width="60" Margin="5,332,0,0" Grid.Row="0" VerticalAlignment="Top" Click="buttonSendScreenshot_Click" Grid.Column="1" IsDefault="True">
+                <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" ToolTip="Send Image">
                     <Path.Data>
                         <PathGeometry Figures="M89.469 9.173C87.751 9.779 2.864 39.692 1.193 40.281c-1.419 0.5-1.735 1.725-0.05 2.399   c2.007 0.804 18.979 7.604 18.979 7.604H20.12l11.253 4.509c0 0 54.187-39.792 54.924-40.333c0.736-0.542 1.589 0.475 1.052 1.056   C86.812 16.1 47.993 58.083 47.993 58.083c-0.002 0.001-0.002 0.002-0.002 0.003l-2.264 2.517l2.994 1.612v0.001   c0 0 23.251 12.515 24.908 13.407c1.451 0.781 3.34 0.132 3.759-1.674c0.494-2.13 14.225-61.306 14.532-62.622   C92.317 9.612 91.187 8.568 89.469 9.173z M31.27 81.809c0 1.235 0.693 1.578 1.655 0.704c1.254-1.137 14.245-12.796 14.245-12.796   l-15.9-8.227C31.27 61.49 31.27 81.809 31.27 81.809z" FillRule="NonZero"/>
                     </Path.Data>
                 </Path>
             </Button>
             <Button x:Name="buttonChangeColor" HorizontalAlignment="Left" Height="60" Width="60" Margin="5,137,0,0" Grid.Row="0" VerticalAlignment="Top" 
-                    Grid.Column="1" Click="buttonChangeColor_Click">
+                    Grid.Column="1" Click="buttonChangeColor_Click" ToolTip="Change Size/Color">
                 <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                     <Path.Data>
                         <PathGeometry Figures="M85.757 21.826C70.24 11.505 52.811 7.939 32.146 13.863C16.015 18.488 1.231 36.832 0.087 52.548    C-1.265 71.119 13.201 87.027 38.68 87c27.47-0.027 37.753-13.219 37.979-17.228c0.226-4.008-10.716-11.421-3.677-19.039    c8.824-9.547 16.68-1.414 21.438-2.559C99.186 47.033 101.596 32.366 85.757 21.826z M53.887 68.414    c-4.154 0-7.521-3.357-7.521-7.5c0-4.144 3.366-7.5 7.521-7.5s7.521 3.356 7.521 7.5C61.408 65.057 58.041 68.414 53.887 68.414z" FillRule="NonZero"/>
@@ -86,7 +86,7 @@
                 </Path>
             </Button>
             <Button x:Name="buttonUploadImage" HorizontalAlignment="Left" Height="60" Width="60" Margin="5,202,0,0" Grid.Row="0" VerticalAlignment="Top" 
-                    Grid.Column="1" Click="buttonUploadImage_Click">
+                    Grid.Column="1" Click="buttonUploadImage_Click" ToolTip="Load Image From Desktop">
                 <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                     <Path.Data>
                         <PathGeometry Figures="M50.001 7.5l-26 24.398h16.5V57.5h19V31.898h16.5L50.001 7.5z M96.698 65.211L80.78 54.5h-9.816    l17.002 13.043H70.243c-0.508 0-0.969 0.258-1.197 0.664L64.96 79.383H35.038l-4.086-11.176c-0.227-0.406-0.689-0.664-1.197-0.664    H12.032L29.036 54.5h-9.818L3.302 65.211c-2.369 1.415-3.785 4.676-3.15 7.246l2.807 15.369c0.636 2.57 3.452 4.674 6.257 4.674    h81.568c2.805 0 5.621-2.104 6.258-4.674l2.805-15.369C100.485 69.887 99.067 66.626 96.698 65.211z" FillRule="NonZero"/>
