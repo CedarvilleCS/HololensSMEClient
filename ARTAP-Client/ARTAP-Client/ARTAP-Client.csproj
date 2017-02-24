@@ -52,15 +52,12 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="WebEye.StreamPlayerControl">
-      <HintPath>..\WebEyeDLL\WebEye.StreamPlayerControl.dll</HintPath>
+    <Reference Include="Unosquare.FFmpegMediaElement">
+      <HintPath>..\FFMEDLL\Unosquare.FFmpegMediaElement.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Xceed.Wpf.DataGrid">
-      <HintPath>..\..\..\Documents\Extended WPF Toolkit Binaries\Xceed.Wpf.DataGrid.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
