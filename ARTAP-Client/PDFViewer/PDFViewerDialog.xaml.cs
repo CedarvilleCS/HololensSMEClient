@@ -65,8 +65,8 @@ namespace PDFViewer
         /// <param name="pageNumber">Number denoting the desired page to display.</param>
         private void displayPage(int pageNumber)
         {
-            buttonBack.IsEnabled = pageNumber == 1;
-            buttonForward.IsEnabled = pageNumber == totalPages;
+            buttonBack.IsEnabled = pageNumber != 1;
+            buttonForward.IsEnabled = pageNumber != totalPages;
 
             System.Drawing.Image image = PDFManager.getImage(pdfFile, pageNumber);
 

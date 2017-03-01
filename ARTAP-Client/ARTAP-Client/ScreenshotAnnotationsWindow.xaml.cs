@@ -321,6 +321,9 @@ namespace ARTAPclient
 
         private void LoadPDF_Click(object sender, RoutedEventArgs e)
         {
+            //
+            // Allow the user to choose a file
+            //
             Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
 
             openDialog.DefaultExt = ".pdf";

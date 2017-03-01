@@ -45,11 +45,6 @@ namespace PDFToImage
         private static long cacheSize;
 
         /// <summary>
-        /// Keeps track of when the first rasterizer is created
-        /// </summary>
-        private static bool firstRasterizer = true;
-
-        /// <summary>
         /// Retrive a page of a PDF as an image
         /// </summary>
         /// <param name="filename">Path to the PDF document file</param>
