@@ -64,7 +64,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AnnotatedImage.cs" />
     <Compile Include="AsynchronousSocketListener.cs" />
+    <Compile Include="LocatableImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>
     </Compile>

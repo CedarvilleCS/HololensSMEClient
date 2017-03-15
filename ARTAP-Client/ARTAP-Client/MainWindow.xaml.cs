@@ -32,15 +32,6 @@ namespace ARTAPclient
         public MainWindow()
         {
             InitializeComponent();
-
-#if DEBUG
-            //
-            // If we are in a DEBUG build show the other 
-            // windows without connecting to a HoloLens.
-            //
-            ScreenshotAnnotationsWindow annotations = new ARTAPclient.ScreenshotAnnotationsWindow(null,null);
-            annotations.Show();
-#endif
         }
 
         private void buttonConnect_Click(object sender, RoutedEventArgs e)

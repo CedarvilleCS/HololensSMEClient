@@ -33,8 +33,8 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Viewbox Grid.RowSpan="1" Margin="0,0,0,0"  >
-                <Canvas x:Name="capturedImage" Height="360" Width="640" MouseDown="capturedImage_MouseDown"
-                    MouseMove="capturedImage_MouseMove" Background="Gray" x:FieldModifier="public" Cursor="Pen" MouseUp="capturedImage_MouseUp" MinWidth="640" MinHeight="360"/>
+                <Canvas x:Name="canvasImageEditor" Height="360" Width="640" MouseDown="canvasImageEditor_MouseDown"
+                    MouseMove="canvasImageEditor_MouseMove" Background="Gray" x:FieldModifier="public" Cursor="Pen" MouseUp="canvasImageEditor_MouseUp" MinWidth="640" MinHeight="360"/>
             </Viewbox>
 
 
@@ -45,7 +45,7 @@
             <Image x:Name="imageThumb3" Height="72" Margin="409,1,0,0" VerticalAlignment="Top" Width="128" MouseUp="imageThumb3_MouseUp" HorizontalAlignment="Left" Grid.Row="1"/>
             <Image x:Name="imageThumb4" Height="72" Margin="542,1,0,0" VerticalAlignment="Top" MouseUp="imageThumb4_MouseUp" Width="128" HorizontalAlignment="Left" Grid.Row="1"/>
 
-            <Button x:Name="clearButton" Grid.Row="0" Grid.Column="1" Height="60" Margin="5,7,0,0" VerticalAlignment="Top" Click="clearButton_Click" HorizontalAlignment="Left" Width="60" ToolTip="Clear Annotations">
+            <Button x:Name="buttonClear" Grid.Row="0" Grid.Column="1" Height="60" Margin="5,7,0,0" VerticalAlignment="Top" Click="clearButton_Click" HorizontalAlignment="Left" Width="60" ToolTip="Clear Annotations">
                 <Path Fill="#FF030104" Stretch="Uniform"  HorizontalAlignment="Left" Width="30.75" Grid.ColumnSpan="2" Height="45" >
                     <Path.Data>
                         <PathGeometry Figures="M63.119 250.254c0 0 3.999 18.222 24.583 18.222h93.072   c20.583 0 24.582-18.222 24.582-18.222l18.374-178.66H44.746L63.119 250.254z M170.035 98.442c0-4.943 4.006-8.949 8.949-8.949   c4.943 0 8.95 4.006 8.95 8.949l-8.95 134.238c0 4.943-4.007 8.949-8.949 8.949c-4.942 0-8.949-4.007-8.949-8.949L170.035 98.442z    M125.289 98.442c0-4.943 4.007-8.949 8.949-8.949c4.943 0 8.949 4.006 8.949 8.949v134.238c0 4.943-4.006 8.949-8.949 8.949   c-4.943 0-8.949-4.007-8.949-8.949V98.442z M89.492 89.492c4.943 0 8.949 4.006 8.949 8.949l8.95 134.238   c0 4.943-4.007 8.949-8.95 8.949c-4.942 0-8.949-4.007-8.949-8.949L80.543 98.442C80.543 93.499 84.55 89.492 89.492 89.492z    M218.36 35.811h-39.376V17.899C178.984 4.322 174.593 0 161.086 0L107.39 0C95.001 0 89.492 6.001 89.492 17.899v17.913H50.116   c-7.914 0-14.319 6.007-14.319 13.43c0 7.424 6.405 13.431 14.319 13.431H218.36c7.914 0 14.319-6.007 14.319-13.431   C232.679 41.819 226.274 35.811 218.36 35.811z M161.086 35.811h-53.695l0.001-17.913h53.695V35.811z" FillRule="EvenOdd"/>
@@ -53,7 +53,7 @@
                 </Path>
             </Button>
 
-            <Button x:Name="undoButton" Margin="5,72,0,0" VerticalAlignment="Top" Click="undoButton_Click" Height="60" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Width="60" ToolTip="Undo">
+            <Button x:Name="buttonUndo" Margin="5,72,0,0" VerticalAlignment="Top" Click="undoButton_Click" Height="60" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Width="60" ToolTip="Undo">
                 <Path Fill="#FF030104" Stretch="Uniform" Height="36.313" Width="50" >
                     <Path.Data>
                         <PathGeometry Figures="M75 23.5H21v-11l-21 18l21 18v-11h50v21H6v14h69c5.523 0 10-4.477 10-10v-29     C85 27.977 80.523 23.5 75 23.5z" FillRule="NonZero"/>
@@ -93,6 +93,8 @@
                     </Path.Data>
                 </Path>
             </Button>
+            <Button x:Name="buttonPlaceArrow" Content="Place Arrow" HorizontalAlignment="Left" VerticalAlignment="Top" Width="65" RenderTransformOrigin="9.93,22.511" Grid.Column="1" Margin="0,10,0,0" Grid.Row="1" IsEnabled="False" Click="buttonPlaceArrow_Click"/>
+            <Button x:Name="buttonSendArrow" Content="Send Arrow" HorizontalAlignment="Left" VerticalAlignment="Top" Width="65" RenderTransformOrigin="9.93,22.511" Grid.Column="1" Margin="0,35,0,0" Grid.Row="1" IsEnabled="False" Click="buttonSendArrow_Click"/>
         </Grid>
     </DockPanel>
     <Window.Resources>
