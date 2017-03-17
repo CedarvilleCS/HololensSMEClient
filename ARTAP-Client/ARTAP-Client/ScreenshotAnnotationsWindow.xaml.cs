@@ -299,51 +299,52 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (canvasImageEditor.Children.Count != 0)
+            if (_placingArrow)
             {
-                Polyline polyLine = new Polyline();
-                polyLine.Stroke = new SolidColorBrush(_brushColor);
-                polyLine.StrokeThickness = _brushSize;
+                Point relativeClickPoint = e.GetPosition((Canvas)sender);
+                double x = (_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X;
+                double y = (_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y;
 
-                //Add line to the canvas
-                canvasImageEditor.Children.Add(polyLine);
-                //Add memory of line to AnnotatedImage
-                _activeImage.AddAnnotation(polyLine);
+                Point absoluteClickPoint = new Point(x, y);
+                ((LocatableImage)_activeImage).ArrowPosition = absoluteClickPoint;
+                ///
+                /// TODO: Place a marker on the arrow drop location
+                ///
             }
+            else
+            {
+                if (canvasImageEditor.Children.Count != 0)
+                {
+                    Polyline polyLine = new Polyline();
+                    polyLine.Stroke = new SolidColorBrush(_brushColor);
+                    polyLine.StrokeThickness = _brushSize;
+
+                    //Add line to the canvas
+                    canvasImageEditor.Children.Add(polyLine);
+                    //Add memory of line to AnnotatedImage
+                    _activeImage.AddAnnotation(polyLine);
+                }
+            }
+           
         }
 
         private void canvasImageEditor_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed && _activeImage != null)
             {
-                if (_placingArrow)
+                Polyline polyLine = new Polyline();
+                if (canvasImageEditor.Children.Count == 0)
                 {
-                    Point relativeClickPoint = e.GetPosition((Image)sender);
-                    double x = (_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X;
-                    double y = (_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y;
+                    polyLine.Stroke = new SolidColorBrush(_brushColor);
+                    polyLine.StrokeThickness = _brushSize;
 
-                    Point absoluteClickPoint = new Point(x, y);
-                    ((LocatableImage)_activeImage).ArrowPosition = absoluteClickPoint;
-                    ///
-                    /// TODO: Place a marker on the arrow drop location
-                    ///
+                    canvasImageEditor.Children.Add(polyLine);
+                    _activeImage.AddAnnotation(polyLine);
                 }
-                else
-                {
-                    Polyline polyLine = new Polyline();
-                    if (canvasImageEditor.Children.Count == 0)
-                    {
-                        polyLine.Stroke = new SolidColorBrush(_brushColor);
-                        polyLine.StrokeThickness = _brushSize;
 
-                        canvasImageEditor.Children.Add(polyLine);
-                        _activeImage.AddAnnotation(polyLine);
-                    }
-
-                    polyLine = (Polyline)canvasImageEditor.Children[_activeImage.CurrentAnnotationIndex];
-                    Point currentPoint = e.GetPosition(canvasImageEditor);
-                    polyLine.Points.Add(currentPoint);
-                }
+                polyLine = (Polyline)canvasImageEditor.Children[_activeImage.CurrentAnnotationIndex];
+                Point currentPoint = e.GetPosition(canvasImageEditor);
+                polyLine.Points.Add(currentPoint);
             }
         }
 
@@ -356,7 +357,7 @@ namespace ARTAPclient
         {
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
             LocatableImage img = new LocatableImage(screenshot);
-            AddNewImage(new LocatableImage(screenshot));
+            AddNewImage(img);
             _listener.RequestLocationID(img);
         }
 

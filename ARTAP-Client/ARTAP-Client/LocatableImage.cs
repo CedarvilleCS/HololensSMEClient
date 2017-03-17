@@ -26,7 +26,7 @@ namespace ARTAPclient
         /// <summary>
         /// Position ID that tags the location of this image (retreived from HoloLens)
         /// </summary>
-        public byte[] PositionID { get; set; }
+        public byte[] PositionID;
 
         /// <summary>
         /// Stores the place where the image was clicked

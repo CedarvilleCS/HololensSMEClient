@@ -126,8 +126,7 @@ namespace ARTAPclient
                 byte[] x = GetShortBytesFromDouble(image.ArrowPosition.X);
                 byte[] y = GetShortBytesFromDouble(image.ArrowPosition.Y);
 
-                //byte[] message = CombineArrs(image.PositionID, width, height, x, y);
-                byte[] message = CombineArrs(lastPosId, width, height, x, y);
+                byte[] message = CombineArrs(image.PositionID, width, height, x, y);
                 Send(MessageType.ArrowPlacement, message);
             }
         }
@@ -343,8 +342,6 @@ namespace ARTAPclient
             Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
         }
 
-        byte[] lastPosId;
-
         /// <summary>
         /// Callback for async receive completed
         /// </summary>
@@ -353,8 +350,7 @@ namespace ARTAPclient
         {
             StateObject state = (StateObject)ar.AsyncState;
             _client.EndReceive(ar);
-            //state.locatableImage.PositionID = state.buffer;
-            lastPosId = state.buffer;
+            state.locatableImage.PositionID = state.buffer;
 
             ///
             ///May need to signal that the receive has taken place
