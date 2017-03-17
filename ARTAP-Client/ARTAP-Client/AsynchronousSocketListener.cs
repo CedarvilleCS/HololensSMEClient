@@ -224,7 +224,7 @@ namespace ARTAPclient
             {
                 StateObject state = new StateObject();
                 state.locatableImage = image;
-                _client.BeginReceive(state.buffer, 0, StateObject.BUFFSIZE, 0, 
+                _client.BeginReceive(state.buffer, 0, StateObject.BUFFSIZE, 0,
                     new AsyncCallback(ReceiveCallback), state);
             }
             catch (Exception)
@@ -350,12 +350,13 @@ namespace ARTAPclient
         {
             StateObject state = (StateObject)ar.AsyncState;
             _client.EndReceive(ar);
-            state.locatableImage.PositionID = state.buffer;
+            state.locatableImage.PositionID = new byte[4];
+            Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
 
             ///
             ///May need to signal that the receive has taken place
             ///
-            Debug.WriteLine("Received position ID: " + BitConverter.ToInt32(state.buffer, 0));
+            Debug.WriteLine(state.buffer);
         }
 
         #endregion
@@ -370,7 +371,7 @@ namespace ARTAPclient
         /// <summary>
         /// Size of data buffer
         /// </summary>
-        public const int BUFFSIZE = 4;
+        public const int BUFFSIZE = 10;
 
         /// <summary>
         /// Buffer data is stored in from read
