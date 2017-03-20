@@ -56,7 +56,7 @@ namespace ARTAPclient
         /// </summary>
         public void UndoAnnotation()
         {
-            if (_annotationIndex >= 0)
+            if (_annotationIndex > 0)
             {
                 _annotations.RemoveAt(--_annotationIndex);
             }

@@ -356,7 +356,7 @@ namespace ARTAPclient
 
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage.CurrentAnnotationIndex > 0)
+            if (_activeImage.CurrentAnnotationIndex >= 0)
             {
                 canvasImageEditor.Children.RemoveAt(_activeImage.CurrentAnnotationIndex);
                 _activeImage.UndoAnnotation();

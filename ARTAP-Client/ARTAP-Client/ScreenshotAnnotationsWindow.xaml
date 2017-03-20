@@ -7,22 +7,18 @@
         mc:Ignorable="d"
         Title="Annotations" Height="531.24" Width="691.131" WindowStartupLocation="CenterScreen" MinWidth="780" MinHeight="540">
     <DockPanel>
-        <ToolBarTray DockPanel.Dock="Top">
-            <ToolBar>
-                <Menu>
-                    <MenuItem Header="File">
-                        <MenuItem Header="Load Image..." Click="buttonUploadImage_Click"/>
-                        <MenuItem Header="Load PDF..." Click="LoadPDF_Click"/>
-                        <MenuItem Header="Send Image" Click="buttonSendScreenshot_Click"/>
-                    </MenuItem>
-                    <MenuItem Header="Edit">
-                        <MenuItem Header="Undo" Click="undoButton_Click"/>
-                        <MenuItem Header="Clear Annotations" Click="clearButton_Click"/>
-                        <MenuItem Header="Change Brush Color/Size..." Click="buttonChangeColor_Click"/>
-                    </MenuItem>
-                </Menu>
-            </ToolBar>
-        </ToolBarTray>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Load Image..." Click="buttonUploadImage_Click"/>
+                <MenuItem Header="Load PDF..." Click="LoadPDF_Click"/>
+                <MenuItem Header="Send Image" Click="buttonSendScreenshot_Click"/>
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Undo" Click="undoButton_Click"/>
+                <MenuItem Header="Clear Annotations" Click="clearButton_Click"/>
+                <MenuItem Header="Change Brush Color/Size..." Click="buttonChangeColor_Click"/>
+            </MenuItem>
+        </Menu>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -99,14 +95,24 @@
     </DockPanel>
     <Window.Resources>
         <RoutedUICommand x:Key="undoCommand" Text="Undo" />
+        <RoutedUICommand x:Key="captureCommand" Text="Capture" />
+        <RoutedUICommand x:Key="sendCommand" Text="Send" />
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource undoCommand}" 
                     Executed="undoButton_Click" />
+        <CommandBinding Command="{StaticResource captureCommand}" 
+                    Executed="buttonCaptureScreenshot_Click" />
+        <CommandBinding Command="{StaticResource sendCommand}" 
+                    Executed="buttonSendScreenshot_Click" />
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Modifiers="Control"
                     Key="Z"
                     Command="{StaticResource undoCommand}" />
+        <KeyBinding Key="Space"
+                    Command="{StaticResource captureCommand}" />
+        <KeyBinding Key="Return"
+                    Command="{StaticResource sendCommand}" />
     </Window.InputBindings>
 </Window>
