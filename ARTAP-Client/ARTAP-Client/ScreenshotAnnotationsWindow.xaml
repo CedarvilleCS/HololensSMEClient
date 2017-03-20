@@ -40,7 +40,7 @@
 
 
             <Image x:Name="imageThumb" Height="72" Margin="10,1,0,0" VerticalAlignment="Top" MouseUp="imageThumb_MouseUp" Width="128" HorizontalAlignment="Left" Grid.Row="1"/>
-            <Image x:Name="imageThumb1" Height="72" Margin="143,1,0,0" VerticalAlignment="Top" Width="128" MouseUp="imageThumb1_MouseUp" HorizontalAlignment="Left" Grid.Row="1"/>
+            <Image x:Name="imageThumb1" Height="72" Margin="143,1,0,0" VerticalAlignment="Top" MouseUp="imageThumb1_MouseUp" Width="128" HorizontalAlignment="Left" Grid.Row="1"/>
             <Image x:Name="imageThumb2" Height="72" Margin="276,1,0,0" VerticalAlignment="Top" MouseUp="imageThumb2_MouseUp" Width="128" HorizontalAlignment="Left" Grid.Row="1"/>
             <Image x:Name="imageThumb3" Height="72" Margin="409,1,0,0" VerticalAlignment="Top" Width="128" MouseUp="imageThumb3_MouseUp" HorizontalAlignment="Left" Grid.Row="1"/>
             <Image x:Name="imageThumb4" Height="72" Margin="542,1,0,0" VerticalAlignment="Top" MouseUp="imageThumb4_MouseUp" Width="128" HorizontalAlignment="Left" Grid.Row="1"/>
@@ -93,7 +93,7 @@
                     </Path.Data>
                 </Path>
             </Button>
-            <Button x:Name="buttonPlaceArrow" Content="Place Arrow" HorizontalAlignment="Left" VerticalAlignment="Top" Width="65" RenderTransformOrigin="9.93,22.511" Grid.Column="1" Margin="0,10,0,0" Grid.Row="1" IsEnabled="False" Click="buttonPlaceArrow_Click"/>
+            <Button x:Name="buttonPlaceArrow" Content="Place Arrow" HorizontalAlignment="Left" VerticalAlignment="Top" Width="65" RenderTransformOrigin="9.93,22.511" Grid.Column="1" Margin="0,10,0,0" IsEnabled="False" Click="buttonPlaceArrow_Click" Grid.Row="1"/>
             <Button x:Name="buttonSendArrow" Content="Send Arrow" HorizontalAlignment="Left" VerticalAlignment="Top" Width="65" RenderTransformOrigin="9.93,22.511" Grid.Column="1" Margin="0,35,0,0" Grid.Row="1" IsEnabled="False" Click="buttonSendArrow_Click"/>
         </Grid>
     </DockPanel>

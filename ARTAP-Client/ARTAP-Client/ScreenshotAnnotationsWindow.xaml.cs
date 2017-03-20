@@ -108,8 +108,6 @@ namespace ARTAPclient
         private bool _placingArrow;
 
 
-        private thumbnailWindow thumbWin = null;
-
         #endregion
 
         #region Constructor
@@ -118,13 +116,6 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            thumbWin = new thumbnailWindow(this);
-            thumbWin.Show();
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb1);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb2);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb3);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb4);
             _pictureBoxThumbnails.Add(imageThumb);
             _pictureBoxThumbnails.Add(imageThumb1);
             _pictureBoxThumbnails.Add(imageThumb2);
@@ -158,8 +149,7 @@ namespace ARTAPclient
             //Loop through and update images for all of the thumbnail frames
             for (int i = 0; i < numActiveThumbnails; i++)
             {
-                thumbWin.PictureBoxThumbnails[i].Source = _imageHistory[i].LatestImage.Clone();
-                _pictureBoxThumbnails[i].Source = _imageHistory[i].LatestImage.Clone();
+                _pictureBoxThumbnails[i].Source = _imageHistory[i].LatestImage;
             }
         }
 
@@ -237,9 +227,12 @@ namespace ARTAPclient
         {
             ImageBrush ib = new ImageBrush();
             ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = image;
+            ib.ImageSource = image.Clone();
             canvasImageEditor.Children.Clear();
+            canvasImageEditor.Width = image.Width;
+            canvasImageEditor.Height = image.Height;
             canvasImageEditor.Background = ib;
+            canvasImageEditor.InvalidateVisual();
         }
 
         /// <summary>
@@ -484,8 +477,7 @@ namespace ARTAPclient
             SetAnnotationsVisibility(Visibility.Visible);
             ControlsEnabled(true);
         }
-        
-        #endregion
 
+        #endregion
     }
 }
