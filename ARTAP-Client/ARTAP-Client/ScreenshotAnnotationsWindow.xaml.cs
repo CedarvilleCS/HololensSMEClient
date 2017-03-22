@@ -229,8 +229,17 @@ namespace ARTAPclient
             ib.Stretch = Stretch.Uniform;
             ib.ImageSource = image.Clone();
             canvasImageEditor.Children.Clear();
-            canvasImageEditor.Width = image.Width;
-            canvasImageEditor.Height = image.Height;
+            if(image.Height < image.Width)
+            {
+                canvasImageEditor.Width = (360/image.Height) *image.Width;
+                canvasImageEditor.Height = 360;
+            } else
+            {
+                canvasImageEditor.Width = 640;
+                canvasImageEditor.Height = (640/image.Width)*image.Height;
+            }
+            //canvasImageEditor.Width = image.Width;
+            //canvasImageEditor.Height = image.Height;
             canvasImageEditor.Background = ib;
             canvasImageEditor.InvalidateVisual();
         }
