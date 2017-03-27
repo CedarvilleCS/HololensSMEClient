@@ -107,6 +107,11 @@ namespace ARTAPclient
         /// </summary>
         private bool _placingArrow;
 
+        /// <summary>
+        /// Was an arrow placed on the current image?"
+        /// </summary>
+        private bool _placedArrow;
+
 
         #endregion
 
@@ -309,6 +314,7 @@ namespace ARTAPclient
 
                 Point absoluteClickPoint = new Point(x, y);
                 ((LocatableImage)_activeImage).ArrowPosition = absoluteClickPoint;
+                _placedArrow = true;
                 ///
                 /// TODO: Place a marker on the arrow drop location
                 ///
@@ -408,6 +414,14 @@ namespace ARTAPclient
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
+            if (_placedArrow)
+            {
+                _listener.SendArrowLocation((LocatableImage)_activeImage);
+                _placingArrow = false;
+                SetAnnotationsVisibility(Visibility.Visible);
+                ControlsEnabled(true);
+            }
+
             _listener.SendBitmap(_activeImage.LatestImage);
         }
 
@@ -469,6 +483,7 @@ namespace ARTAPclient
                 //Temporarily hide all drawings on canvas
                 SetAnnotationsVisibility(Visibility.Hidden);
                 ControlsEnabled(false);
+                buttonPlaceArrow.Background = Brushes.LightGreen;
             }
             else
             {
@@ -476,6 +491,7 @@ namespace ARTAPclient
                 //Temporarily hide all drawings on canvas
                 SetAnnotationsVisibility(Visibility.Visible);
                 ControlsEnabled(true);
+                buttonPlaceArrow.Background = Brushes.LightGray;
             }
         }
 
