@@ -278,18 +278,6 @@ namespace ARTAPclient
             }
         }
 
-        /// <summary>
-        /// Sets visibility of all elements drawn on canvas
-        /// </summary>
-        /// <param name="visibility">Visibility to set to</param>
-        private void SetAnnotationsVisibility(Visibility visibility)
-        {
-            foreach (UIElement line in canvasImageEditor.Children)
-            {
-                line.Visibility = visibility;
-            }
-        }
-
         #endregion
 
         #region EventHandlers
