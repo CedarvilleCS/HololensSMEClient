@@ -268,11 +268,11 @@ namespace ARTAPclient
         /// <param name="enabled">True for enable, false for disable</param>
         private void ControlsEnabled(bool enabled)
         {
-            foreach(Button button in _editButtons)
+            foreach (Button button in _editButtons)
             {
                 button.IsEnabled = enabled;
             }
-            foreach(Image thumb in _pictureBoxThumbnails)
+            foreach (Image thumb in _pictureBoxThumbnails)
             {
                 thumb.IsEnabled = enabled;
             }
@@ -303,12 +303,15 @@ namespace ARTAPclient
         {
             if (_placingArrow)
             {
+                //
+                // Get the pixel value in the original image
+                //
                 Point relativeClickPoint = e.GetPosition((Canvas)sender);
-                double x = (_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X;
-                double y = (_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y;
+                int x = (int)((_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X);
+                int y = (int)((_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y);
 
                 Point absoluteClickPoint = new Point(x, y);
-                ((LocatableImage)_activeImage).ArrowPosition = absoluteClickPoint;
+                (_activeImage as LocatableImage).ArrowPosition = absoluteClickPoint;
                 ///
                 /// TODO: Place a marker on the arrow drop location
                 ///
@@ -344,7 +347,7 @@ namespace ARTAPclient
                     _activeImage.AddAnnotation(polyLine);
                 }
 
-                polyLine = (Polyline)canvasImageEditor.Children[_activeImage.CurrentAnnotationIndex];
+                polyLine = (Polyline)canvasImageEditor.Children[_activeImage.NumAnnotations - 1];
                 Point currentPoint = e.GetPosition(canvasImageEditor);
                 polyLine.Points.Add(currentPoint);
             }
@@ -365,9 +368,9 @@ namespace ARTAPclient
 
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage.CurrentAnnotationIndex >= 0)
+            if (_activeImage.NumAnnotations > 0)
             {
-                canvasImageEditor.Children.RemoveAt(_activeImage.CurrentAnnotationIndex);
+                canvasImageEditor.Children.RemoveAt(_activeImage.NumAnnotations - 1);
                 _activeImage.UndoAnnotation();
 
                 SaveCanvasToActiveImage();
@@ -473,7 +476,7 @@ namespace ARTAPclient
             else
             {
                 _placingArrow = false;
-                //Temporarily hide all drawings on canvas
+                //Show all drawings on canvas
                 SetAnnotationsVisibility(Visibility.Visible);
                 ControlsEnabled(true);
             }
