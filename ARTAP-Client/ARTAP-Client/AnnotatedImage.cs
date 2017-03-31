@@ -78,7 +78,7 @@ namespace ARTAPclient
         /// Sets visibility of all Annotations drawn on this image
         /// </summary>
         /// <param name="visibility">Visibility to set to</param>
-        private void SetAnnotationsVisibility(Visibility visibility)
+        public void SetAnnotationsVisibility(Visibility visibility)
         {
             foreach (UIElement line in _annotations)
             {

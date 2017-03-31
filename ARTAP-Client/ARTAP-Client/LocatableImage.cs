@@ -14,23 +14,23 @@ namespace ARTAPclient
         /// <summary>
         /// Line thickness to be used when drawing the marker
         /// </summary>
-        private const int MARKER_THICKNESS = 2;
+        private const int MARKER_THICKNESS = 1;
 
         /// <summary>
         /// Scaling for marker size
         /// </summary>
-        private const int SCALING = 1;
+        private const int SCALING = 3;
 
         /// <summary>
         /// Points used to draw an X
         /// </summary>
-        private static readonly Point[] MARKER_POINTS = {new Point(-5, -5),
+        private static readonly Point[] MARKER_POINTS = {new Point(-1, -1),
                                                          new Point(0, 0),
-                                                         new Point(5, 5),
+                                                         new Point(1, 1),
                                                          new Point(0, 0),
-                                                         new Point(-5, 5),
+                                                         new Point(-1, 1),
                                                          new Point(0, 0),
-                                                         new Point(5, -5)};
+                                                         new Point(1, -1)};
 
         /// <summary>
         /// List of indicators of where markers are placed on the LocatableImage
@@ -52,7 +52,8 @@ namespace ARTAPclient
             //
             foreach (Point original in MARKER_POINTS)
             {
-                newMarkerPoints.Add(new Point(location.X + original.X, location.Y + original.Y));
+                newMarkerPoints.Add(new Point(location.X + original.X * SCALING, 
+                                              location.Y + original.Y * SCALING));
             }
 
             Polyline marker = new Polyline();
@@ -98,7 +99,7 @@ namespace ARTAPclient
         /// Sets visibility of all markers drawn on this image
         /// </summary>
         /// <param name="visibility">Visibility to set to</param>
-        private void SetMarkersVisibility(Visibility visibility)
+        public void SetMarkersVisibility(Visibility visibility)
         {
             foreach (UIElement line in _markers)
             {

@@ -300,9 +300,8 @@ namespace ARTAPclient
 
                 Point absoluteClickPoint = new Point(x, y);
                 (_activeImage as LocatableImage).ArrowPosition = absoluteClickPoint;
-                ///
-                /// TODO: Place a marker on the arrow drop location
-                ///
+                
+                canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, _brushColor));
             }
             else
             {
@@ -454,28 +453,20 @@ namespace ARTAPclient
 
         private void buttonPlaceArrow_Click(object sender, RoutedEventArgs e)
         {
-            if (_placingArrow == false)
-            {
-                _placingArrow = true;
-                //Temporarily hide all drawings on canvas
-                SetAnnotationsVisibility(Visibility.Hidden);
-                ControlsEnabled(false);
-            }
-            else
-            {
-                _placingArrow = false;
-                //Show all drawings on canvas
-                SetAnnotationsVisibility(Visibility.Visible);
-                ControlsEnabled(true);
-            }
+            SetPlacingArrows(!_placingArrow);
         }
 
         private void buttonSendArrow_Click(object sender, RoutedEventArgs e)
         {
             _listener.SendArrowLocation((LocatableImage)_activeImage);
-            _placingArrow = false;
-            SetAnnotationsVisibility(Visibility.Visible);
-            ControlsEnabled(true);
+            SetPlacingArrows(false);
+        }
+
+        private void SetPlacingArrows(bool placingArrow)
+        {
+            _placingArrow = placingArrow;
+            _activeImage.SetAnnotationsVisibility(placingArrow ? Visibility.Hidden : Visibility.Visible);
+            ControlsEnabled(!placingArrow);
         }
 
         #endregion
