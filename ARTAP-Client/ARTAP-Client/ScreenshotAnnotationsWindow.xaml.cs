@@ -299,9 +299,8 @@ namespace ARTAPclient
                 int y = (int)((_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y);
 
                 Point absoluteClickPoint = new Point(x, y);
-                (_activeImage as LocatableImage).ArrowPosition = absoluteClickPoint;
                 
-                canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, _brushColor));
+                canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
             }
             else
             {

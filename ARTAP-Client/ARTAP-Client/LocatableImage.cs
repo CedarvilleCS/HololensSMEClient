@@ -35,15 +35,15 @@ namespace ARTAPclient
         /// <summary>
         /// List of indicators of where markers are placed on the LocatableImage
         /// </summary>
-        private List<Polyline> _markers = new List<Polyline>(10);
+        private List<Marker> _markers = new List<Marker>(10);
 
         /// <summary>
         /// Adds line to list of annotations for this image.
         /// </summary>
-        /// <param name="location">Point to add the marker at.</param>
+        /// <param name="relativeLocation">Point to add the marker at.</param>
         /// <param name="color">Color to draw the marker.</param>
         /// <returns>Returns the PolyLine to add to the canvas.</returns>
-        public Polyline AddMarker(Point location, Color color)
+        public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Color color)
         {
             PointCollection newMarkerPoints = new PointCollection(MARKER_POINTS.Length);
 
@@ -52,19 +52,19 @@ namespace ARTAPclient
             //
             foreach (Point original in MARKER_POINTS)
             {
-                newMarkerPoints.Add(new Point(location.X + original.X * SCALING, 
-                                              location.Y + original.Y * SCALING));
+                newMarkerPoints.Add(new Point(relativeLocation.X + original.X * SCALING, 
+                                              relativeLocation.Y + original.Y * SCALING));
             }
 
-            Polyline marker = new Polyline();
+            Polyline x = new Polyline();
 
-            marker.StrokeThickness = MARKER_THICKNESS;
-            marker.Stroke = new SolidColorBrush(color);
+            x.StrokeThickness = MARKER_THICKNESS;
+            x.Stroke = new SolidColorBrush(color);
 
-            marker.Points = newMarkerPoints;
+            x.Points = newMarkerPoints;
 
-            _markers.Add(marker);
-            return marker;
+            _markers.Add(new Marker(x, relativeLocation, absoluteLocation, color));
+            return x;
         }
 
         /// <summary>
@@ -82,9 +82,18 @@ namespace ARTAPclient
         /// Gets the polylines that make up the annotations for this image
         /// </summary>
         /// <returns>Array of annotation polylines</returns>
-        public Polyline[] GetMarkers()
+        public Marker[] Markers
         {
-            return _markers.ToArray();
+            get
+            {
+                Marker[] markers = new Marker[_markers.Count];
+                for (int i = 0; i < _markers.Count; i++)
+                {
+                    markers[i] = _markers[i];
+                }
+
+                return markers;
+            }
         }
 
         /// <summary>
@@ -101,9 +110,9 @@ namespace ARTAPclient
         /// <param name="visibility">Visibility to set to</param>
         public void SetMarkersVisibility(Visibility visibility)
         {
-            foreach (UIElement line in _markers)
+            foreach (Marker m in _markers)
             {
-                line.Visibility = visibility;
+                m.Annotation.Visibility = visibility;
             }
         }
 
@@ -124,11 +133,6 @@ namespace ARTAPclient
         /// Position ID that tags the location of this image (retreived from HoloLens)
         /// </summary>
         public byte[] PositionID;
-
-        /// <summary>
-        /// Stores the place where the image was clicked
-        /// </summary>
-        public Point ArrowPosition { get; set; }
 
         /// <summary>
         /// Indicates how many annotations are in the image
