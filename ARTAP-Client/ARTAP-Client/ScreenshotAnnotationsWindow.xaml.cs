@@ -321,7 +321,9 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && _activeImage != null)
+            if (e.LeftButton == MouseButtonState.Pressed && 
+                _activeImage != null &&
+                !_placingArrow)
             {
                 Polyline polyLine = new Polyline();
                 if (canvasImageEditor.Children.Count == 0)
