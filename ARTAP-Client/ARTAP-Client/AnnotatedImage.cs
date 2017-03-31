@@ -22,11 +22,16 @@ namespace ARTAPclient
         /// </summary>
         private List<Polyline> _annotations = new List<Polyline>(10);
 
+        /// <summary>
+        /// Was there an arrow placed?
+        /// </summary>
+        private Boolean arrowPlaced;
+
         #endregion
 
 
         #region Constructor
-        
+
         /// <summary>
         /// Creates a new annotated image
         /// </summary>
@@ -102,6 +107,22 @@ namespace ARTAPclient
             get
             {
                 return _annotationIndex - 1;
+            }
+        }
+
+
+        /// <summary>
+        /// Getter and Setter for ArrowPlaced
+        /// </summary>
+        public Boolean ArrowPlaced
+        {
+            get
+            {
+                return arrowPlaced;
+            }
+            set
+            {
+                arrowPlaced = value;
             }
         }
 

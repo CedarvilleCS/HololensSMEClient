@@ -67,6 +67,11 @@
     <Compile Include="AnnotatedImage.cs" />
     <Compile Include="AsynchronousSocketListener.cs" />
     <Compile Include="LocatableImage.cs" />
+    <Compile Include="AppSettings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>AppSettings.settings</DependentUpon>
+    </Compile>
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>
     </Compile>
@@ -132,6 +137,10 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="AppSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>AppSettings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

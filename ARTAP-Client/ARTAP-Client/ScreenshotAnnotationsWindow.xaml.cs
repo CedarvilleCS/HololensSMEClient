@@ -191,6 +191,7 @@ namespace ARTAPclient
         {
             _currentImageIndex = thumbnailNum;
             _activeImage = _imageHistory[_currentImageIndex];
+            _placedArrow = _imageHistory[_currentImageIndex].ArrowPlaced;
             CheckArrowPlacementAllowed();
 
             //Draw the orignal image to the canvas
@@ -418,11 +419,13 @@ namespace ARTAPclient
             {
                 _listener.SendArrowLocation((LocatableImage)_activeImage);
                 _placingArrow = false;
+                _placedArrow = false;
                 SetAnnotationsVisibility(Visibility.Visible);
                 ControlsEnabled(true);
             }
 
             _listener.SendBitmap(_activeImage.LatestImage);
+            
         }
 
         private void LoadPDF_Click(object sender, RoutedEventArgs e)
