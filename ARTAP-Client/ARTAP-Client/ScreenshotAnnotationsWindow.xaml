@@ -105,7 +105,9 @@
                     </Path.Data>
                 </Path>
             </Button>
+            <Button x:Name="button1" Content="&gt;" HorizontalAlignment="Left" Margin="675,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="26" Height="54" Click="button1_Click"/>
         </Grid>
+        <Button x:Name="button" Content="Button" Height="491" VerticalAlignment="Top" Width="75"/>
     </DockPanel>
     <Window.Resources>
         <RoutedUICommand x:Key="undoCommand" Text="Undo" />

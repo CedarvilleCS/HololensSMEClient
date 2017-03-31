@@ -36,6 +36,8 @@ namespace ARTAPclient
             textBoxIP.Text = AppSettings.Default.ipAddress;
             textBoxPort.Text = AppSettings.Default.portNum;
             textBoxUserName.Text = AppSettings.Default.username;
+            ScreenshotAnnotationsWindow annotations = new ARTAPclient.ScreenshotAnnotationsWindow(null, null);
+            annotations.Show();
         }
 
         private void buttonConnect_Click(object sender, RoutedEventArgs e)

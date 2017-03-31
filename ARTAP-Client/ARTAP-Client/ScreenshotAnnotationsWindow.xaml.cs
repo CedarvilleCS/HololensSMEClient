@@ -112,6 +112,8 @@ namespace ARTAPclient
         /// </summary>
         private bool _placedArrow;
 
+        private int _thumbIndex = 0;
+
 
         #endregion
 
@@ -147,14 +149,23 @@ namespace ARTAPclient
         /// </summary>
         private void UpdateThumbnails()
         {
-            //Only use the number of active images
-            int numActiveThumbnails = (_imageHistory.Count < 5) ? 
-                _imageHistory.Count : NUMTHUMBNAILS;
+            int numActiveThumbnails = 5;
 
-            //Loop through and update images for all of the thumbnail frames
-            for (int i = 0; i < numActiveThumbnails; i++)
+            //Only use the number of active images
+            if (_imageHistory.Count < 5)
             {
-                _pictureBoxThumbnails[i].Source = _imageHistory[i].LatestImage;
+                numActiveThumbnails = _imageHistory.Count;
+
+            }
+
+            //int numActiveThumbnails = (_imageHistory.Count < 5) ? 
+            //    _imageHistory.Count : NUMTHUMBNAILS;
+
+            int index = _thumbIndex;
+            //Loop through and update images for all of the thumbnail frames
+            for (int i = 0; i < numActiveThumbnails; i++, index++)
+            {
+                _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
             }
         }
 
@@ -213,10 +224,10 @@ namespace ARTAPclient
         {
             DrawImageToCanvas(source.OriginalImage);
 
-            if (_imageHistory.Count >= 5)
-            {
-                _imageHistory.RemoveAt(4);
-            }
+            //if (_imageHistory.Count >= 5)
+            //{
+            //    _imageHistory.RemoveAt(4);
+            //}
 
             _activeImage = source;
             _imageHistory.Insert(0, source);
@@ -507,5 +518,11 @@ namespace ARTAPclient
         }
 
         #endregion
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            _thumbIndex++;
+            UpdateThumbnails();
+        }
     }
 }
