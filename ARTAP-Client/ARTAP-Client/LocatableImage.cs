@@ -145,6 +145,11 @@ namespace ARTAPclient
             }
         }
 
+        public Marker GetLastMarker()
+        {
+            return _markers.Last();
+        }
+
         #endregion
     }
 }
