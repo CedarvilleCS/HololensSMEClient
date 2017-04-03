@@ -167,6 +167,22 @@ namespace ARTAPclient
             {
                 _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
             }
+
+            if ((_thumbIndex + 5) < _imageHistory.Count)
+            {
+                buttonNext.IsEnabled = true;
+            } else
+            {
+                buttonNext.IsEnabled = false;
+            }
+
+            if (_thumbIndex > 0)
+            {
+                buttonPrev.IsEnabled = true;
+            } else
+            {
+                buttonPrev.IsEnabled = false;
+            }
         }
 
         /// <summary>
@@ -326,7 +342,8 @@ namespace ARTAPclient
 
                 Point absoluteClickPoint = new Point(x, y);
                 ((LocatableImage)_activeImage).ArrowPosition = absoluteClickPoint;
-                _placedArrow = true;
+
+                _imageHistory[_currentImageIndex].ArrowPlaced = true;
                 ///
                 /// TODO: Place a marker on the arrow drop location
                 ///
@@ -401,27 +418,27 @@ namespace ARTAPclient
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(0);
+            SelectThumbnail(0 + _thumbIndex);
         }
 
         private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(1);
+            SelectThumbnail(1 + _thumbIndex);
         }
 
         private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(2);
+            SelectThumbnail(2 + _thumbIndex);
         }
 
         private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(3);
+            SelectThumbnail(3 + _thumbIndex);
         }
 
         private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(4);
+            SelectThumbnail(4 + _thumbIndex);
         }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
@@ -517,12 +534,25 @@ namespace ARTAPclient
             ControlsEnabled(true);
         }
 
+        private void buttonNext_Click(object sender, RoutedEventArgs e)
+        {
+            if ((_thumbIndex + 5) < _imageHistory.Count)
+            {
+                _thumbIndex++;
+                UpdateThumbnails();
+            }
+        }
+
+        private void buttonPrev_Click(object sender, RoutedEventArgs e)
+        {
+            if (_thumbIndex > 0)
+            {
+                _thumbIndex--;
+                UpdateThumbnails();
+            }
+        }
+
         #endregion
 
-        private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            _thumbIndex++;
-            UpdateThumbnails();
-        }
     }
 }
