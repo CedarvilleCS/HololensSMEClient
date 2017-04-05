@@ -86,6 +86,11 @@ namespace ARTAPclient
             }
         }
 
+        public UIElement GetLastAnnotation()
+        {
+            return _annotations.Last();
+        }
+
         #endregion
 
         #region Properties

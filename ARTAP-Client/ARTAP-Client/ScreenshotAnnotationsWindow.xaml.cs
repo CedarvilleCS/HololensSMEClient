@@ -122,7 +122,6 @@ namespace ARTAPclient
             _pictureBoxThumbnails.Add(imageThumb3);
             _pictureBoxThumbnails.Add(imageThumb4);
             _editButtons.Add(buttonClear);
-            _editButtons.Add(buttonUndo);
             _editButtons.Add(buttonChangeColor);
             _editButtons.Add(buttonUploadImage);
             _editButtons.Add(buttonUploadImage);
@@ -301,6 +300,11 @@ namespace ARTAPclient
                 Point absoluteClickPoint = new Point(x, y);
                 
                 canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+
+                //
+                // Enable the undo button for placing arrows
+                //
+                buttonUndo.IsEnabled = true;
             }
             else
             {
@@ -356,18 +360,31 @@ namespace ARTAPclient
 
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_placingArrow && 
-                (_activeImage as LocatableImage).NumAnnotations > 0 &&
-                !(_activeImage as LocatableImage).GetLastMarker().Sent)
-            {
-                throw new NotImplementedException();
-            }
-            else if (_activeImage.NumAnnotations > 0)
-            {
-                canvasImageEditor.Children.RemoveAt(_activeImage.NumAnnotations - 1);
-                _activeImage.UndoAnnotation();
+            if (_placingArrow) {
+                //
+                // If there are unsent markers we can undo
+                // 
+                if ((_activeImage as LocatableImage).NumMarkers > 0 &&
+                   !(_activeImage as LocatableImage).GetLastMarker().Sent)
+                {
+                    canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
+                    (_activeImage as LocatableImage).UndoMarker();
 
-                SaveCanvasToActiveImage();
+                    //
+                    // If there are no more unsent markers disable the undo button
+                    //
+                    buttonUndo.IsEnabled = !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                }
+            }
+            else
+            {
+                if (_activeImage.NumAnnotations > 0)
+                {
+                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                    _activeImage.UndoAnnotation();
+
+                    SaveCanvasToActiveImage();
+                }
             }
         }
 
@@ -474,6 +491,17 @@ namespace ARTAPclient
             _placingArrow = placingArrow;
             _activeImage.SetAnnotationsVisibility(placingArrow ? Visibility.Hidden : Visibility.Visible);
             ControlsEnabled(!placingArrow);
+
+            if (placingArrow)
+            {
+                buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
+                                       !(_activeImage as LocatableImage).GetLastMarker().Sent;
+
+            }
+            else
+            {
+                buttonUndo.IsEnabled = true;
+            }
         }
 
         #endregion

@@ -357,7 +357,13 @@ namespace ARTAPclient
         public void ReceiveCallback(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
+
+            //
+            // TODO: Handle socket exception on HoloLens disconnect
+            // Using rev 4606b2 on the HoloLens
+            //
             _client.EndReceive(ar);
+
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
 
