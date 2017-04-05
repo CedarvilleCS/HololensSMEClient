@@ -22,7 +22,7 @@ namespace ARTAPclient
 
 
         #region Constructor
-        
+
         /// <summary>
         /// Creates a new annotated image
         /// </summary>
