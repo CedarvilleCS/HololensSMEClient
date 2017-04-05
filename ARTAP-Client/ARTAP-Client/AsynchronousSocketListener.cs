@@ -37,7 +37,11 @@ namespace ARTAPclient
         /// Types of messages that can be sent and their
         /// coresponding message  integer codes
         /// </summary>
-        private enum MessageType { Bitmap = 1, PositionIDRequest = 2, ArrowPlacement = 3 }
+        private enum MessageType {  Bitmap = 1,
+                                    PositionIDRequest = 2,
+                                    ArrowPlacement = 3,
+                                    EraseMarkers = 4
+                                 }
 
         /// <summary>
         /// Handles timing for checking if the connection is alive
@@ -137,6 +141,23 @@ namespace ARTAPclient
                     m.Sent = true;
                 }
             }
+        }
+
+        /// <summary>
+        /// Erases all markers for a given image
+        /// </summary>
+        /// <param name="image">Image to erase relative to</param>
+        public void SendEraseMarkers(LocatableImage image)
+        {
+            Send(MessageType.EraseMarkers, image.PositionID);
+        }
+
+        /// <summary>
+        /// Erases all markers
+        /// </summary>
+        public void SendEraseMarkers()
+        {
+            Send(MessageType.EraseMarkers, new byte[0]);
         }
 
         /// <summary>

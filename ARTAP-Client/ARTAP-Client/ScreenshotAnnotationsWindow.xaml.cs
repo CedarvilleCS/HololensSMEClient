@@ -390,9 +390,17 @@ namespace ARTAPclient
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            canvasImageEditor.Children.Clear();
-            _activeImage.ClearAnnotations();
-            SaveCanvasToActiveImage();
+            if (_placingArrow)
+            {
+                _listener.SendEraseMarkers(_activeImage as LocatableImage);
+            }
+            else
+            {
+                canvasImageEditor.Children.Clear();
+                _activeImage.ClearAnnotations();
+                SaveCanvasToActiveImage();
+            }
+            
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
