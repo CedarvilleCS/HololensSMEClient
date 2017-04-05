@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -11,11 +12,6 @@ namespace ARTAPclient
     public class AnnotatedImage
     {
         #region Private Fields
-
-        /// <summary>
-        /// Current index in annotation array
-        /// </summary>
-        private int _annotationIndex = 0;
 
         /// <summary>
         /// List of annotations drawn on the AnnotatedImage
@@ -53,7 +49,6 @@ namespace ARTAPclient
         public void AddAnnotation(Polyline line)
         {
             _annotations.Add(line);
-            _annotationIndex++;
         }
 
         /// <summary>
@@ -61,9 +56,9 @@ namespace ARTAPclient
         /// </summary>
         public void UndoAnnotation()
         {
-            if (_annotationIndex > 0)
+            if (_annotations.Count > 0)
             {
-                _annotations.RemoveAt(--_annotationIndex);
+                _annotations.RemoveAt(_annotations.Count - 1);
             }
         }
 
@@ -82,7 +77,23 @@ namespace ARTAPclient
         public void ClearAnnotations()
         {
             _annotations.Clear();
-            _annotationIndex = 0;
+        }
+
+        /// <summary>
+        /// Sets visibility of all Annotations drawn on this image
+        /// </summary>
+        /// <param name="visibility">Visibility to set to</param>
+        public void SetAnnotationsVisibility(Visibility visibility)
+        {
+            foreach (UIElement line in _annotations)
+            {
+                line.Visibility = visibility;
+            }
+        }
+
+        public UIElement GetLastAnnotation()
+        {
+            return _annotations.Last();
         }
 
         #endregion
@@ -100,13 +111,13 @@ namespace ARTAPclient
         public ImageSource LatestImage { get; set; }
 
         /// <summary>
-        /// Indicates which polyline we are currently on 
+        /// Indicates how many annotations are in the image
         /// </summary>
-        public int CurrentAnnotationIndex
+        public int NumAnnotations
         {
             get
             {
-                return _annotationIndex - 1;
+                return _annotations.Count;
             }
         }
 
