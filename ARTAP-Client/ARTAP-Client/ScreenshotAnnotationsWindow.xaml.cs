@@ -451,9 +451,11 @@ namespace ARTAPclient
                 SetAnnotationsVisibility(Visibility.Visible);
                 ControlsEnabled(true);
             }
+            else
+            {
 
-            _listener.SendBitmap(_activeImage.LatestImage);
-            
+                _listener.SendBitmap(_activeImage.LatestImage);
+            }
         }
 
         private void LoadPDF_Click(object sender, RoutedEventArgs e)

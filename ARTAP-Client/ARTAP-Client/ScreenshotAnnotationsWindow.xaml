@@ -89,7 +89,7 @@
                     </Path.Data>
                 </Path>
             </Button>
-            <Button x:Name="buttonSendArrow" Content="Send Arrow" VerticalAlignment="Top" RenderTransformOrigin="9.93,22.511" Grid.Column="1" Margin="0,462,0,0" IsEnabled="False" Click="buttonSendArrow_Click"/>
+            <Button x:Name="buttonSendArrow" Content="Send Arrow" VerticalAlignment="Top" RenderTransformOrigin="9.93,22.511" Grid.Column="1" Margin="0,45,0,0" IsEnabled="False" Click="buttonSendArrow_Click" Height="19" Grid.Row="1"/>
             <Button x:Name="buttonPlaceArrow" ToolTip="Place Arrow" HorizontalAlignment="Left" Height="60" Width="60" Margin="5,397,0,0" Grid.Row="0" VerticalAlignment="Top" Click="buttonPlaceArrow_Click" Grid.Column="1" IsEnabled="False" Grid.RowSpan="2" Background="#FFDDDDDD">
                 <Path Fill="#FF030104"  Stretch="Uniform" Height="39.088" Width="46">
                     <Path.Data>
