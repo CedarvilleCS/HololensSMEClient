@@ -107,6 +107,13 @@ namespace ARTAPclient
         /// </summary>
         private bool _placingArrow;
 
+        /// <summary>
+        /// Was an arrow placed on the current image?"
+        /// </summary>
+        private bool _placedArrow;
+
+        private int _thumbIndex = 0;
+
 
         #endregion
 
@@ -141,14 +148,39 @@ namespace ARTAPclient
         /// </summary>
         private void UpdateThumbnails()
         {
-            //Only use the number of active images
-            int numActiveThumbnails = (_imageHistory.Count < 5) ? 
-                _imageHistory.Count : NUMTHUMBNAILS;
+            int numActiveThumbnails = 5;
 
-            //Loop through and update images for all of the thumbnail frames
-            for (int i = 0; i < numActiveThumbnails; i++)
+            //Only use the number of active images
+            if (_imageHistory.Count < 5)
             {
-                _pictureBoxThumbnails[i].Source = _imageHistory[i].LatestImage;
+                numActiveThumbnails = _imageHistory.Count;
+
+            }
+
+            //int numActiveThumbnails = (_imageHistory.Count < 5) ? 
+            //    _imageHistory.Count : NUMTHUMBNAILS;
+
+            int index = _thumbIndex;
+            //Loop through and update images for all of the thumbnail frames
+            for (int i = 0; i < numActiveThumbnails; i++, index++)
+            {
+                _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
+            }
+
+            if ((_thumbIndex + 5) < _imageHistory.Count)
+            {
+                buttonNext.IsEnabled = true;
+            } else
+            {
+                buttonNext.IsEnabled = false;
+            }
+
+            if (_thumbIndex > 0)
+            {
+                buttonPrev.IsEnabled = true;
+            } else
+            {
+                buttonPrev.IsEnabled = false;
             }
         }
 
@@ -185,6 +217,7 @@ namespace ARTAPclient
         {
             _currentImageIndex = thumbnailNum;
             _activeImage = _imageHistory[_currentImageIndex];
+            _placedArrow = _imageHistory[_currentImageIndex].ArrowPlaced;
             CheckArrowPlacementAllowed();
 
             //Draw the orignal image to the canvas
@@ -206,10 +239,10 @@ namespace ARTAPclient
         {
             DrawImageToCanvas(source.OriginalImage);
 
-            if (_imageHistory.Count >= 5)
-            {
-                _imageHistory.RemoveAt(4);
-            }
+            //if (_imageHistory.Count >= 5)
+            //{
+            //    _imageHistory.RemoveAt(4);
+            //}
 
             _activeImage = source;
             _imageHistory.Insert(0, source);
@@ -397,32 +430,44 @@ namespace ARTAPclient
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(0);
+            SelectThumbnail(0 + _thumbIndex);
         }
 
         private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(1);
+            SelectThumbnail(1 + _thumbIndex);
         }
 
         private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(2);
+            SelectThumbnail(2 + _thumbIndex);
         }
 
         private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(3);
+            SelectThumbnail(3 + _thumbIndex);
         }
 
         private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(4);
+            SelectThumbnail(4 + _thumbIndex);
         }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
-            _listener.SendBitmap(_activeImage.LatestImage);
+            if (_imageHistory[_currentImageIndex].ArrowPlaced)
+            {
+                _listener.SendArrowLocation((LocatableImage)_activeImage);
+                _placingArrow = false;
+                _placedArrow = false;
+                SetAnnotationsVisibility(Visibility.Visible);
+                ControlsEnabled(true);
+            }
+            else
+            {
+
+                _listener.SendBitmap(_activeImage.LatestImage);
+            }
         }
 
         private void LoadPDF_Click(object sender, RoutedEventArgs e)
@@ -496,14 +541,38 @@ namespace ARTAPclient
             {
                 buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
                                        !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                
+                
+                buttonPlaceArrow.Background = Brushes.LightGreen;
 
             }
             else
             {
                 buttonUndo.IsEnabled = true;
+                
+                buttonPlaceArrow.Background = Brushes.LightGray;
+            }
+        }
+
+        private void buttonNext_Click(object sender, RoutedEventArgs e)
+        {
+            if ((_thumbIndex + 5) < _imageHistory.Count)
+            {
+                _thumbIndex++;
+                UpdateThumbnails();
+            }
+        }
+
+        private void buttonPrev_Click(object sender, RoutedEventArgs e)
+        {
+            if (_thumbIndex > 0)
+            {
+                _thumbIndex--;
+                UpdateThumbnails();
             }
         }
 
         #endregion
+
     }
 }
