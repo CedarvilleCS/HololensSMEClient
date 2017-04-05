@@ -107,11 +107,6 @@ namespace ARTAPclient
         /// </summary>
         private bool _placingArrow;
 
-        /// <summary>
-        /// Was an arrow placed on the current image?"
-        /// </summary>
-        private bool _placedArrow;
-
         private int _thumbIndex = 0;
 
 
@@ -217,7 +212,6 @@ namespace ARTAPclient
         {
             _currentImageIndex = thumbnailNum;
             _activeImage = _imageHistory[_currentImageIndex];
-            _placedArrow = _imageHistory[_currentImageIndex].ArrowPlaced;
             CheckArrowPlacementAllowed();
 
             //Draw the orignal image to the canvas
@@ -455,17 +449,12 @@ namespace ARTAPclient
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
-            if (_imageHistory[_currentImageIndex].ArrowPlaced)
+            if (_placingArrow)
             {
                 _listener.SendArrowLocation((LocatableImage)_activeImage);
-                _placingArrow = false;
-                _placedArrow = false;
-                SetAnnotationsVisibility(Visibility.Visible);
-                ControlsEnabled(true);
             }
             else
             {
-
                 _listener.SendBitmap(_activeImage.LatestImage);
             }
         }
