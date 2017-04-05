@@ -366,17 +366,7 @@ namespace ARTAPclient
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
-
-                ///
-                ///May need to signal that the receive has taken place
-                ///
-                Debug.WriteLine(state.buffer);
-            }
-            catch
-            {
-                MessageBox.Show("An error occured receiving the head position from the HoloLen", "Network Error", MessageBoxButton.OK);
-            }
-            
+           
         }
 
         #endregion
