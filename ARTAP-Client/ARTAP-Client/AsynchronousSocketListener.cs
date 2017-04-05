@@ -119,15 +119,23 @@ namespace ARTAPclient
         /// <param name="image">LocatableImage with placement data</param>
         public void SendArrowLocation(LocatableImage image)
         {
-            if(image.ArrowPosition != null)
+            foreach (Marker m in image.Markers)
             {
-                byte[] width = GetShortBytesFromDouble(image.OriginalImage.Width);
-                byte[] height = GetShortBytesFromDouble(image.OriginalImage.Height);
-                byte[] x = GetShortBytesFromDouble(image.ArrowPosition.X);
-                byte[] y = GetShortBytesFromDouble(image.ArrowPosition.Y);
+                if (!m.Sent)
+                {
+                    byte[] width = GetShortBytesFromDouble(image.OriginalImage.Width);
+                    byte[] height = GetShortBytesFromDouble(image.OriginalImage.Height);
 
-                byte[] message = CombineArrs(image.PositionID, width, height, x, y);
-                Send(MessageType.ArrowPlacement, message);
+                    byte[] x = GetShortBytesFromDouble(m.AbsoluteLocation.X);
+                    byte[] y = GetShortBytesFromDouble(m.AbsoluteLocation.Y);
+
+                    byte[] color = { m.Color.R, m.Color.G, m.Color.B };
+
+                    byte[] message = CombineArrs(image.PositionID, width, height, x, y, color);
+                    Send(MessageType.ArrowPlacement, message);
+
+                    m.Sent = true;
+                }
             }
         }
 
@@ -349,7 +357,13 @@ namespace ARTAPclient
         public void ReceiveCallback(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
+
+            //
+            // TODO: Handle socket exception on HoloLens disconnect
+            // Using rev 4606b2 on the HoloLens
+            //
             _client.EndReceive(ar);
+
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
 

@@ -122,7 +122,6 @@ namespace ARTAPclient
             _pictureBoxThumbnails.Add(imageThumb3);
             _pictureBoxThumbnails.Add(imageThumb4);
             _editButtons.Add(buttonClear);
-            _editButtons.Add(buttonUndo);
             _editButtons.Add(buttonChangeColor);
             _editButtons.Add(buttonUploadImage);
             _editButtons.Add(buttonUploadImage);
@@ -268,25 +267,13 @@ namespace ARTAPclient
         /// <param name="enabled">True for enable, false for disable</param>
         private void ControlsEnabled(bool enabled)
         {
-            foreach(Button button in _editButtons)
+            foreach (Button button in _editButtons)
             {
                 button.IsEnabled = enabled;
             }
-            foreach(Image thumb in _pictureBoxThumbnails)
+            foreach (Image thumb in _pictureBoxThumbnails)
             {
                 thumb.IsEnabled = enabled;
-            }
-        }
-
-        /// <summary>
-        /// Sets visibility of all elements drawn on canvas
-        /// </summary>
-        /// <param name="visibility">Visibility to set to</param>
-        private void SetAnnotationsVisibility(Visibility visibility)
-        {
-            foreach (UIElement line in canvasImageEditor.Children)
-            {
-                line.Visibility = visibility;
             }
         }
 
@@ -303,15 +290,21 @@ namespace ARTAPclient
         {
             if (_placingArrow)
             {
+                //
+                // Get the pixel value in the original image
+                //
                 Point relativeClickPoint = e.GetPosition((Canvas)sender);
-                double x = (_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X;
-                double y = (_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y;
+                int x = (int)((_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X);
+                int y = (int)((_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y);
 
                 Point absoluteClickPoint = new Point(x, y);
-                ((LocatableImage)_activeImage).ArrowPosition = absoluteClickPoint;
-                ///
-                /// TODO: Place a marker on the arrow drop location
-                ///
+                
+                canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+
+                //
+                // Enable the undo button for placing arrows
+                //
+                buttonUndo.IsEnabled = true;
             }
             else
             {
@@ -332,7 +325,9 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && _activeImage != null)
+            if (e.LeftButton == MouseButtonState.Pressed && 
+                _activeImage != null &&
+                !_placingArrow)
             {
                 Polyline polyLine = new Polyline();
                 if (canvasImageEditor.Children.Count == 0)
@@ -344,7 +339,7 @@ namespace ARTAPclient
                     _activeImage.AddAnnotation(polyLine);
                 }
 
-                polyLine = (Polyline)canvasImageEditor.Children[_activeImage.CurrentAnnotationIndex];
+                polyLine = (Polyline)canvasImageEditor.Children[_activeImage.NumAnnotations - 1];
                 Point currentPoint = e.GetPosition(canvasImageEditor);
                 polyLine.Points.Add(currentPoint);
             }
@@ -365,12 +360,31 @@ namespace ARTAPclient
 
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage.CurrentAnnotationIndex >= 0)
-            {
-                canvasImageEditor.Children.RemoveAt(_activeImage.CurrentAnnotationIndex);
-                _activeImage.UndoAnnotation();
+            if (_placingArrow) {
+                //
+                // If there are unsent markers we can undo
+                // 
+                if ((_activeImage as LocatableImage).NumMarkers > 0 &&
+                   !(_activeImage as LocatableImage).GetLastMarker().Sent)
+                {
+                    canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
+                    (_activeImage as LocatableImage).UndoMarker();
 
-                SaveCanvasToActiveImage();
+                    //
+                    // If there are no more unsent markers disable the undo button
+                    //
+                    buttonUndo.IsEnabled = !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                }
+            }
+            else
+            {
+                if (_activeImage.NumAnnotations > 0)
+                {
+                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                    _activeImage.UndoAnnotation();
+
+                    SaveCanvasToActiveImage();
+                }
             }
         }
 
@@ -463,28 +477,31 @@ namespace ARTAPclient
 
         private void buttonPlaceArrow_Click(object sender, RoutedEventArgs e)
         {
-            if (_placingArrow == false)
-            {
-                _placingArrow = true;
-                //Temporarily hide all drawings on canvas
-                SetAnnotationsVisibility(Visibility.Hidden);
-                ControlsEnabled(false);
-            }
-            else
-            {
-                _placingArrow = false;
-                //Temporarily hide all drawings on canvas
-                SetAnnotationsVisibility(Visibility.Visible);
-                ControlsEnabled(true);
-            }
+            SetPlacingArrows(!_placingArrow);
         }
 
         private void buttonSendArrow_Click(object sender, RoutedEventArgs e)
         {
             _listener.SendArrowLocation((LocatableImage)_activeImage);
-            _placingArrow = false;
-            SetAnnotationsVisibility(Visibility.Visible);
-            ControlsEnabled(true);
+            SetPlacingArrows(false);
+        }
+
+        private void SetPlacingArrows(bool placingArrow)
+        {
+            _placingArrow = placingArrow;
+            _activeImage.SetAnnotationsVisibility(placingArrow ? Visibility.Hidden : Visibility.Visible);
+            ControlsEnabled(!placingArrow);
+
+            if (placingArrow)
+            {
+                buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
+                                       !(_activeImage as LocatableImage).GetLastMarker().Sent;
+
+            }
+            else
+            {
+                buttonUndo.IsEnabled = true;
+            }
         }
 
         #endregion
