@@ -443,7 +443,7 @@ namespace ARTAPclient
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
-            if (_placedArrow)
+            if (_imageHistory[_currentImageIndex].ArrowPlaced)
             {
                 _listener.SendArrowLocation((LocatableImage)_activeImage);
                 _placingArrow = false;
