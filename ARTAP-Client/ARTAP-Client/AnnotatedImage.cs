@@ -61,9 +61,12 @@ namespace ARTAPclient
         /// Gets the polylines that make up the annotations for this image
         /// </summary>
         /// <returns>Array of annotation polylines</returns>
-        public Polyline[] GetAnnotations()
+        public Polyline[] Annotations
         {
-            return _annotations.ToArray();
+            get
+            {
+                return _annotations.ToArray();
+            }
         }
 
         /// <summary>
