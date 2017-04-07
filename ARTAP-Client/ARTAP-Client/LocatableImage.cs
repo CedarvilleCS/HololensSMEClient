@@ -24,13 +24,13 @@ namespace ARTAPclient
         /// <summary>
         /// Points used to draw an X
         /// </summary>
-        private static readonly Point[] MARKER_POINTS = {new Point(-1, -1),
+        private static readonly Point[] MARKER_POINTS = {new Point(-2, -2),
                                                          new Point(0, 0),
                                                          new Point(1, 1),
                                                          new Point(0, 0),
                                                          new Point(-1, 1),
                                                          new Point(0, 0),
-                                                         new Point(1, -1)};
+                                                         new Point(2, -2)};
 
         /// <summary>
         /// List of indicators of where markers are placed on the LocatableImage
@@ -75,24 +75,6 @@ namespace ARTAPclient
             if (_markers.Count > 0)
             {
                 _markers.RemoveAt(_markers.Count - 1);
-            }
-        }
-
-        /// <summary>
-        /// Gets the polylines that make up the annotations for this image
-        /// </summary>
-        /// <returns>Array of annotation polylines</returns>
-        public Marker[] Markers
-        {
-            get
-            {
-                Marker[] markers = new Marker[_markers.Count];
-                for (int i = 0; i < _markers.Count; i++)
-                {
-                    markers[i] = _markers[i];
-                }
-
-                return markers;
             }
         }
 
@@ -148,6 +130,24 @@ namespace ARTAPclient
         public Marker GetLastMarker()
         {
             return _markers.Last();
+        }
+
+        /// <summary>
+        /// Gets the polylines that make up the annotations for this image
+        /// </summary>
+        /// <returns>Array of annotation polylines</returns>
+        public Marker[] Markers
+        {
+            get
+            {
+                Marker[] markers = new Marker[_markers.Count];
+                for (int i = 0; i < _markers.Count; i++)
+                {
+                    markers[i] = _markers[i];
+                }
+
+                return markers;
+            }
         }
 
         #endregion

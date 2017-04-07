@@ -99,6 +99,16 @@ namespace ARTAPclient
             MediaElement.Play();
         }
 
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            var windows = Application.Current.Windows;
+            foreach (var item in windows)
+            {
+                (item as Window).Close();
+            }
+            Application.Current.Shutdown();
+        }
+
         #endregion
 
         #region Fixed Aspect Ratio Components
@@ -202,14 +212,5 @@ namespace ARTAPclient
 
         #endregion
 
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            var windows = Application.Current.Windows;
-            foreach (var item in windows)
-            {
-                (item as Window).Close();
-            }
-            Application.Current.Shutdown();
-        }
     }
 }
