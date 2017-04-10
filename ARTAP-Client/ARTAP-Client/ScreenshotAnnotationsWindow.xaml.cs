@@ -377,37 +377,48 @@ namespace ARTAPclient
 
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_placingArrow) {
-                //
-                // If there are unsent markers we can undo
-                // 
-                if ((_activeImage as LocatableImage).NumMarkers > 0 &&
-                   !(_activeImage as LocatableImage).GetLastMarker().Sent)
-                {
-                    canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
-                    (_activeImage as LocatableImage).UndoMarker();
+            //
+            // We can't undo annotations if there is no
+            // active image
+            //
+            if (_activeImage != null) {
+                if (_placingArrow) {
+                    //
+                    // If there are unsent markers we can undo
+                    // 
+                    if ((_activeImage as LocatableImage).NumMarkers > 0 &&
+                       !(_activeImage as LocatableImage).GetLastMarker().Sent)
+                    {
+                        canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
+                        (_activeImage as LocatableImage).UndoMarker();
 
-                    //
-                    // If there are no more unsent markers disable the undo button
-                    //
-                    buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 ||
-                                           !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                        //
+                        // If there are no more unsent markers disable the undo button
+                        //
+                        buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 ||
+                                               !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                    }
                 }
-            }
-            else
-            {
-                if (_activeImage?.NumAnnotations > 0)
+                else
                 {
-                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
-                    _activeImage.UndoAnnotation();
+                    if (_activeImage.NumAnnotations > 0)
+                    {
+                        canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                        _activeImage.UndoAnnotation();
 
-                    SaveCanvasToActiveImage();
+                        SaveCanvasToActiveImage();
+                    }
                 }
             }
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
+            //
+            // The sender == buttonClear clause makes sure that
+            // if the clear annotations toolbar item is clicked that
+            // Annotations will be cleared instead of markers.
+            //
             if (_placingArrow && sender == buttonClear)
             {
                 _listener.SendEraseMarkers(_activeImage as LocatableImage);
