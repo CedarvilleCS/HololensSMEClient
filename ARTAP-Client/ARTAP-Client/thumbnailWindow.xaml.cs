@@ -50,28 +50,28 @@ namespace WpfApplication1
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            _screenshotAnnotationsWindow.thumbnailSelect(0);
+            _screenshotAnnotationsWindow.SelectThumbnail(0);
 
         }
 
         private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            _screenshotAnnotationsWindow.thumbnailSelect(1);
+            _screenshotAnnotationsWindow.SelectThumbnail(1);
         }
 
         private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            _screenshotAnnotationsWindow.thumbnailSelect(2);
+            _screenshotAnnotationsWindow.SelectThumbnail(2);
         }
 
         private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            _screenshotAnnotationsWindow.thumbnailSelect(3);
+            _screenshotAnnotationsWindow.SelectThumbnail(3);
         }
 
         private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            _screenshotAnnotationsWindow.thumbnailSelect(4);
+            _screenshotAnnotationsWindow.SelectThumbnail(4);
         }
 
     }

@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfApplication1;
 using PDFViewer;
+using System.Diagnostics;
 
 namespace ARTAPclient
 {
@@ -30,17 +31,27 @@ namespace ARTAPclient
         /// <summary>
         /// Current bitmap active for drawing
         /// </summary>
-        private ImageSource _activeBMP;
+        private AnnotatedImage _activeImage;
 
         /// <summary>
-        /// History of images snapped from the stream
+        /// History of images snapped or uploaded
         /// </summary>
-        private List<ImageSource> _imageHistory = new List<ImageSource>();
+        private List<AnnotatedImage> _imageHistory = new List<AnnotatedImage>();
 
         /// <summary>
-        /// History of orignal images snapped from the stream
+        /// Inedex of current image in _imageHistory
         /// </summary>
-        private List<ImageSource> _imageOriginals = new List<ImageSource>();
+        private int _currentImageIndex = 0;
+
+        ///// <summary>
+        ///// History of images snapped from the stream
+        ///// </summary>
+        //private List<ImageSource> _imageHistory = new List<ImageSource>();
+
+        ///// <summary>
+        ///// History of orignal images snapped from the stream
+        ///// </summary>
+        //private List<ImageSource> _imageOriginals = new List<ImageSource>();
 
         /// <summary>
         /// List containing all of the thumbnail pictureboxes to make updating easy
@@ -48,34 +59,19 @@ namespace ARTAPclient
         private List<Image> _pictureBoxThumbnails = new List<Image>();
 
         /// <summary>
-        /// List containing all of the thumbnail pictureboxes to make updating easy
+        /// List of all of the buttons we want to enable/disable during arrow placement
         /// </summary>
-        private List<UIElement[]>_annotations = new List<UIElement[]>();
+        private List<Button> _editButtons = new List<Button>();
+
+        ///// <summary>
+        ///// List containing all of the thumbnail pictureboxes to make updating easy
+        ///// </summary>
+        //private List<Polyline[]>_annotations = new List<Polyline[]>();
 
         /// <summary>
         /// Number of thumbnail images
         /// </summary>
         private const int NUMTHUMBNAILS = 5;
-
-        /// <summary>
-        /// Int to track current image
-        /// </summary>
-        private int _currentImage = 0;
-
-        /// <summary>
-        /// Int to track current image
-        /// </summary>
-        private int _annotationIndex = 0;
-
-        /// <summary>
-        /// Polyline used for canvas annotations
-        /// </summary>
-        private Polyline _polyLine;
-
-        /// <summary>
-        /// Point used for canvas annotations
-        /// </summary>
-        private Point _currentPoint = new Point();
 
         /// <summary>
         /// Color used for canvas annotations, default to Red
@@ -107,22 +103,22 @@ namespace ARTAPclient
         /// </summary>
         private AsynchronousSocketListener _listener;
 
-        #endregion
+        /// <summary>
+        /// Are we currently in "Arrow place mode?"
+        /// </summary>
+        private bool _placingArrow;
 
-        thumbnailWindow thumbWin = null;
+        private int _thumbIndex = 0;
+
+
+        #endregion
 
         #region Constructor
 
         public ScreenshotAnnotationsWindow(VideoStreamWindow videoStreamWindow, AsynchronousSocketListener listener)
         {
             InitializeComponent();
-            thumbWin = new thumbnailWindow(this);
-            thumbWin.Show();
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb1);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb2);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb3);
-            thumbWin.PictureBoxThumbnails.Add(thumbWin.imageThumb4);
+
             _pictureBoxThumbnails.Add(imageThumb);
             _pictureBoxThumbnails.Add(imageThumb1);
             _pictureBoxThumbnails.Add(imageThumb2);
@@ -143,29 +139,49 @@ namespace ARTAPclient
         /// </summary>
         private void UpdateThumbnails()
         {
-            //Number of thumbnails presumed to be set
-            int numActiveThumbnails = NUMTHUMBNAILS;
+            int numActiveThumbnails = 5;
 
-            //If there aren't enough history images for all 5, adjust
+            //Only use the number of active images
             if (_imageHistory.Count < 5)
             {
                 numActiveThumbnails = _imageHistory.Count;
+
             }
 
+            //int numActiveThumbnails = (_imageHistory.Count < 5) ? 
+            //    _imageHistory.Count : NUMTHUMBNAILS;
+
+            int index = _thumbIndex;
             //Loop through and update images for all of the thumbnail frames
-            for (int i = 0; i < numActiveThumbnails; i++)
+            for (int i = 0; i < numActiveThumbnails; i++, index++)
             {
-                //ImageSource test = new Media();
-                thumbWin.PictureBoxThumbnails[i].Source = _imageHistory[i].Clone();
-                _pictureBoxThumbnails[i].Source = _imageHistory[i].Clone();
+                _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
+            }
+
+            if ((_thumbIndex + 5) < _imageHistory.Count)
+            {
+                buttonNext.IsEnabled = true;
+            } else
+            {
+                buttonNext.IsEnabled = false;
+            }
+
+            if (_thumbIndex > 0)
+            {
+                buttonPrev.IsEnabled = true;
+            } else
+            {
+                buttonPrev.IsEnabled = false;
             }
         }
 
-
-        private void renderImage()
+        /// <summary>
+        /// Render image to canvas
+        /// </summary>
+        private void SaveCanvasToActiveImage()
         {
             if (_imageHistory.Count != 0) {
-                Rect bounds = VisualTreeHelper.GetDescendantBounds(capturedImage);
+                Rect bounds = VisualTreeHelper.GetDescendantBounds(canvasImageEditor);
                 RenderTargetBitmap rtb =
                     new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height,
                     DPIX, DPIY, System.Windows.Media.PixelFormats.Default);
@@ -173,37 +189,107 @@ namespace ARTAPclient
                 DrawingVisual dv = new DrawingVisual();
                 using (DrawingContext dc = dv.RenderOpen())
                 {
-                    VisualBrush vb = new VisualBrush(capturedImage);
+                    VisualBrush vb = new VisualBrush(canvasImageEditor);
                     dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
                 }
 
                 rtb.Render(dv);
 
-                _activeBMP = rtb.Clone();
-                _imageHistory[_currentImage] = rtb.Clone();
+                _activeImage.LatestImage = rtb.Clone();
                 UpdateThumbnails();
             }
         }
 
-        public void thumbnailSelect(int thumbnailNum)
+        /// <summary>
+        /// Loads the thumbnail image passed
+        /// </summary>
+        /// <param name="thumbnailNum">Thumnail num to load</param>
+        public void SelectThumbnail(int thumbnailNum)
         {
-            _currentImage = thumbnailNum;
+            _currentImageIndex = thumbnailNum;
+            _activeImage = _imageHistory[_currentImageIndex];
+            CheckArrowPlacementAllowed();
 
-            capturedImage.Children.Clear();
-            int index = 0;
+            //Draw the orignal image to the canvas
+            DrawImageToCanvas(_activeImage.OriginalImage);
 
-            while (_annotations[_currentImage][index] != null)
+            //Add the annotations over top
+            foreach (Polyline line in _activeImage.Annotations)
             {
-                capturedImage.Children.Add(_annotations[_currentImage][index]);
-                index++;
+                canvasImageEditor.Children.Add(line);
             }
 
-            _annotationIndex = index;
+            //Add the markers if they exist
+            if(_activeImage is LocatableImage)
+            {
+                foreach(Marker m in (_activeImage as LocatableImage).Markers)
+                {
+                    canvasImageEditor.Children.Add(m.Annotation);
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Changes the Image that is being edited and updates the
+        /// history thumbnails.
+        /// </summary>
+        /// <param name="source">Image to be displayed</param>
+        private void AddNewImage(AnnotatedImage source)
+        {
+            DrawImageToCanvas(source.OriginalImage);
+
+            //if (_imageHistory.Count >= 5)
+            //{
+            //    _imageHistory.RemoveAt(4);
+            //}
+
+            _activeImage = source;
+            _imageHistory.Insert(0, source);
+            _currentImageIndex = 0;
+            CheckArrowPlacementAllowed();
+            UpdateThumbnails();
+        }
+
+        /// <summary>
+        /// Renders image to the canvas and clears any annotations
+        /// </summary>
+        /// <param name="image">Image to draw</param>
+        private void DrawImageToCanvas(ImageSource image)
+        {
             ImageBrush ib = new ImageBrush();
             ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = _imageOriginals[_currentImage];
-            capturedImage.Background = ib;
-            _activeBMP = _imageOriginals[_currentImage];
+            ib.ImageSource = image.Clone();
+            canvasImageEditor.Children.Clear();
+            if(image.Height < image.Width)
+            {
+                canvasImageEditor.Width = (360/image.Height) *image.Width;
+                canvasImageEditor.Height = 360;
+            } else
+            {
+                canvasImageEditor.Width = 640;
+                canvasImageEditor.Height = (640/image.Width)*image.Height;
+            }
+            //canvasImageEditor.Width = image.Width;
+            //canvasImageEditor.Height = image.Height;
+            canvasImageEditor.Background = ib;
+            canvasImageEditor.InvalidateVisual();
+        }
+
+        /// <summary>
+        /// Checks if arrow placement can be preformed on selected image
+        /// and enables/disables corresponding buttons
+        /// </summary>
+        private void CheckArrowPlacementAllowed()
+        {
+            if(_activeImage is LocatableImage)
+            {
+                buttonPlaceArrow.IsEnabled = true;
+            }
+            else
+            {
+                buttonPlaceArrow.IsEnabled = false;
+            }
         }
 
         #endregion
@@ -215,131 +301,188 @@ namespace ARTAPclient
             MessageBox.Show("Connection to HoloLens lost.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void capturedImage_MouseDown(object sender, MouseButtonEventArgs e)
+        private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+            Debug.WriteLine("Placing Arrow: " + _placingArrow);
+            if (_placingArrow)
             {
-                _currentPoint = e.GetPosition(this);
-            }
+                //
+                // Get the pixel value in the original image
+                //
+                Point relativeClickPoint = e.GetPosition((Canvas)sender);
+                int x = (int)((_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X);
+                int y = (int)((_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y);
 
-            if (capturedImage.Children.Count != 0)
+                Point absoluteClickPoint = new Point(x, y);
+                
+                canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+
+                //
+                // Enable the undo button for placing arrows
+                //
+                buttonUndo.IsEnabled = true;
+            }
+            else
             {
-                Polyline polyLine;
-                polyLine = new Polyline();
+                Polyline polyLine = new Polyline();
                 polyLine.Stroke = new SolidColorBrush(_brushColor);
                 polyLine.StrokeThickness = _brushSize;
 
-                capturedImage.Children.Add(polyLine);
-                _annotations[_currentImage][_annotationIndex] = polyLine;
+                //Add line to the canvas
+                canvasImageEditor.Children.Add(polyLine);
+                //Add memory of line to AnnotatedImage
+                _activeImage.AddAnnotation(polyLine);
             }
+           
         }
 
-        private void capturedImage_MouseMove(object sender, MouseEventArgs e)
+        private void canvasImageEditor_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && _activeBMP != null)
+            if (e.LeftButton == MouseButtonState.Pressed && 
+                _activeImage != null &&
+                !_placingArrow)
             {
-                if (capturedImage.Children.Count == 0)
+                Polyline polyLine;
+                if (_activeImage.NumAnnotations == 0)
                 {
-                    _polyLine = new Polyline();
-                    _polyLine.Stroke = new SolidColorBrush(_brushColor);
-                    _polyLine.StrokeThickness = _brushSize;
+                    polyLine = new Polyline();
+                    polyLine.Stroke = new SolidColorBrush(_brushColor);
+                    polyLine.StrokeThickness = _brushSize;
 
-                    capturedImage.Children.Add(_polyLine);
-                    _annotations[_currentImage][0] = _polyLine;
-                    _annotationIndex = 0;
+                    canvasImageEditor.Children.Add(polyLine);
+                    _activeImage.AddAnnotation(polyLine);
                 }
-
-                _polyLine = (Polyline)capturedImage.Children[_annotationIndex];
-                Point currentPoint = e.GetPosition(capturedImage);
-                _polyLine.Points.Add(currentPoint);
+                else
+                {
+                    polyLine = (Polyline)_activeImage.GetLastAnnotation();
+                }
+                
+                Point currentPoint = e.GetPosition(canvasImageEditor);
+                polyLine.Points.Add(currentPoint);
             }
         }
 
-        private void capturedImage_MouseUp(object sender, MouseButtonEventArgs e)
+        private void canvasImageEditor_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            renderImage();
-            _annotationIndex++;
-
+            SaveCanvasToActiveImage();
         }
 
         private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
         {
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
-            ChangeActiveImage(screenshot);
-        }
-
-        private BitmapImage ConvertBitmapType(System.Drawing.Bitmap bitmap)
-        {
-            BitmapImage bitmapImage = new BitmapImage();
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-            }
-            return bitmapImage;
+            LocatableImage img = new LocatableImage(screenshot);
+            AddNewImage(img);
+            _listener.RequestLocationID(img);
         }
 
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_annotationIndex > 0)
-            {
-                capturedImage.Children.RemoveAt(_annotationIndex - 1);
-                _annotations[_currentImage][_annotationIndex - 1] = null;
+            //
+            // We can't undo annotations if there is no
+            // active image
+            //
+            if (_activeImage != null) {
+                if (_placingArrow) {
+                    //
+                    // If there are unsent markers we can undo
+                    // 
+                    if ((_activeImage as LocatableImage).NumMarkers > 0 &&
+                       !(_activeImage as LocatableImage).GetLastMarker().Sent)
+                    {
+                        canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
+                        (_activeImage as LocatableImage).UndoMarker();
 
-                renderImage();
-                _annotationIndex--;
+                        //
+                        // If there are no more unsent markers disable the undo button
+                        //
+                        buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 ||
+                                               !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                    }
+                }
+                else
+                {
+                    if (_activeImage.NumAnnotations > 0)
+                    {
+                        canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                        _activeImage.UndoAnnotation();
+
+                        SaveCanvasToActiveImage();
+                    }
+                }
             }
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            capturedImage.Children.Clear();
-            _annotations[_currentImage] = new UIElement[10];
-
-            renderImage();
-            _annotationIndex = 0;
+            //
+            // The sender == buttonClear clause makes sure that
+            // if the clear annotations toolbar item is clicked that
+            // Annotations will be cleared instead of markers.
+            //
+            if (_placingArrow && sender == buttonClear)
+            {
+                _listener.SendEraseMarkers(_activeImage as LocatableImage);
+                foreach (Marker m in (_activeImage as LocatableImage).Markers)
+                {
+                    canvasImageEditor.Children.Remove(m.Annotation);
+                }
+                (_activeImage as LocatableImage).ClearMarkers();
+                SaveCanvasToActiveImage();
+            }
+            else
+            {
+                foreach(Polyline p in _activeImage.Annotations)
+                {
+                    canvasImageEditor.Children.Remove(p);
+                }
+                _activeImage.ClearAnnotations();
+                SaveCanvasToActiveImage();
+            }
+            
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            thumbnailSelect(0);
+            SelectThumbnail(0 + _thumbIndex);
         }
 
         private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            thumbnailSelect(1);
+            SelectThumbnail(1 + _thumbIndex);
         }
 
         private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            thumbnailSelect(2);
+            SelectThumbnail(2 + _thumbIndex);
         }
 
         private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            thumbnailSelect(3);
+            SelectThumbnail(3 + _thumbIndex);
         }
 
         private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            thumbnailSelect(4);
+            SelectThumbnail(4 + _thumbIndex);
         }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
-            _listener.SendBitmap(_imageHistory[_currentImage]);
+            if (_placingArrow)
+            {
+                _listener.SendArrowLocation((LocatableImage)_activeImage);
+            }
+            else
+            {
+                _listener.SendBitmap(_activeImage.LatestImage);
+            }
         }
-        private void Window_Closed(object sender, EventArgs e)
-        {
 
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void LoadPDF_Click(object sender, RoutedEventArgs e)
         {
+            //
+            // Allow the user to choose a file
+            //
             Microsoft.Win32.OpenFileDialog openDialog = new Microsoft.Win32.OpenFileDialog();
 
             openDialog.DefaultExt = ".pdf";
@@ -354,7 +497,8 @@ namespace ARTAPclient
                 result = pdfDialog.ShowDialog();
                 if(result == true)
                 {
-                    ChangeActiveImage(pdfDialog.selectedImage);
+                    ImageSource img = pdfDialog.selectedImage;
+                    AddNewImage(new AnnotatedImage(img));
                 }
             }
         }
@@ -365,37 +509,10 @@ namespace ARTAPclient
             if (openFileDialog.ShowDialog() == true)
             {
                 Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
-                ChangeActiveImage(new BitmapImage(imageUri));
-               
+                ImageSource img = new BitmapImage(imageUri);
+                AddNewImage(new AnnotatedImage(img));
             }
 
-        }
-
-        /// <summary>
-        /// Changes the Image that is being edited and updates the
-        /// history thumbnails.
-        /// </summary>
-        /// <param name="source">Image to be displayed</param>
-        private void ChangeActiveImage(ImageSource source)
-        {
-            _activeBMP = source;
-            ImageBrush ib = new ImageBrush();
-            ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = source;
-
-            capturedImage.Children.Clear();
-            capturedImage.Background = ib;
-            if (_imageHistory.Count >= 5)
-            {
-                _imageHistory.RemoveAt(4);
-                _imageOriginals.RemoveAt(4);
-            }
-            _imageHistory.Insert(0, source.Clone());
-            _imageOriginals.Insert(0, source.Clone());
-            UIElement[] elementArray = new UIElement[10];
-            _annotations.Insert(0, elementArray);
-            _currentImage = 0;
-            UpdateThumbnails();
         }
 
         private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
@@ -411,8 +528,75 @@ namespace ARTAPclient
             }
         }
 
-        #endregion
+        private void buttonPlaceArrow_Click(object sender, RoutedEventArgs e)
+        {
+            SetPlacingArrows(!_placingArrow);
+        }
 
+        private void SetPlacingArrows(bool placingArrow)
+        {
+            _placingArrow = placingArrow;
+            _activeImage.SetAnnotationsVisibility(placingArrow ? Visibility.Hidden : Visibility.Visible);
+
+            if (placingArrow)
+            {
+                buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
+                                       !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                
+                buttonPlaceArrow.Background = Brushes.LightGreen;
+            }
+            else
+            {
+                buttonUndo.IsEnabled = true;
+                
+                buttonPlaceArrow.Background = Brushes.LightGray;
+            }
+        }
+
+        private void buttonNext_Click(object sender, RoutedEventArgs e)
+        {
+            if ((_thumbIndex + 5) < _imageHistory.Count)
+            {
+                _thumbIndex++;
+                UpdateThumbnails();
+            }
+        }
+
+        private void buttonPrev_Click(object sender, RoutedEventArgs e)
+        {
+            if (_thumbIndex > 0)
+            {
+                _thumbIndex--;
+                UpdateThumbnails();
+            }
+        }
+
+        private void clearAllAnnotationsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            //
+            // If it's the active image, remove the markers from the cavas
+            // This will happen automatically for others when they are loaded
+            //
+            if (_activeImage is LocatableImage)
+            {
+                foreach (Marker m in (_activeImage as LocatableImage).Markers)
+                {
+                    canvasImageEditor.Children.Remove(m.Annotation);
+                }
+                SaveCanvasToActiveImage();
+            }
+
+            if (_listener != null && _listener.Connected)
+            {
+                _listener.SendEraseMarkers();
+                foreach(LocatableImage image in _imageHistory.OfType<LocatableImage>())
+                {
+                    image.ClearMarkers();
+                }
+            }
+        }
+
+        #endregion
 
     }
 }

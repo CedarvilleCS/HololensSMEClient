@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Net;
+using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -32,9 +33,9 @@ namespace ARTAPclient
         public MainWindow()
         {
             InitializeComponent();
-
-            ScreenshotAnnotationsWindow annotations = new ARTAPclient.ScreenshotAnnotationsWindow(null,null);
-            annotations.Show();
+            textBoxIP.Text = AppSettings.Default.ipAddress;
+            textBoxPort.Text = AppSettings.Default.portNum;
+            textBoxUserName.Text = AppSettings.Default.username;
         }
 
         private void buttonConnect_Click(object sender, RoutedEventArgs e)
@@ -50,7 +51,7 @@ namespace ARTAPclient
                 ValidateText(_userName, "user name") && ValidateText(_password, "password"))
             {
                 IPEndPoint hostEndPoint;
-                if(!TryGetIPEndPoint(_ip, port, out hostEndPoint))
+                if (!TryGetIPEndPoint(_ip, port, out hostEndPoint))
                 {
                     return;
                 }
@@ -59,6 +60,7 @@ namespace ARTAPclient
                 _listener.ConnectionEstablished += Listener_ConnectionEstablished;
                 _listener.ConnectionTimedOut += Listener_ConnectionTimedOut;
                 _listener.Connect();
+                
             }
         }
 
@@ -78,6 +80,10 @@ namespace ARTAPclient
                 ScreenshotAnnotationsWindow annotations = new ARTAPclient.ScreenshotAnnotationsWindow(video, _listener);
                 annotations.Show();
                 this.Close();
+                AppSettings.Default.username = textBoxUserName.Text;
+                AppSettings.Default.ipAddress = textBoxIP.Text;
+                AppSettings.Default.portNum = textBoxPort.Text;
+                AppSettings.Default.Save();
             }));
         }
 

@@ -45,11 +45,6 @@ namespace PDFToImage
         private static long cacheSize;
 
         /// <summary>
-        /// Keeps track of when the first rasterizer is created
-        /// </summary>
-        private static bool firstRasterizer = true;
-
-        /// <summary>
         /// Retrive a page of a PDF as an image
         /// </summary>
         /// <param name="filename">Path to the PDF document file</param>
@@ -62,6 +57,11 @@ namespace PDFToImage
             return rasterizer.GetPage(DPI, DPI, page);
         }
 
+        /// <summary>
+        /// Returns the total number of pages in the given PDF.
+        /// </summary>
+        /// <param name="filename">PDF file to retrive the number of pages for.</param>
+        /// <returns>Number of pages (1+)</returns>
         public static int getNumPages(string filename)
         {
             GhostscriptRasterizer rasterizer = loadPdf(filename);
@@ -69,6 +69,12 @@ namespace PDFToImage
             return rasterizer.PageCount;
         }
 
+        /// <summary>
+        /// Returns a GhostscriptRasterizer object for a PDF.
+        /// The rasterizer is cached in case of future use.
+        /// </summary>
+        /// <param name="filename">Filename of the desired PDF</param>
+        /// <returns>GhostscriptRasterizer object for a PDF</returns>
         private static GhostscriptRasterizer loadPdf(string filename)
         {
             GhostscriptRasterizer pdf;
