@@ -303,37 +303,39 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Debug.WriteLine("Placing Arrow: " + _placingArrow);
-            if (_placingArrow)
+            if (_activeImage != null)
             {
-                //
-                // Get the pixel value in the original image
-                //
-                Point relativeClickPoint = e.GetPosition((Canvas)sender);
-                int x = (int)((_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X);
-                int y = (int)((_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y);
+                Debug.WriteLine("Placing Arrow: " + _placingArrow);
+                if (_placingArrow)
+                {
+                    //
+                    // Get the pixel value in the original image
+                    //
+                    Point relativeClickPoint = e.GetPosition((Canvas)sender);
+                    int x = (int)((_activeImage.OriginalImage.Width / canvasImageEditor.Width) * relativeClickPoint.X);
+                    int y = (int)((_activeImage.OriginalImage.Height / canvasImageEditor.Height) * relativeClickPoint.Y);
 
-                Point absoluteClickPoint = new Point(x, y);
-                
-                canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+                    Point absoluteClickPoint = new Point(x, y);
 
-                //
-                // Enable the undo button for placing arrows
-                //
-                buttonUndo.IsEnabled = true;
+                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+
+                    //
+                    // Enable the undo button for placing arrows
+                    //
+                    buttonUndo.IsEnabled = true;
+                }
+                else
+                {
+                    Polyline polyLine = new Polyline();
+                    polyLine.Stroke = new SolidColorBrush(_brushColor);
+                    polyLine.StrokeThickness = _brushSize;
+
+                    //Add line to the canvas
+                    canvasImageEditor.Children.Add(polyLine);
+                    //Add memory of line to AnnotatedImage
+                    _activeImage.AddAnnotation(polyLine);
+                }
             }
-            else
-            {
-                Polyline polyLine = new Polyline();
-                polyLine.Stroke = new SolidColorBrush(_brushColor);
-                polyLine.StrokeThickness = _brushSize;
-
-                //Add line to the canvas
-                canvasImageEditor.Children.Add(polyLine);
-                //Add memory of line to AnnotatedImage
-                _activeImage.AddAnnotation(polyLine);
-            }
-           
         }
 
         private void canvasImageEditor_MouseMove(object sender, MouseEventArgs e)
