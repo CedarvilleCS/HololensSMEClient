@@ -29,6 +29,11 @@ namespace ARTAPclient
         #region Fields
 
         /// <summary>
+        /// Maximum number of images to hold in the history.
+        /// </summary>
+        private const int MAX_IMAGE_HISTORY_SIZE = 50;
+
+        /// <summary>
         /// Current bitmap active for drawing
         /// </summary>
         private AnnotatedImage _activeImage;
@@ -239,21 +244,16 @@ namespace ARTAPclient
         {
             DrawImageToCanvas(source.OriginalImage);
 
-            //
-            // TODO: Fix a bug that allows the image history to grow until the program crashes
-            //
-
-            //if (_imageHistory.Count >= 5)
-            //{
-            //    _imageHistory.RemoveAt(4);
-            //}
+            if (_imageHistory.Count >= MAX_IMAGE_HISTORY_SIZE)
+            {
+                _imageHistory.RemoveAt(_imageHistory.Count - 1);
+            }
 
             _activeImage = source;
             _imageHistory.Insert(0, source);
             _currentImageIndex = 0;
             CheckMarkerPlacementAllowed();
             UpdateThumbnails();
-            _placingMarker;
         }
 
         /// <summary>
