@@ -468,13 +468,16 @@ namespace ARTAPclient
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
-            if (_placingArrow)
+            if (_activeImage != null)
             {
-                _listener.SendArrowLocation((LocatableImage)_activeImage);
-            }
-            else
-            {
-                _listener.SendBitmap(_activeImage.LatestImage);
+                if (_placingArrow)
+                {
+                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                }
+                else
+                {
+                    _listener.SendBitmap(_activeImage.LatestImage);
+                }
             }
         }
 
