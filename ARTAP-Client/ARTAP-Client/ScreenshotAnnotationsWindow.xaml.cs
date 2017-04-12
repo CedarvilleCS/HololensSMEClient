@@ -414,31 +414,33 @@ namespace ARTAPclient
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            //
-            // The sender == buttonClear clause makes sure that
-            // if the clear annotations toolbar item is clicked that
-            // Annotations will be cleared instead of markers.
-            //
-            if (_placingArrow && sender == buttonClear)
+            if (_activeImage != null)
             {
-                _listener.SendEraseMarkers(_activeImage as LocatableImage);
-                foreach (Marker m in (_activeImage as LocatableImage).Markers)
+                //
+                // The sender == buttonClear clause makes sure that
+                // if the clear annotations toolbar item is clicked that
+                // Annotations will be cleared instead of markers.
+                //
+                if (_placingArrow && sender == buttonClear)
                 {
-                    canvasImageEditor.Children.Remove(m.Annotation);
+                    _listener.SendEraseMarkers(_activeImage as LocatableImage);
+                    foreach (Marker m in (_activeImage as LocatableImage).Markers)
+                    {
+                        canvasImageEditor.Children.Remove(m.Annotation);
+                    }
+                    (_activeImage as LocatableImage).ClearMarkers();
+                    SaveCanvasToActiveImage();
                 }
-                (_activeImage as LocatableImage).ClearMarkers();
-                SaveCanvasToActiveImage();
-            }
-            else
-            {
-                foreach(Polyline p in _activeImage.Annotations)
+                else
                 {
-                    canvasImageEditor.Children.Remove(p);
+                    foreach (Polyline p in _activeImage.Annotations)
+                    {
+                        canvasImageEditor.Children.Remove(p);
+                    }
+                    _activeImage.ClearAnnotations();
+                    SaveCanvasToActiveImage();
                 }
-                _activeImage.ClearAnnotations();
-                SaveCanvasToActiveImage();
             }
-            
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
