@@ -106,7 +106,7 @@ namespace ARTAPclient
         /// <summary>
         /// Are we currently in "Arrow place mode?"
         /// </summary>
-        private bool _placingArrow;
+        private bool _placingMarker;
 
         private int _thumbIndex = 0;
 
@@ -208,7 +208,7 @@ namespace ARTAPclient
         {
             _currentImageIndex = thumbnailNum;
             _activeImage = _imageHistory[_currentImageIndex];
-            CheckArrowPlacementAllowed();
+            CheckMarkerPlacementAllowed();
 
             //Draw the orignal image to the canvas
             DrawImageToCanvas(_activeImage.OriginalImage);
@@ -239,6 +239,10 @@ namespace ARTAPclient
         {
             DrawImageToCanvas(source.OriginalImage);
 
+            //
+            // TODO: Fix a bug that allows the image history to grow until the program crashes
+            //
+
             //if (_imageHistory.Count >= 5)
             //{
             //    _imageHistory.RemoveAt(4);
@@ -247,8 +251,9 @@ namespace ARTAPclient
             _activeImage = source;
             _imageHistory.Insert(0, source);
             _currentImageIndex = 0;
-            CheckArrowPlacementAllowed();
+            CheckMarkerPlacementAllowed();
             UpdateThumbnails();
+            _placingMarker;
         }
 
         /// <summary>
@@ -265,7 +270,8 @@ namespace ARTAPclient
             {
                 canvasImageEditor.Width = (360/image.Height) *image.Width;
                 canvasImageEditor.Height = 360;
-            } else
+            }
+            else
             {
                 canvasImageEditor.Width = 640;
                 canvasImageEditor.Height = (640/image.Width)*image.Height;
@@ -277,10 +283,10 @@ namespace ARTAPclient
         }
 
         /// <summary>
-        /// Checks if arrow placement can be preformed on selected image
+        /// Checks if marker placement can be preformed on selected image
         /// and enables/disables corresponding buttons
         /// </summary>
-        private void CheckArrowPlacementAllowed()
+        private void CheckMarkerPlacementAllowed()
         {
             if(_activeImage is LocatableImage)
             {
@@ -288,6 +294,12 @@ namespace ARTAPclient
             }
             else
             {
+
+                //
+                // Make sure we are not in marker placing mode
+                // if placing markers is not allowed
+                //
+                SetPlacingMarkers(false);
                 buttonPlaceArrow.IsEnabled = false;
             }
         }
@@ -305,8 +317,8 @@ namespace ARTAPclient
         {
             if (_activeImage != null)
             {
-                Debug.WriteLine("Placing Arrow: " + _placingArrow);
-                if (_placingArrow)
+                Debug.WriteLine("Placing Arrow: " + _placingMarker);
+                if (_placingMarker)
                 {
                     //
                     // Get the pixel value in the original image
@@ -342,7 +354,7 @@ namespace ARTAPclient
         {
             if (e.LeftButton == MouseButtonState.Pressed && 
                 _activeImage != null &&
-                !_placingArrow)
+                !_placingMarker)
             {
                 Polyline polyLine;
                 if (_activeImage.NumAnnotations == 0)
@@ -384,7 +396,7 @@ namespace ARTAPclient
             // active image
             //
             if (_activeImage != null) {
-                if (_placingArrow) {
+                if (_placingMarker) {
                     //
                     // If there are unsent markers we can undo
                     // 
@@ -423,7 +435,7 @@ namespace ARTAPclient
                 // if the clear annotations toolbar item is clicked that
                 // Annotations will be cleared instead of markers.
                 //
-                if (_placingArrow && sender == buttonClear)
+                if (_placingMarker && sender == buttonClear)
                 {
                     _listener.SendEraseMarkers(_activeImage as LocatableImage);
                     foreach (Marker m in (_activeImage as LocatableImage).Markers)
@@ -474,7 +486,7 @@ namespace ARTAPclient
         {
             if (_activeImage != null)
             {
-                if (_placingArrow)
+                if (_placingMarker)
                 {
                     _listener.SendArrowLocation((LocatableImage)_activeImage);
                 }
@@ -537,12 +549,12 @@ namespace ARTAPclient
 
         private void buttonPlaceArrow_Click(object sender, RoutedEventArgs e)
         {
-            SetPlacingArrows(!_placingArrow);
+            SetPlacingMarkers(!_placingMarker);
         }
 
-        private void SetPlacingArrows(bool placingArrow)
+        private void SetPlacingMarkers(bool placingArrow)
         {
-            _placingArrow = placingArrow;
+            _placingMarker = placingArrow;
             _activeImage.SetAnnotationsVisibility(placingArrow ? Visibility.Hidden : Visibility.Visible);
 
             if (placingArrow)
