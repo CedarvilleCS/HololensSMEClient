@@ -37,8 +37,6 @@ namespace ARTAPclient
         /// </summary>
         private bool? _adjustingHeight = null;
 
-        private string _connectionURL;
-
         #endregion
 
         #region Constuctor
@@ -48,8 +46,9 @@ namespace ARTAPclient
             InitializeComponent();
             this.SourceInitialized += Window_SourceInitialized;
 
-            _connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_low.mp4?holo=false&pv=true&mic=false&loopback=false",
+            string connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_low.mp4?holo=true&pv=true&mic=false&loopback=false",
                 user, password, ip);
+            MediaElement.Source = new Uri(connectionURL);
         }
 
         #endregion
@@ -58,8 +57,8 @@ namespace ARTAPclient
 
         public BitmapImage CaptureScreen()
         {
-            Bitmap bmp = videoControl.GetCurrentFrame();
-            return ConvertBitmap(bmp);
+            WriteableBitmap bmp = MediaElement.GetCurrentFrame();
+            return ConvertWriteableBitmap(bmp);
         }
 
         #endregion
@@ -67,21 +66,28 @@ namespace ARTAPclient
         #region Private Methods
 
         /// <summary>
-        /// Converts System.Drawing.Bitmap to BitmapImage
-        /// Borrowed from: http://stackoverflow.com/questions/26260654/wpf-converting-bitmap-to-imagesource
+        /// Converts a WriteableBitmap image to a BitmapImage
+        /// Code used from:
+        /// http://stackoverflow.com/questions/14161665/how-do-i-convert-a-writeablebitmap-object-to-a-bitmapimage-object-in-wpf
         /// </summary>
-        /// <param name="src">Source bitmap</param>
-        /// <returns>Converted BitmapImage</returns>
-        public BitmapImage ConvertBitmap(Bitmap src)
+        /// <param name="wbm">WriteableBitmap</param>
+        /// <returns>BitmapImage</returns>
+        private BitmapImage ConvertWriteableBitmap(WriteableBitmap wbm)
         {
-            MemoryStream ms = new MemoryStream();
-            ((System.Drawing.Bitmap)src).Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            ms.Seek(0, SeekOrigin.Begin);
-            image.StreamSource = ms;
-            image.EndInit();
-            return image;
+            BitmapImage bmImage = new BitmapImage();
+            using (MemoryStream stream = new MemoryStream())
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(wbm));
+                encoder.Save(stream);
+                bmImage.BeginInit();
+                bmImage.CacheOption = BitmapCacheOption.OnLoad;
+                stream.Seek(0, SeekOrigin.Begin);
+                bmImage.StreamSource = stream;
+                bmImage.EndInit();
+                bmImage.Freeze();
+            }
+            return bmImage;
         }
 
         #endregion
@@ -90,19 +96,17 @@ namespace ARTAPclient
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            videoControl.StartPlay(new Uri(_connectionURL), TimeSpan.FromSeconds(15));
+            MediaElement.Play();
         }
 
-        private void videoControlStreamFailed(object sender, WebEye.StreamFailedEventArgs e)
+        private void Window_Closed(object sender, EventArgs e)
         {
-            if (e.RoutedEvent.Name == "StreamFailed")
+            var windows = Application.Current.Windows;
+            foreach (var item in windows)
             {
-                MessageBox.Show(
-                    ((WebEye.StreamFailedEventArgs)e).Error,
-                    "Stream Player Demo",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                (item as Window).Close();
             }
+            Application.Current.Shutdown();
         }
 
         #endregion
@@ -208,14 +212,5 @@ namespace ARTAPclient
 
         #endregion
 
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            var windows = Application.Current.Windows;
-            foreach (var item in windows)
-            {
-                (item as Window).Close();
-            }
-            Application.Current.Shutdown();
-        }
     }
 }
