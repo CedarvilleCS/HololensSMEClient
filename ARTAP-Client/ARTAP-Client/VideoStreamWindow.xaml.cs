@@ -49,6 +49,8 @@ namespace ARTAPclient
             string connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_low.mp4?holo=true&pv=true&mic=false&loopback=false",
                 user, password, ip);
             MediaElement.Source = new Uri(connectionURL);
+            MediaElement.MediaFailed += MediaElement_MediaFailed;
+
         }
 
         #endregion
@@ -59,6 +61,16 @@ namespace ARTAPclient
         {
             WriteableBitmap bmp = MediaElement.GetCurrentFrame();
             return ConvertWriteableBitmap(bmp);
+        }
+
+        public void StartVideo()
+        {
+            MediaElement.Play();
+            
+            if(MediaElement.IsPlaying)
+            {
+                ConnectionSuccesful?.Invoke(this, new EventArgs());
+            }
         }
 
         #endregion
@@ -94,20 +106,37 @@ namespace ARTAPclient
 
         #region Event Handlers
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            MediaElement.Play();
-        }
-
         private void Window_Closed(object sender, EventArgs e)
         {
-            var windows = Application.Current.Windows;
-            foreach (var item in windows)
+            if (MediaElement.HasVideo)
             {
-                (item as Window).Close();
+                var windows = Application.Current.Windows;
+                foreach (var item in windows)
+                {
+                    (item as Window).Close();
+                }
+                Application.Current.Shutdown();
             }
-            Application.Current.Shutdown();
         }
+
+        private void MediaElement_MediaFailed(object sender, Unosquare.FFmpegMediaElement.MediaErrorRoutedEventArgs e)
+        {
+            ConnectionFailed?.Invoke(this, new EventArgs());
+        }
+
+        #endregion
+
+        #region Events
+    
+        /// <summary>
+        /// Fires if connection fails (bad login or connection info)
+        /// </summary>
+        public event EventHandler ConnectionFailed;
+
+        /// <summary>
+        /// Fires if connection is successful
+        /// </summary>
+        public event EventHandler ConnectionSuccesful;
 
         #endregion
 
