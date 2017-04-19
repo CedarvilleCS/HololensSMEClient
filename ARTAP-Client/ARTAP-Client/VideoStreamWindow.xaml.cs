@@ -36,18 +36,23 @@ namespace ARTAPclient
         /// Is the height being adjusted
         /// </summary>
         private bool? _adjustingHeight = null;
+        private string _ip;
+        private string _userName;
+        private string _password;
+        private string _streamQuality;
+        private Func<string> toString;
 
         #endregion
 
         #region Constuctor
 
-        public VideoStreamWindow(string ip, string user, string password)
+        public VideoStreamWindow(string ip, string user, string password, string quality, string annotations)
         {
             InitializeComponent();
             this.SourceInitialized += Window_SourceInitialized;
 
-            string connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_low.mp4?holo=true&pv=true&mic=false&loopback=false",
-                user, password, ip);
+            string connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_{3}.mp4?holo={4}&pv=true&mic=false&loopback=false",
+                user, password, ip, quality, annotations);
             MediaElement.Source = new Uri(connectionURL);
         }
 

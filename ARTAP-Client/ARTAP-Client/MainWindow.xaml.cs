@@ -30,12 +30,23 @@ namespace ARTAPclient
 
         private string _password;
 
+        private string _streamQuality;
+
+        private int _streamQualityIndex;
+
+        private bool _showAnnotations;
+
+        private bool _rememberMe;
+
         public MainWindow()
         {
             InitializeComponent();
             textBoxIP.Text = AppSettings.Default.ipAddress;
             textBoxPort.Text = AppSettings.Default.portNum;
             textBoxUserName.Text = AppSettings.Default.username;
+            comboBoxStreamQuality.SelectedIndex = AppSettings.Default.streamQuality;
+            checkBoxAnnotations.IsChecked = AppSettings.Default.showAnnotations;
+            checkBoxRemember.IsChecked = AppSettings.Default.rememberMe;
         }
 
         private void buttonConnect_Click(object sender, RoutedEventArgs e)
@@ -46,6 +57,9 @@ namespace ARTAPclient
             string port = textBoxPort.Text;
             _userName = textBoxUserName.Text;
             _password = passwordBoxPassword.Password;
+            _streamQuality = comboBoxStreamQuality.Text;
+            _showAnnotations = (bool)checkBoxAnnotations.IsChecked;
+            _rememberMe = (bool)checkBoxRemember.IsChecked;
 
             if (ValidateText(_ip, "IP") && ValidateText(port, "port") &&
                 ValidateText(_userName, "user name") && ValidateText(_password, "password"))
@@ -74,16 +88,36 @@ namespace ARTAPclient
             ///
             this.Dispatcher.BeginInvoke((Action) (() =>
             {
-                VideoStreamWindow video = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password);
+                VideoStreamWindow video = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password, _streamQuality, _showAnnotations.ToString().ToLower());
                 video.Show();
 
                 ScreenshotAnnotationsWindow annotations = new ARTAPclient.ScreenshotAnnotationsWindow(video, _listener);
                 annotations.Show();
                 this.Close();
-                AppSettings.Default.username = textBoxUserName.Text;
-                AppSettings.Default.ipAddress = textBoxIP.Text;
-                AppSettings.Default.portNum = textBoxPort.Text;
-                AppSettings.Default.Save();
+
+                ///
+                /// Check to see if Remember Me has been selected
+                /// 
+                if ((bool)checkBoxRemember.IsChecked)
+                {
+                    AppSettings.Default.username = textBoxUserName.Text;
+                    AppSettings.Default.ipAddress = textBoxIP.Text;
+                    AppSettings.Default.portNum = textBoxPort.Text;
+                    AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
+                    AppSettings.Default.showAnnotations = (bool)checkBoxAnnotations.IsChecked;
+                    AppSettings.Default.rememberMe = (bool)checkBoxRemember.IsChecked;
+                    AppSettings.Default.Save();
+                } else
+                {
+                    AppSettings.Default.username = "";
+                    AppSettings.Default.ipAddress = "";
+                    AppSettings.Default.portNum = "";
+                    AppSettings.Default.streamQuality = 0;
+                    AppSettings.Default.showAnnotations = false;
+                    AppSettings.Default.rememberMe = false;
+                    AppSettings.Default.Save();
+                }
+
             }));
         }
 

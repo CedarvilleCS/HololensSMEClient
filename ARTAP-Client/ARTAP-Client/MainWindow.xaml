@@ -16,15 +16,30 @@
             <ColumnDefinition Width="41*"/>
             <ColumnDefinition Width="242*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="buttonConnect" Content="Connect" HorizontalAlignment="Left" Margin="152.16,277,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.454,-0.105" Click="buttonConnect_Click" Grid.Column="3" TabIndex="4" IsDefault="True"/>
+        <Button x:Name="buttonConnect" HorizontalAlignment="Left" Margin="203,266,0,0" VerticalAlignment="Top" Width="29" RenderTransformOrigin="0.454,-0.105" Click="buttonConnect_Click" Grid.Column="3" TabIndex="4" IsDefault="True" Height="30">
+            <Path Fill="#FF030104" Stretch="UniformToFill" Height="20" Width="19">
+                <Path.Data>
+                    <PathGeometry Figures="M170.732 142.471c0-2.474-0.947-4.665-2.857-6.571L34.833 2.857C32.931 0.955 30.741 0 28.267 0s-4.665 0.955-6.567 2.857    L7.426 17.133C5.52 19.036 4.57 21.222 4.57 23.7c0 2.478 0.95 4.664 2.856 6.567L119.63 142.471L7.426 254.677    c-1.906 1.903-2.856 4.093-2.856 6.564c0 2.477 0.95 4.667 2.856 6.57l14.273 14.271c1.903 1.905 4.093 2.854 6.567 2.854    s4.664-0.951 6.567-2.854l133.042-133.044C169.785 147.136 170.732 144.945 170.732 142.471z M277.515 135.9L144.464 2.857C142.565 0.955 140.375 0 137.9 0c-2.472 0-4.659 0.955-6.562 2.857l-14.277 14.275    c-1.903 1.903-2.853 4.089-2.853 6.567c0 2.478 0.95 4.664 2.853 6.567l112.207 112.204L117.062 254.677    c-1.903 1.903-2.853 4.093-2.853 6.564c0 2.477 0.95 4.667 2.853 6.57l14.277 14.271c1.902 1.905 4.089 2.854 6.562 2.854    c2.478 0 4.665-0.951 6.563-2.854l133.051-133.044c1.902-1.902 2.851-4.093 2.851-6.567S279.417 137.807 277.515 135.9z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Button>
+
         <TextBox x:Name="textBoxIP" HorizontalAlignment="Left" Height="24" Margin="133,189,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TabIndex="0"/>
         <TextBox x:Name="textBoxUserName" HorizontalAlignment="Left" Height="24" Margin="133,230,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TabIndex="2"/>
-        <TextBox x:Name="textBoxPort" Height="24" Margin="43.16,189,70,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" TabIndex="1"/>
+        <TextBox x:Name="textBoxPort" Height="24" Margin="43.16,189,70,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" TabIndex="1" Text="Port Number" Foreground="Gray"/>
         <PasswordBox x:Name="passwordBoxPassword" Height="24" Margin="43.16,230,70,0" VerticalAlignment="Top" Grid.Column="3" TabIndex="3"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="72,192,0,0" TextWrapping="Wrap" Text="IP Address:" VerticalAlignment="Top" Foreground="White"/>
         <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="8,192,0,0" TextWrapping="Wrap" Text="Port Number:" VerticalAlignment="Top" Grid.Column="2" Foreground="White" Grid.ColumnSpan="2"/>
         <Image x:Name="image" Grid.ColumnSpan="4" HorizontalAlignment="Left" Height="134" Margin="156,26,0,0" VerticalAlignment="Top" Width="240" Source="artap.png"/>
         <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="69,233,0,0" TextWrapping="Wrap" Text="User Name:" VerticalAlignment="Top" Foreground="White" Width="64"/>
         <TextBlock x:Name="textBlock1_Copy" HorizontalAlignment="Left" Margin="27,233,0,0" TextWrapping="Wrap" Text="Password:" VerticalAlignment="Top" Grid.Column="2" Foreground="White" Grid.ColumnSpan="2"/>
+        <CheckBox x:Name="checkBoxAnnotations" Content="Show Annotations" Grid.Column="3" HorizontalAlignment="Left" Margin="43,279,0,0" VerticalAlignment="Top" Foreground="White"/>
+        <CheckBox x:Name="checkBoxRemember" Content="Remember Me" HorizontalAlignment="Left" Margin="43,259,0,0" VerticalAlignment="Top" Foreground="White" Grid.Column="3"/>
+        <ComboBox x:Name="comboBoxStreamQuality" HorizontalAlignment="Left" Margin="133,270,0,0" VerticalAlignment="Top" Width="120" Height="24" SelectedIndex="0">
+            <ComboBoxItem Content="low"/>
+            <ComboBoxItem Content="med"/>
+            <ComboBoxItem Content="high"/>
+        </ComboBox>
+        <TextBlock x:Name="textBlock_Copy1" HorizontalAlignment="Left" Margin="50,273,0,0" TextWrapping="Wrap" Text="Stream Quality:" VerticalAlignment="Top" Foreground="White"/>
     </Grid>
 </Window>
