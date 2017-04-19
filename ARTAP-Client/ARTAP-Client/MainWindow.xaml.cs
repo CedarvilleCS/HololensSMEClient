@@ -38,6 +38,10 @@ namespace ARTAPclient
 
         private bool _rememberMe;
 
+        VideoStreamWindow _videoWindow;
+
+        ScreenshotAnnotationsWindow _annotationsWindow;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -74,7 +78,10 @@ namespace ARTAPclient
                 _listener.ConnectionEstablished += Listener_ConnectionEstablished;
                 _listener.ConnectionTimedOut += Listener_ConnectionTimedOut;
                 _listener.Connect();
-                
+            }
+            else
+            {
+                EnableConnectButton();
             }
         }
 
@@ -88,45 +95,60 @@ namespace ARTAPclient
             ///
             this.Dispatcher.BeginInvoke((Action) (() =>
             {
-                VideoStreamWindow video = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password, _streamQuality, _showAnnotations.ToString().ToLower());
-                video.Show();
+                _videoWindow = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password);
+                _videoWindow.ConnectionFailed += _videoWindow_ConnectionFailed;
+                _videoWindow.ConnectionSuccesful += _videoWindow_ConnectionSuccesful;
+               
+                _annotationsWindow = new ARTAPclient.ScreenshotAnnotationsWindow(_videoWindow, _listener);
 
-                ScreenshotAnnotationsWindow annotations = new ARTAPclient.ScreenshotAnnotationsWindow(video, _listener);
-                annotations.Show();
-                this.Close();
-
+                _videoWindow.StartVideo();
                 ///
                 /// Check to see if Remember Me has been selected
-                /// 
                 if ((bool)checkBoxRemember.IsChecked)
+                /// 
                 {
                     AppSettings.Default.username = textBoxUserName.Text;
-                    AppSettings.Default.ipAddress = textBoxIP.Text;
                     AppSettings.Default.portNum = textBoxPort.Text;
-                    AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
-                    AppSettings.Default.showAnnotations = (bool)checkBoxAnnotations.IsChecked;
-                    AppSettings.Default.rememberMe = (bool)checkBoxRemember.IsChecked;
-                    AppSettings.Default.Save();
+                    AppSettings.Default.ipAddress = textBoxIP.Text;
                 } else
+                    AppSettings.Default.showAnnotations = false;
+                    AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
+                    AppSettings.Default.rememberMe = (bool)checkBoxRemember.IsChecked;
+                    AppSettings.Default.showAnnotations = (bool)checkBoxAnnotations.IsChecked;
+                    AppSettings.Default.Save();
                 {
-                    AppSettings.Default.username = "";
                     AppSettings.Default.ipAddress = "";
+                    AppSettings.Default.username = "";
                     AppSettings.Default.portNum = "";
                     AppSettings.Default.streamQuality = 0;
-                    AppSettings.Default.showAnnotations = false;
                     AppSettings.Default.rememberMe = false;
                     AppSettings.Default.Save();
                 }
-
             }));
+        }
+
+        private void _videoWindow_ConnectionSuccesful(object sender, EventArgs e)
+        {
+            _videoWindow.Show();
+            _annotationsWindow.Show();
+            this.Hide();
+        }
+
+        private void _videoWindow_ConnectionFailed(object sender, EventArgs e)
+        {
+            _videoWindow.Close();
+            _annotationsWindow.Close();
+
+            MessageBox.Show("Connection to the HoloLens video stream was unsuccesful, " +
+                "please check your connection and login info and try again.", "Connection Error", MessageBoxButton.OK);
+            EnableConnectButton();
         }
 
         private void Listener_ConnectionTimedOut(object sender, EventArgs e)
         {
             this.Dispatcher.BeginInvoke((Action)(() =>
             {
-                buttonConnect.Content = "Connect";
-                buttonConnect.IsEnabled = true;
+                EnableConnectButton();
                 MessageBox.Show("Connection timed out, please verify IP and Port.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }));
         }
@@ -169,6 +191,15 @@ namespace ARTAPclient
             {
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Makes the connect button functional again.
+        /// </summary>
+        private void EnableConnectButton()
+        {
+            buttonConnect.Content = "Connect";
+            buttonConnect.IsEnabled = true;
         }
     }
 }
