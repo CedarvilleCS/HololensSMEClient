@@ -56,7 +56,7 @@ namespace ARTAPclient
         private void buttonConnect_Click(object sender, RoutedEventArgs e)
         {
             buttonConnect.IsEnabled = false;
-            buttonConnect.Content = "Connecting...";
+            buttonConnect.Background = Brushes.Yellow;
             _ip = textBoxIP.Text;
             string port = textBoxPort.Text;
             _userName = textBoxUserName.Text;
@@ -95,7 +95,7 @@ namespace ARTAPclient
             ///
             this.Dispatcher.BeginInvoke((Action) (() =>
             {
-                _videoWindow = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password);
+                _videoWindow = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password, _streamQuality, _showAnnotations.ToString());
                 _videoWindow.ConnectionFailed += _videoWindow_ConnectionFailed;
                 _videoWindow.ConnectionSuccesful += _videoWindow_ConnectionSuccesful;
                
@@ -110,18 +110,19 @@ namespace ARTAPclient
                     AppSettings.Default.username = textBoxUserName.Text;
                     AppSettings.Default.portNum = textBoxPort.Text;
                     AppSettings.Default.ipAddress = textBoxIP.Text;
-                } else
-                    AppSettings.Default.showAnnotations = false;
                     AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
-                    AppSettings.Default.rememberMe = (bool)checkBoxRemember.IsChecked;
+                    AppSettings.Default.rememberMe = true;
                     AppSettings.Default.showAnnotations = (bool)checkBoxAnnotations.IsChecked;
                     AppSettings.Default.Save();
-                {
+                }
+                else
+                { 
                     AppSettings.Default.ipAddress = "";
                     AppSettings.Default.username = "";
                     AppSettings.Default.portNum = "";
                     AppSettings.Default.streamQuality = 0;
                     AppSettings.Default.rememberMe = false;
+                    AppSettings.Default.showAnnotations = false;
                     AppSettings.Default.Save();
                 }
             }));
@@ -198,7 +199,7 @@ namespace ARTAPclient
         /// </summary>
         private void EnableConnectButton()
         {
-            buttonConnect.Content = "Connect";
+            buttonConnect.Background = Brushes.LightGray;
             buttonConnect.IsEnabled = true;
         }
     }
