@@ -95,7 +95,8 @@ namespace ARTAPclient
             ///
             this.Dispatcher.BeginInvoke((Action) (() =>
             {
-                _videoWindow = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password, _streamQuality, _showAnnotations.ToString());
+                _videoWindow = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password,
+                    _streamQuality, _showAnnotations.ToString());
                 _videoWindow.ConnectionFailed += _videoWindow_ConnectionFailed;
                 _videoWindow.ConnectionSuccesful += _videoWindow_ConnectionSuccesful;
                

@@ -512,13 +512,18 @@ namespace ARTAPclient
             if(result == true)
             {
                 string pdfFile = openDialog.FileName;
-                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
-                result = pdfDialog.ShowDialog();
-                if(result == true)
-                {
-                    ImageSource img = pdfDialog.selectedImage;
-                    AddNewImage(new AnnotatedImage(img));
-                }
+                LoadPDF(pdfFile);
+            }
+        }
+
+        private void LoadPDF(string pdfFile)
+        {
+            PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+            bool? result = pdfDialog.ShowDialog();
+            if (result == true)
+            {
+                ImageSource img = pdfDialog.selectedImage;
+                AddNewImage(new AnnotatedImage(img));
             }
         }
 
@@ -527,9 +532,16 @@ namespace ARTAPclient
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
-                ImageSource img = new BitmapImage(imageUri);
-                AddNewImage(new AnnotatedImage(img));
+                if (openFileDialog.FileName.EndsWith(".pdf"))
+                {
+                    LoadPDF(openFileDialog.FileName);
+                }
+                else
+                {
+                    Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                    ImageSource img = new BitmapImage(imageUri);
+                    AddNewImage(new AnnotatedImage(img));
+                }
             }
 
         }

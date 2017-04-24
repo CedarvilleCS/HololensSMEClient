@@ -52,7 +52,7 @@ namespace ARTAPclient
             this.SourceInitialized += Window_SourceInitialized;
 
             string connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_{3}.mp4?holo={4}&pv=true&mic=false&loopback=false",
-                user, password, ip, quality, annotations);
+                user, password, ip, quality, annotations.ToLower());
             MediaElement.Source = new Uri(connectionURL);
             MediaElement.MediaFailed += MediaElement_MediaFailed;
 
