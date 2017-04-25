@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Reflection;
-using System.IO;
 
 namespace ARTAPclient
 {
@@ -16,11 +15,6 @@ namespace ARTAPclient
     public partial class VideoStreamWindow : Window
     {
         #region Private Fields
-
-        /// <summary>
-        /// Aspect ratio of screen
-        /// </summary>
-        private double _aspectRatio;
 
         /// <summary>
         /// URL to connect to
@@ -44,7 +38,6 @@ namespace ARTAPclient
         public VideoStreamWindow(string ip, string user, string password, string quality, string annotations)
         {
             InitializeComponent();
-            this.SourceInitialized += Window_SourceInitialized;
 
             string url = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_{3}.mp4?holo={4}&pv=true&mic=false&loopback=false",
                 user, password, ip, quality, annotations.ToLower());
@@ -136,107 +129,5 @@ namespace ARTAPclient
         public event EventHandler ConnectionSuccesful;
 
         #endregion
-
-        #region Fixed Aspect Ratio Components
-
-        ///
-        /// Code used for fixed aspect ratio borrowed from here:
-        /// http://stackoverflow.com/questions/2471867/resize-a-wpf-window-but-maintain-proportions
-        ///
-
-        internal enum SWP
-        {
-            NOMOVE = 0x0002
-        }
-        internal enum WM
-        {
-            WINDOWPOSCHANGING = 0x0046,
-            EXITSIZEMOVE = 0x0232,
-        }
-        
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct WINDOWPOS
-        {
-            public IntPtr hwnd;
-            public IntPtr hwndInsertAfter;
-            public int x;
-            public int y;
-            public int cx;
-            public int cy;
-            public int flags;
-        }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool GetCursorPos(ref Win32Point pt);
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct Win32Point
-        {
-            public Int32 X;
-            public Int32 Y;
-        };
-
-        public static System.Windows.Point GetMousePosition() // mouse position relative to screen
-        {
-            Win32Point w32Mouse = new Win32Point();
-            GetCursorPos(ref w32Mouse);
-            return new System.Windows.Point(w32Mouse.X, w32Mouse.Y);
-        }
-
-        private void Window_SourceInitialized(object sender, EventArgs ea)
-        {
-            HwndSource hwndSource = (HwndSource)HwndSource.FromVisual((Window)sender);
-            hwndSource.AddHook(DragHook);
-
-            _aspectRatio = this.Width / this.Height;
-        }
-
-        private IntPtr DragHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            switch ((WM)msg)
-            {
-                case WM.WINDOWPOSCHANGING:
-                    {
-                        WINDOWPOS pos = (WINDOWPOS)Marshal.PtrToStructure(lParam, typeof(WINDOWPOS));
-
-                        if ((pos.flags & (int)SWP.NOMOVE) != 0)
-                            return IntPtr.Zero;
-
-                        Window wnd = (Window)HwndSource.FromHwnd(hwnd).RootVisual;
-                        if (wnd == null)
-                            return IntPtr.Zero;
-
-                        // determine what dimension is changed by detecting the mouse position relative to the 
-                        // window bounds. if gripped in the corner, either will work.
-                        if (!_adjustingHeight.HasValue)
-                        {
-                            System.Windows.Point p = GetMousePosition();
-
-                            double diffWidth = Math.Min(Math.Abs(p.X - pos.x), Math.Abs(p.X - pos.x - pos.cx));
-                            double diffHeight = Math.Min(Math.Abs(p.Y - pos.y), Math.Abs(p.Y - pos.y - pos.cy));
-
-                            _adjustingHeight = diffHeight > diffWidth;
-                        }
-
-                        if (_adjustingHeight.Value)
-                            pos.cy = (int)(pos.cx / _aspectRatio); // adjusting height to width change
-                        else
-                            pos.cx = (int)(pos.cy * _aspectRatio); // adjusting width to heigth change
-
-                        Marshal.StructureToPtr(pos, lParam, true);
-                        handled = true;
-                    }
-                    break;
-                case WM.EXITSIZEMOVE:
-                    _adjustingHeight = null; // reset adjustment dimension and detect again next time window is resized
-                    break;
-            }
-
-            return IntPtr.Zero;
-        }
-
-        #endregion
-
     }
 }
