@@ -1,22 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-
+using System.Reflection;
+using System.IO;
 
 namespace ARTAPclient
 {
@@ -31,6 +21,11 @@ namespace ARTAPclient
         /// Aspect ratio of screen
         /// </summary>
         private double _aspectRatio;
+
+        /// <summary>
+        /// URL to connect to
+        /// </summary>
+        private readonly Uri _conURI;
 
         /// <summary>
         /// Is the height being adjusted
@@ -51,11 +46,25 @@ namespace ARTAPclient
             InitializeComponent();
             this.SourceInitialized += Window_SourceInitialized;
 
-            string connectionURL = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_{3}.mp4?holo={4}&pv=true&mic=false&loopback=false",
+            string url = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_{3}.mp4?holo={4}&pv=true&mic=false&loopback=false",
                 user, password, ip, quality, annotations.ToLower());
-            MediaElement.Source = new Uri(connectionURL);
-            MediaElement.MediaFailed += MediaElement_MediaFailed;
+            _conURI = new Uri(url);
 
+            mediaControl.MediaPlayer.VlcLibDirectoryNeeded += OnVlcControlNeedsLibDirectory;
+            mediaControl.MediaPlayer.EncounteredError += MediaPlayer_EncounteredError;
+            mediaControl.MediaPlayer.EndInit();
+        }
+
+        private void OnVlcControlNeedsLibDirectory(object sender, Vlc.DotNet.Forms.VlcLibDirectoryNeededEventArgs e)
+        {
+            var currentAssembly = Assembly.GetEntryAssembly();
+            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+            if (currentDirectory == null)
+                return;
+            if (AssemblyName.GetAssemblyName(currentAssembly.Location).ProcessorArchitecture == ProcessorArchitecture.X86)
+                e.VlcLibDirectory = new DirectoryInfo(Path.Combine(currentDirectory, @"..\..\..\lib\x86\"));
+            else
+                e.VlcLibDirectory = new DirectoryInfo(Path.Combine(currentDirectory, @"..\..\..\lib\x64\"));
         }
 
         #endregion
@@ -64,47 +73,30 @@ namespace ARTAPclient
 
         public BitmapImage CaptureScreen()
         {
-            WriteableBitmap bmp = MediaElement.GetCurrentFrame();
-            return ConvertWriteableBitmap(bmp);
+            string tmpBmpPath = Path.Combine(Path.GetTempPath(), "ARTAP", Path.GetRandomFileName());
+            tmpBmpPath += ".bmp";
+            mediaControl.MediaPlayer.TakeSnapshot(tmpBmpPath);
+
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(tmpBmpPath);
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.EndInit();
+
+            File.Delete(tmpBmpPath);
+
+            return bitmap.Clone();
         }
 
         public void StartVideo()
         {
-            MediaElement.Play();
-            
-            if(MediaElement.IsPlaying)
-            {
-                ConnectionSuccesful?.Invoke(this, new EventArgs());
-            }
+            mediaControl.MediaPlayer.Playing += MediaPlayer_Playing;
+            mediaControl.MediaPlayer.Play(_conURI);
         }
 
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Converts a WriteableBitmap image to a BitmapImage
-        /// Code used from:
-        /// http://stackoverflow.com/questions/14161665/how-do-i-convert-a-writeablebitmap-object-to-a-bitmapimage-object-in-wpf
-        /// </summary>
-        /// <param name="wbm">WriteableBitmap</param>
-        /// <returns>BitmapImage</returns>
-        private BitmapImage ConvertWriteableBitmap(WriteableBitmap wbm)
+        private void MediaPlayer_Playing(object sender, Vlc.DotNet.Core.VlcMediaPlayerPlayingEventArgs e)
         {
-            BitmapImage bmImage = new BitmapImage();
-            using (MemoryStream stream = new MemoryStream())
-            {
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(wbm));
-                encoder.Save(stream);
-                bmImage.BeginInit();
-                bmImage.CacheOption = BitmapCacheOption.OnLoad;
-                stream.Seek(0, SeekOrigin.Begin);
-                bmImage.StreamSource = stream;
-                bmImage.EndInit();
-                bmImage.Freeze();
-            }
-            return bmImage;
+            ConnectionSuccesful?.Invoke(this, new EventArgs());
         }
 
         #endregion
@@ -113,7 +105,7 @@ namespace ARTAPclient
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            if (MediaElement.HasVideo)
+            if (mediaControl.MediaPlayer.IsPlaying)
             {
                 var windows = Application.Current.Windows;
                 foreach (var item in windows)
@@ -124,7 +116,7 @@ namespace ARTAPclient
             }
         }
 
-        private void MediaElement_MediaFailed(object sender, Unosquare.FFmpegMediaElement.MediaErrorRoutedEventArgs e)
+        private void MediaPlayer_EncounteredError(object sender, Vlc.DotNet.Core.VlcMediaPlayerEncounteredErrorEventArgs e)
         {
             ConnectionFailed?.Invoke(this, new EventArgs());
         }

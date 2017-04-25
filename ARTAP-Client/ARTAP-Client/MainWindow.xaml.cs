@@ -131,9 +131,13 @@ namespace ARTAPclient
 
         private void _videoWindow_ConnectionSuccesful(object sender, EventArgs e)
         {
-            _videoWindow.Show();
-            _annotationsWindow.Show();
-            this.Hide();
+            Application.Current.Dispatcher.Invoke(
+                new Action(() => 
+                    {
+                        _videoWindow.Show();
+                        _annotationsWindow.Show();
+                        this.Hide();
+                    }));
         }
 
         private void _videoWindow_ConnectionFailed(object sender, EventArgs e)
