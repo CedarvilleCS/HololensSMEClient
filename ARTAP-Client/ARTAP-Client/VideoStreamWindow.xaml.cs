@@ -22,6 +22,11 @@ namespace ARTAPclient
         private readonly Uri _conURI;
 
         /// <summary>
+        /// Location of temp dir
+        /// </summary>
+        private const string _tmpLocation = "C:\\tmp";
+
+        /// <summary>
         /// Is the height being adjusted
         /// </summary>
         private bool? _adjustingHeight = null;
@@ -42,6 +47,8 @@ namespace ARTAPclient
             string url = String.Format("http://{0}:{1}@{2}/api/holographic/stream/live_{3}.mp4?holo={4}&pv=true&mic=false&loopback=false",
                 user, password, ip, quality, annotations.ToLower());
             _conURI = new Uri(url);
+
+            Directory.CreateDirectory(_tmpLocation);
 
             mediaControl.MediaPlayer.VlcLibDirectoryNeeded += OnVlcControlNeedsLibDirectory;
             mediaControl.MediaPlayer.EncounteredError += MediaPlayer_EncounteredError;
@@ -66,7 +73,7 @@ namespace ARTAPclient
 
         public BitmapImage CaptureScreen()
         {
-            string tmpBmpPath = Path.Combine(Path.GetTempPath(), "ARTAP", Path.GetRandomFileName());
+            string tmpBmpPath = Path.Combine(_tmpLocation, Path.GetRandomFileName().Substring(0, 5));
             tmpBmpPath += ".bmp";
             mediaControl.MediaPlayer.TakeSnapshot(tmpBmpPath);
 
@@ -98,6 +105,7 @@ namespace ARTAPclient
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            Directory.Delete(_tmpLocation);
             if (mediaControl.MediaPlayer.IsPlaying)
             {
                 var windows = Application.Current.Windows;

@@ -142,12 +142,16 @@ namespace ARTAPclient
 
         private void _videoWindow_ConnectionFailed(object sender, EventArgs e)
         {
-            _videoWindow.Close();
-            _annotationsWindow.Close();
+            Application.Current.Dispatcher.Invoke(
+                new Action(() =>
+                {
+                    _videoWindow.Close();
+                    _annotationsWindow.Close();
 
-            MessageBox.Show("Connection to the HoloLens video stream was unsuccesful, " +
-                "please check your connection and login info and try again.", "Connection Error", MessageBoxButton.OK);
-            EnableConnectButton();
+                    MessageBox.Show("Connection to the HoloLens video stream was unsuccesful, " +
+                        "please check your connection and login info and try again.", "Connection Error", MessageBoxButton.OK);
+                    EnableConnectButton();
+                }));
         }
 
         private void Listener_ConnectionTimedOut(object sender, EventArgs e)
