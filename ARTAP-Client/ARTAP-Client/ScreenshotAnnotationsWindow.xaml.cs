@@ -518,12 +518,28 @@ namespace ARTAPclient
 
         private void LoadPDF(string pdfFile)
         {
-            PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
-            bool? result = pdfDialog.ShowDialog();
-            if (result == true)
+            try
             {
-                ImageSource img = pdfDialog.selectedImage;
-                AddNewImage(new AnnotatedImage(img));
+                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+                bool? result = pdfDialog.ShowDialog();
+                if (result == true)
+                {
+                    ImageSource img = pdfDialog.selectedImage;
+                    AddNewImage(new AnnotatedImage(img));
+                }
+            }
+            catch (TypeInitializationException)
+            {
+                MessageBoxResult result = System.Windows.MessageBox.Show
+                    ("GhostScript must be installed to support this feature.\nWould you like to download it?",
+                     "Dependency Missing",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Error);
+
+                if(result == MessageBoxResult.Yes)
+                {
+                    System.Diagnostics.Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+                }
             }
         }
 
