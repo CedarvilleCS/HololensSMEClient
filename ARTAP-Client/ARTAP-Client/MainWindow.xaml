@@ -36,9 +36,9 @@
         <CheckBox x:Name="checkBoxAnnotations" Content="Show Annotations" Grid.Column="3" HorizontalAlignment="Left" Margin="43,279,0,0" VerticalAlignment="Top" Foreground="White"/>
         <CheckBox x:Name="checkBoxRemember" Content="Remember Me" HorizontalAlignment="Left" Margin="43,259,0,0" VerticalAlignment="Top" Foreground="White" Grid.Column="3"/>
         <ComboBox x:Name="comboBoxStreamQuality" HorizontalAlignment="Left" Margin="133,270,0,0" VerticalAlignment="Top" Width="120" Height="24" SelectedIndex="0">
-            <ComboBoxItem Content="low"/>
-            <ComboBoxItem Content="med"/>
-            <ComboBoxItem Content="high"/>
+            <ComboBoxItem Content="Low"/>
+            <ComboBoxItem Content="Med"/>
+            <ComboBoxItem Content="High"/>
         </ComboBox>
         <TextBlock x:Name="textBlock_Copy1" HorizontalAlignment="Left" Margin="50,273,0,0" TextWrapping="Wrap" Text="Stream Quality:" VerticalAlignment="Top" Foreground="White"/>
     </Grid>
