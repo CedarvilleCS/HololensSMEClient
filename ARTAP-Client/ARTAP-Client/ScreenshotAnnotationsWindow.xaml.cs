@@ -512,12 +512,33 @@ namespace ARTAPclient
             if(result == true)
             {
                 string pdfFile = openDialog.FileName;
+                LoadPDF(pdfFile);
+            }
+        }
+
+        private void LoadPDF(string pdfFile)
+        {
+            try
+            {
                 PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
-                result = pdfDialog.ShowDialog();
-                if(result == true)
+                bool? result = pdfDialog.ShowDialog();
+                if (result == true)
                 {
                     ImageSource img = pdfDialog.selectedImage;
                     AddNewImage(new AnnotatedImage(img));
+                }
+            }
+            catch (TypeInitializationException)
+            {
+                MessageBoxResult result = System.Windows.MessageBox.Show
+                    ("GhostScript must be installed to support this feature.\nWould you like to download it?",
+                     "Dependency Missing",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Error);
+
+                if(result == MessageBoxResult.Yes)
+                {
+                    System.Diagnostics.Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
         }
@@ -527,9 +548,16 @@ namespace ARTAPclient
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
-                ImageSource img = new BitmapImage(imageUri);
-                AddNewImage(new AnnotatedImage(img));
+                if (openFileDialog.FileName.EndsWith(".pdf"))
+                {
+                    LoadPDF(openFileDialog.FileName);
+                }
+                else
+                {
+                    Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                    ImageSource img = new BitmapImage(imageUri);
+                    AddNewImage(new AnnotatedImage(img));
+                }
             }
 
         }
