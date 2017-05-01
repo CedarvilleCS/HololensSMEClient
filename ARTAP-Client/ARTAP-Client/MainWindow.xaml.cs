@@ -49,7 +49,7 @@ namespace ARTAPclient
             textBoxPort.Text = AppSettings.Default.portNum;
             textBoxUserName.Text = AppSettings.Default.username;
             comboBoxStreamQuality.SelectedIndex = AppSettings.Default.streamQuality;
-            checkBoxAnnotations.IsChecked = AppSettings.Default.showAnnotations;
+            checkBoxHolograms.IsChecked = AppSettings.Default.showAnnotations;
             checkBoxRemember.IsChecked = AppSettings.Default.rememberMe;
         }
 
@@ -62,7 +62,7 @@ namespace ARTAPclient
             _userName = textBoxUserName.Text;
             _password = passwordBoxPassword.Password;
             _streamQuality = comboBoxStreamQuality.Text;
-            _showAnnotations = (bool)checkBoxAnnotations.IsChecked;
+            _showAnnotations = (bool)checkBoxHolograms.IsChecked;
             _rememberMe = (bool)checkBoxRemember.IsChecked;
 
             if (ValidateText(_ip, "IP") && ValidateText(port, "port") &&
@@ -113,7 +113,7 @@ namespace ARTAPclient
                     AppSettings.Default.ipAddress = textBoxIP.Text;
                     AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
                     AppSettings.Default.rememberMe = true;
-                    AppSettings.Default.showAnnotations = (bool)checkBoxAnnotations.IsChecked;
+                    AppSettings.Default.showAnnotations = (bool)checkBoxHolograms.IsChecked;
                     AppSettings.Default.Save();
                 }
                 else
