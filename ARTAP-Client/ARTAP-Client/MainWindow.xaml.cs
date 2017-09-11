@@ -55,6 +55,7 @@ namespace ARTAPclient
 
         private void buttonConnect_Click(object sender, RoutedEventArgs e)
         {
+            // comment
             buttonConnect.IsEnabled = false;
             buttonConnect.Background = Brushes.Yellow;
             _ip = textBoxIP.Text;
