@@ -7,6 +7,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
+//Test commit
+
 namespace ARTAPclient
 {
     public class AnnotatedImage
