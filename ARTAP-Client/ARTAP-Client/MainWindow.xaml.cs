@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Net;
 using WpfApplication1;
 
@@ -12,7 +13,7 @@ namespace ARTAPclient
     /// Test Commit! Spencer
     public partial class MainWindow : Window
     {
-        private const int BANDWIDTH_TEST_PORT = 100;
+        private const int BANDWIDTH_TEST_PORT = 1000;
 
         private AsynchronousSocketListener _listener;
 
@@ -76,12 +77,15 @@ namespace ARTAPclient
                 _listener.ConnectionTimedOut += Listener_ConnectionTimedOut;
                 _listener.Connect();
 
-                bandwidthTestHostEndpoint = new IPEndPoint(int.Parse(_ip), BANDWIDTH_TEST_PORT);
+                IPAddress.TryParse(_ip, out IPAddress hostAddr);
+                bandwidthTestHostEndpoint = new IPEndPoint(hostAddr, BANDWIDTH_TEST_PORT); 
 
                 _bandwidthTestListener = new AsynchronousSocketListener(bandwidthTestHostEndpoint);
                 _bandwidthTestListener.ConnectionEstablished += Listener_ConnectionEstablished;
                 _bandwidthTestListener.ConnectionTimedOut += Listener_ConnectionTimedOut;
                 _bandwidthTestListener.Connect();
+
+                _bandwidthTestListener.SendBitmap(new BitmapImage(new Uri(@"C:\Users\tfroberg\Documents\Visual Studio 2017\HololensSMEClient\ARTAP-Client\ARTAP-Client\Resources\artap.png"))); // System.IO.IOException: 'Cannot locate resource 'resources/background.png'.'
             }
             else
             {
