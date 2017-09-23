@@ -1,13 +1,9 @@
-﻿using System;
+using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -50,6 +46,15 @@ namespace ARTAPclient
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Is the socket connected?
+        /// </summary>
+        public bool Connected { get; private set; }
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -72,10 +77,8 @@ namespace ARTAPclient
         /// </summary>
         public void Connect()
         {
-            // Connect to a remote device.
             try
             {
-                // Connect to the remote endpoint.
                 _client.BeginConnect(_remoteEndPoint,
                     new AsyncCallback(ConnectCallback), _client);
 
@@ -114,6 +117,7 @@ namespace ARTAPclient
                 imgStream.Position = 0;
                 imgData = imgStream.ToArray();
             }
+
             Send(MessageType.Bitmap, imgData);
         }
 
@@ -173,6 +177,7 @@ namespace ARTAPclient
             {
                 Array.Reverse(bytes);
             }
+
             return bytes;
         }
 
@@ -202,7 +207,7 @@ namespace ARTAPclient
             int offset = 0;
             foreach (byte[] array in arrays)
             {
-                System.Buffer.BlockCopy(array, 0, rv, offset, array.Length);
+                Buffer.BlockCopy(array, 0, rv, offset, array.Length);
                 offset += array.Length;
             }
             return rv;
@@ -276,15 +281,6 @@ namespace ARTAPclient
 
         #endregion
 
-        #region Properties
-
-        /// <summary>
-        /// Is the socket connected?
-        /// </summary>
-        public bool Connected { get; private set; }
-
-        #endregion
-
         #region Events
 
         /// <summary>
@@ -314,19 +310,10 @@ namespace ARTAPclient
         private void ConnectionAliveTimerElapsed(object sender,
             System.Timers.ElapsedEventArgs e)
         {
-            ///
-            /// Returns true if the closed, reset, etc.
-            ///
-            bool part1 = _client.Poll(1000, SelectMode.SelectRead);
-            ///
-            ///Checks if there is anything available to read
-            ///
-            bool part2 = (_client.Available == 0);
-            ///
-            /// If it's closed/reset and there is nothing to read,
-            /// the socket is not connected and is closed
-            /// 
-            if (part1 && part2)
+            bool isNotAvailable = _client.Poll(1000, SelectMode.SelectRead);
+            bool hasNoDataToRead = (_client.Available == 0);
+
+            if (isNotAvailable && hasNoDataToRead)
             {
                 NotifyConnectionLost();
             }
@@ -345,13 +332,15 @@ namespace ARTAPclient
             try
             {
                 _client.EndConnect(ar);
+
                 Connected = true;
                 ConnectionEstablished?.Invoke(this, new EventArgs());
             }
-            catch (System.Net.Sockets.SocketException)
+            catch (SocketException)
             {
                 ConnectionTimedOut?.Invoke(this, new EventArgs());
             }
+
             ///
             /// Start polling to know the connection is alive
             ///
@@ -365,9 +354,7 @@ namespace ARTAPclient
         private void SendCallback(IAsyncResult ar)
         {
             int bytesSent = _client.EndSend(ar);
-            ///
-            /// For testing purposes
-            ///
+
             Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
         }
 
@@ -383,11 +370,19 @@ namespace ARTAPclient
             // TODO: Handle socket exception on HoloLens disconnect
             // Using rev 4606b2 on the HoloLens
             //
-            _client.EndReceive(ar);
+            try
+            {
+                _client.EndReceive(ar);
 
-            state.locatableImage.PositionID = new byte[4];
-            Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
-           
+                state.locatableImage.PositionID = new byte[4];
+                Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
+            }
+            catch (SocketException ex)
+            {
+                _client.Close();
+
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         #endregion
