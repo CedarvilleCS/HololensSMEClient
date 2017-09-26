@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows;
 using System.Windows.Shapes;
+using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -43,9 +44,9 @@ namespace ARTAPclient
         /// <param name="relativeLocation">Point to add the marker at.</param>
         /// <param name="color">Color to draw the marker.</param>
         /// <returns>Returns the PolyLine to add to the canvas.</returns>
-        public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Color color)
+        public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Color color, Direction direction)
         {
-            PointCollection newMarkerPoints = new PointCollection(MARKER_POINTS.Length);
+            var newMarkerPoints = new PointCollection(MARKER_POINTS.Length);
 
             //
             // Translate the shape of the marker so it will be placed where we want it
@@ -56,14 +57,14 @@ namespace ARTAPclient
                                               relativeLocation.Y + original.Y * SCALING));
             }
 
-            Polyline x = new Polyline();
+            var x = new Polyline();
 
             x.StrokeThickness = MARKER_THICKNESS;
             x.Stroke = new SolidColorBrush(color);
 
             x.Points = newMarkerPoints;
 
-            _markers.Add(new Marker(x, relativeLocation, absoluteLocation, color));
+            _markers.Add(new Marker(x, relativeLocation, absoluteLocation, color, direction));
             return x;
         }
 
@@ -92,7 +93,7 @@ namespace ARTAPclient
         /// <param name="visibility">Visibility to set to</param>
         public void SetMarkersVisibility(Visibility visibility)
         {
-            foreach (Marker m in _markers)
+            foreach (var m in _markers)
             {
                 m.Annotation.Visibility = visibility;
             }

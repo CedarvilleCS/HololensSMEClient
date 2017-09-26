@@ -187,14 +187,14 @@ namespace ARTAPclient
         {
             if (_imageHistory.Count != 0) {
                 Rect bounds = VisualTreeHelper.GetDescendantBounds(canvasImageEditor);
-                RenderTargetBitmap rtb =
+                var rtb =
                     new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height,
-                    DPIX, DPIY, System.Windows.Media.PixelFormats.Default);
+                    DPIX, DPIY, PixelFormats.Default);
 
-                DrawingVisual dv = new DrawingVisual();
+                var dv = new DrawingVisual();
                 using (DrawingContext dc = dv.RenderOpen())
                 {
-                    VisualBrush vb = new VisualBrush(canvasImageEditor);
+                    var vb = new VisualBrush(canvasImageEditor);
                     dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
                 }
 
@@ -227,7 +227,7 @@ namespace ARTAPclient
             //Add the markers if they exist
             if(_activeImage is LocatableImage)
             {
-                foreach(Marker m in (_activeImage as LocatableImage).Markers)
+                foreach(var m in (_activeImage as LocatableImage).Markers)
                 {
                     canvasImageEditor.Children.Add(m.Annotation);
                 }
@@ -276,8 +276,7 @@ namespace ARTAPclient
                 canvasImageEditor.Width = 640;
                 canvasImageEditor.Height = (640/image.Width)*image.Height;
             }
-            //canvasImageEditor.Width = image.Width;
-            //canvasImageEditor.Height = image.Height;
+
             canvasImageEditor.Background = ib;
             canvasImageEditor.InvalidateVisual();
         }
@@ -329,9 +328,9 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor, 0)); // TODO: get direction
 
-                    //
+                    //se
                     // Enable the undo button for placing arrows
                     //
                     buttonUndo.IsEnabled = true;
@@ -538,7 +537,7 @@ namespace ARTAPclient
 
                 if(result == MessageBoxResult.Yes)
                 {
-                    System.Diagnostics.Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+                    Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
         }

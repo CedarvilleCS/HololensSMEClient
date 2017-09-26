@@ -101,9 +101,9 @@ namespace ARTAPclient
         /// <param name="bm">Bitmap object to send</param>
         public void SendBitmap(ImageSource image)
         {
-            BitmapSource bmpSrc = image as BitmapSource;
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            BitmapFrame outputFrame = BitmapFrame.Create(bmpSrc);
+            var bmpSrc = image as BitmapSource;
+            var encoder = new JpegBitmapEncoder();
+            var outputFrame = BitmapFrame.Create(bmpSrc);
             encoder.Frames.Add(outputFrame);
             encoder.QualityLevel = 100;
 
@@ -129,13 +129,14 @@ namespace ARTAPclient
                 {
                     byte[] width = GetShortBytesFromDouble(image.OriginalImage.Width);
                     byte[] height = GetShortBytesFromDouble(image.OriginalImage.Height);
+                    byte[] direction = GetShortBytesFromInt((int)m.Direction);
 
                     byte[] x = GetShortBytesFromDouble(m.AbsoluteLocation.X);
                     byte[] y = GetShortBytesFromDouble(m.AbsoluteLocation.Y);
 
                     byte[] color = { m.Color.R, m.Color.G, m.Color.B };
 
-                    byte[] message = CombineArrs(image.PositionID, width, height, x, y, color);
+                    byte[] message = CombineArrs(image.PositionID, width, height, x, y, color, direction);
                     Send(MessageType.ArrowPlacement, message);
 
                     m.Sent = true;
@@ -167,13 +168,20 @@ namespace ARTAPclient
         /// <returns>Byte array of 16bit representation</returns>
         private byte[] GetShortBytesFromDouble(double d)
         {
-            short s = (short)d;
+            var s = (short)d;
             byte[] bytes = BitConverter.GetBytes(s);
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
             }
+
             return bytes;
+        }
+
+        private byte[] GetShortBytesFromInt(int i)
+        {
+            return GetShortBytesFromDouble(i);
         }
 
         /// <summary>
@@ -202,9 +210,10 @@ namespace ARTAPclient
             int offset = 0;
             foreach (byte[] array in arrays)
             {
-                System.Buffer.BlockCopy(array, 0, rv, offset, array.Length);
+                Buffer.BlockCopy(array, 0, rv, offset, array.Length);
                 offset += array.Length;
             }
+
             return rv;
         }
 
@@ -223,7 +232,7 @@ namespace ARTAPclient
                 int totalLen = data.Length + 2;
 
                 byte[] typeBytes = BitConverter.GetBytes((short)messageType);
-                byte[] lengthBytes = BitConverter.GetBytes((int)totalLen);
+                byte[] lengthBytes = BitConverter.GetBytes(totalLen);
                 if (BitConverter.IsLittleEndian)
                 {
                     Array.Reverse(typeBytes);
@@ -251,7 +260,7 @@ namespace ARTAPclient
         {
             try
             {
-                StateObject state = new StateObject();
+                var state = new StateObject();
                 state.locatableImage = image;
                 _client.BeginReceive(state.buffer, 0, StateObject.BUFFSIZE, 0,
                     new AsyncCallback(ReceiveCallback), state);
