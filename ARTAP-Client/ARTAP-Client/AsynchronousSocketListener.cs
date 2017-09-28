@@ -136,7 +136,7 @@ namespace ARTAPclient
 
                     byte[] color = { m.Color.R, m.Color.G, m.Color.B };
 
-                    byte[] message = CombineArrs(image.PositionID, width, height, x, y, color, direction);
+                    byte[] message = CombineArrs(image.PositionID, width, height, x, y, direction, color);
                     Send(MessageType.ArrowPlacement, message);
 
                     m.Sent = true;

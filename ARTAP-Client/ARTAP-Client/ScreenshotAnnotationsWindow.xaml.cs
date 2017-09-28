@@ -48,6 +48,8 @@ namespace ARTAPclient
         /// </summary>
         private int _currentImageIndex = 0;
 
+        private Direction _markerDirection = Direction.MiddleMiddle;
+
         ///// <summary>
         ///// History of images snapped from the stream
         ///// </summary>
@@ -328,7 +330,7 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor, 0)); // TODO: get direction
+                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, Direction.TopMiddle, _brushColor)); // replace with enum value for testing
 
                     //se
                     // Enable the undo button for placing arrows
@@ -423,6 +425,12 @@ namespace ARTAPclient
                     }
                 }
             }
+        }
+
+        private void buttonDirection_Click(object sender, RoutedEventArgs e)
+        {
+            var name = ((Button)sender).Name;
+            _markerDirection = (Direction)name[name.Length - 1];
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e)

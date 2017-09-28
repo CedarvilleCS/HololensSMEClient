@@ -44,7 +44,7 @@ namespace ARTAPclient
         /// <param name="relativeLocation">Point to add the marker at.</param>
         /// <param name="color">Color to draw the marker.</param>
         /// <returns>Returns the PolyLine to add to the canvas.</returns>
-        public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Color color, Direction direction)
+        public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Direction direction, Color color)
         {
             var newMarkerPoints = new PointCollection(MARKER_POINTS.Length);
 
