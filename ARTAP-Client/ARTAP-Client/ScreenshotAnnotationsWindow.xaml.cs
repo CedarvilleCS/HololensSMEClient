@@ -524,13 +524,17 @@ namespace ARTAPclient
                 bool? result = pdfDialog.ShowDialog();
                 if (result == true)
                 {
-                    ImageSource img = pdfDialog.selectedImage;
-                    AddNewImage(new AnnotatedImage(img));
+                    List<ImageSource> images = new List<ImageSource>();
+                    foreach (var image in pdfDialog.selectedImages)
+                    {
+                        images.Add(image);
+                        AddNewImage(new AnnotatedImage(image));
+                    }
                 }
             }
             catch (TypeInitializationException)
             {
-                MessageBoxResult result = System.Windows.MessageBox.Show
+                MessageBoxResult result = MessageBox.Show
                     ("GhostScript must be installed to support this feature.\nWould you like to download it?",
                      "Dependency Missing",
                      MessageBoxButton.YesNo,
@@ -538,7 +542,12 @@ namespace ARTAPclient
 
                 if(result == MessageBoxResult.Yes)
                 {
-                    System.Diagnostics.Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+                    result = MessageBox.Show
+                    ("NOTE: After installing, you must restart the application", "NOTE",
+                     MessageBoxButton.OK,
+                     MessageBoxImage.Exclamation);
+
+                    Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
         }
