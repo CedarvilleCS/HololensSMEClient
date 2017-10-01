@@ -115,6 +115,10 @@ namespace ARTAPclient
 
         private int _thumbIndex = 0;
 
+        private bool _isSelectMultiple = false;
+
+        private List<int> _selectedImages;
+
 
         #endregion
 
@@ -129,6 +133,8 @@ namespace ARTAPclient
             _pictureBoxThumbnails.Add(imageThumb2);
             _pictureBoxThumbnails.Add(imageThumb3);
             _pictureBoxThumbnails.Add(imageThumb4);
+
+            _selectedImages = new List<int>();
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
@@ -459,7 +465,21 @@ namespace ARTAPclient
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            SelectThumbnail(0 + _thumbIndex);
+            if (_isSelectMultiple)
+            {
+                if (_selectedImages.Any(x => x == _thumbIndex))
+                {
+                    _selectedImages.Remove(_thumbIndex);
+                }
+                else
+                {
+                    _selectedImages.Add(_thumbIndex);
+                }
+            }
+            else
+            {
+                SelectThumbnail(0 + _thumbIndex);
+            }
         }
 
         private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
@@ -607,6 +627,11 @@ namespace ARTAPclient
                 
                 buttonPlaceArrow.Background = Brushes.LightGray;
             }
+        }
+
+        private void buttonSelectMultiple_Click(object sender, EventArgs e)
+        {
+            _isSelectMultiple = true;
         }
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)

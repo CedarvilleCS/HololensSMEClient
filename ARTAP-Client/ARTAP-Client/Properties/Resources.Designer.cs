@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ARTAPclient.Properties {
+namespace WpfApplication1.Properties {
     using System;
     
     
@@ -57,6 +57,16 @@ namespace ARTAPclient.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] check_mark {
+            get {
+                object obj = ResourceManager.GetObject("check_mark", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }
