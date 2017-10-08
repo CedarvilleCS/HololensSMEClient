@@ -24,7 +24,7 @@ namespace ARTAPclient
     /// Interaction logic for Window2.xaml
     /// </summary>
     /// 
-    public partial class ScreenshotAnnotationsWindow : Window
+    public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
 
@@ -607,6 +607,10 @@ namespace ARTAPclient
         private void buttonPlaceArrow_Click(object sender, RoutedEventArgs e)
         {
             SetPlacingMarkers(!_placingMarker);
+        }
+        private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
+        {
+            TestFlyout.IsOpen = true;
         }
 
         private void SetPlacingMarkers(bool placingArrow)

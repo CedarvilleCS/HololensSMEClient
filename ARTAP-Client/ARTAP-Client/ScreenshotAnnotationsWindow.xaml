@@ -1,8 +1,9 @@
-﻿<Window x:Class="ARTAPclient.ScreenshotAnnotationsWindow"
+﻿<Controls:MetroWindow x:Class="ARTAPclient.ScreenshotAnnotationsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:ARTAPclient"
         mc:Ignorable="d"
         Title="Annotations" Height="531.24" Width="691.131" WindowStartupLocation="CenterScreen" MinWidth="780" MinHeight="540">
@@ -90,7 +91,168 @@
                     </Path.Data>
                 </Path>
             </Button>
-            <Button x:Name="buttonPlaceArrow" ToolTip="Place Arrow" HorizontalAlignment="Left" Height="50" Width="50" Margin="5,340,0,0" Grid.Row="0" VerticalAlignment="Top" Click="buttonPlaceArrow_Click" Grid.Column="1" IsEnabled="False" Background="#FFDDDDDD">
+            <Controls:FlyoutsControl>
+                <Controls:Flyout x:Name="TestFlyout" Header="OptionChooser" Position="Right" Width="180" Height="280">
+                    <Grid Height="180" Width="180">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Button x:Name="button1" Grid.Column="0" Grid.Row="0" Width="60" Height="60" Background="White">
+                            <!--<Image x:Name="button1" Source="Assets\45WingsArrowLeftUp.png" RenderTransformOrigin=".5,.5">
+                                <Image.RenderTransform>
+                                    <RotateTransform Angle="-90" />
+                                </Image.RenderTransform>
+                            </Image>-->
+                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        <PathGeometry.Transform>
+                                            <RotateTransform Angle="45" />
+                                        </PathGeometry.Transform>
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>
+                        </Button>
+                        <Button x:Name="button2" Grid.Column="1" Grid.Row="0"  Width="60" Height="60" Background="White">
+                            <!--<Image x:Name="button2" Source="Assets\45WingsArrowUp.png" >
+                                <Image.RenderTransform>
+                                    <RotateTransform Angle="-45" />
+                                </Image.RenderTransform>
+                            </Image>-->
+                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry x:Name="button2path" Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        <PathGeometry.Transform>
+                                            <RotateTransform Angle="90" />
+                                        </PathGeometry.Transform>
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>
+                        </Button>
+                        <Button x:Name="button3" Grid.Column="2" Grid.Row="0"  Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
+                            <Image Source="Resources\downleft.png">
+                                <!--<Image.RenderTransform>
+                                    <RotateTransform Angle="45" />
+                                </Image.RenderTransform>-->
+                            </Image>
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        <PathGeometry.Transform>
+                                            <RotateTransform Angle="135" />
+                                        </PathGeometry.Transform>
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>-->
+                        </Button>
+                        <Button x:Name="button4" Grid.Column="0" Grid.Row="1"  Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
+                            <Image Source="Resources\right.png">
+                                <!--<Image.RenderTransform>
+                                    <RotateTransform Angle="-135" />
+                                </Image.RenderTransform>-->
+                            </Image>
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        --><!--<PathGeometry.Transform>
+                                            <RotateTransform Angle="90" />
+                                        </PathGeometry.Transform>--><!--
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>-->
+                        </Button>
+                        <Button x:Name="button5" Grid.Column="1" Grid.Row="1" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
+                            <!--<Image x:Name="button5" Source="Assets\45WingsArrowRight.png">
+
+                            </Image>-->
+                        </Button>
+                        <Button x:Name="button6" Grid.Column="2" Grid.Row="1" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
+                            <!--<Image x:Name="button6" Source="Assets\45WingsArrowRight.png">
+                                <Image.RenderTransform>
+                                    <RotateTransform Angle="45" />
+                                </Image.RenderTransform>
+                            </Image>-->
+                            
+                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        <PathGeometry.Transform>
+                                            <RotateTransform Angle="180" />
+                                        </PathGeometry.Transform>
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>
+                        </Button>
+                        <Button x:Name="button7" Grid.Column="0" Grid.Row="2" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
+                            <!--<Image x:Name="button7" Source="Assets\45WingsArrowLeftDown.png">
+                                <Image.RenderTransform>
+                                    <RotateTransform Angle="-180" />
+                                </Image.RenderTransform>
+                            </Image>-->
+                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        <PathGeometry.Transform>
+                                            <RotateTransform Angle="315" />
+                                        </PathGeometry.Transform>
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>
+                        </Button>
+                        <Button x:Name="button8" Grid.Column="1" Grid.Row="2" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
+                            <!--<Image x:Name="button8" Source="Assets\45WingsArrowDown.png">
+                                <Image.RenderTransform>
+                                    <RotateTransform Angle="135" />
+                                </Image.RenderTransform>
+                            </Image>-->
+                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        <PathGeometry.Transform>
+                                            <RotateTransform Angle="270" />
+                                        </PathGeometry.Transform>
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>
+                        </Button>
+                        <Button x:Name="button9" Grid.Column="2" Grid.Row="2" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
+                            <!--<Image Source="Assets\45WingsArrowRightDown.png">
+                                
+                            <Image.RenderTransform>
+                                    <RotateTransform Angle="90" />
+                                </Image.RenderTransform>
+                            
+                            </Image>-->
+                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                                <Path.Data>
+                                    <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
+                                        <PathGeometry.Transform>
+                                            <RotateTransform Angle="225" />
+                                        </PathGeometry.Transform>
+                                    </PathGeometry>
+
+                                </Path.Data>
+                            </Path>
+                        </Button>
+                    </Grid>
+                </Controls:Flyout>
+            </Controls:FlyoutsControl>
+            <!--Previously called function "buttonPlaceArrow_Click"-->
+            <Button x:Name="buttonPlaceArrow" ToolTip="Place Arrow" HorizontalAlignment="Left" Height="50" Width="50" Margin="5,340,0,0" Grid.Row="0" VerticalAlignment="Top" Click="buttonShowFlyout_Click" Grid.Column="1" IsEnabled="False" Background="#FFDDDDDD">
                 <Path Fill="#FF030104"  Stretch="Uniform" Height="39.088" Width="42">
                     <Path.Data>
                         <PathGeometry Figures="M2.69,320.439c-3.768,4.305-3.553,10.796,0.494,14.842l1.535,1.536c4.047,4.046,10.537,4.262,14.842,0.493l105.377-92.199
@@ -104,6 +266,7 @@
 			C192.882,98.735,192.322,105.595,187.751,109.478z" FillRule="NonZero"/>
                     </Path.Data>
                 </Path>
+                
             </Button>
             <Button x:Name="buttonSelectImages" HorizontalAlignment="Right" Height="50" Width="50" Margin="0,395,0,0" Grid.Row="0" VerticalAlignment="Top" 
                     Grid.Column="1" Click="buttonSelectMultiple_Click" ToolTip="Select multiple uploaded images" Grid.RowSpan="2">
@@ -151,4 +314,4 @@
         <KeyBinding Key="Left"
                     Command="{StaticResource prevCommand}" />
     </Window.InputBindings>
-</Window>
+</Controls:MetroWindow>
