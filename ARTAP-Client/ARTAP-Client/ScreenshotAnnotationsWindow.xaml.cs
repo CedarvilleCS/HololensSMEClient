@@ -321,7 +321,7 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 Debug.WriteLine("Placing Arrow: " + _placingMarker);
                 if (_placingMarker)
@@ -434,7 +434,7 @@ namespace ARTAPclient
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 //
                 // The sender == buttonClear clause makes sure that
@@ -461,12 +461,33 @@ namespace ARTAPclient
                     SaveCanvasToActiveImage();
                 }
             }
+            else if (_isSelectMultiple)
+            {
+                var borders = new Border[] {
+                    imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+                };
+
+                foreach (var border in borders)
+                {
+                    border.BorderBrush = Brushes.White;
+                }
+            }
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            var thumbnailBorder = GetBorderFromThumbnailName(((Image)sender).Name);
             if (_isSelectMultiple)
             {
+                if (thumbnailBorder.BorderBrush == Brushes.White)
+                {
+                    thumbnailBorder.BorderBrush = Brushes.Cyan;
+                }
+                else
+                {
+                    thumbnailBorder.BorderBrush = Brushes.White;
+                }
+
                 if (_selectedImages.Any(x => x == _thumbIndex))
                 {
                     _selectedImages.Remove(_thumbIndex);
@@ -476,30 +497,28 @@ namespace ARTAPclient
                     _selectedImages.Add(_thumbIndex);
                 }
             }
-            else
+
+            SelectThumbnail(0 + _thumbIndex);
+
+            buttonUndo.IsEnabled = !_isSelectMultiple;
+        }
+
+        private Border GetBorderFromThumbnailName(string name)
+        {
+            var character = name[name.Length - 1];
+            switch (character)
             {
-                SelectThumbnail(0 + _thumbIndex);
+                case '1':
+                    return imageThumb1Border;
+                case '2':
+                    return imageThumb2Border;
+                case '3':
+                    return imageThumb3Border;
+                case '4':
+                    return imageThumb4Border;
+                default:
+                    return imageThumbBorder;
             }
-        }
-
-        private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(1 + _thumbIndex);
-        }
-
-        private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(2 + _thumbIndex);
-        }
-
-        private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(3 + _thumbIndex);
-        }
-
-        private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(4 + _thumbIndex);
         }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
@@ -635,7 +654,14 @@ namespace ARTAPclient
 
         private void buttonSelectMultiple_Click(object sender, EventArgs e)
         {
-            _isSelectMultiple = true;
+            _isSelectMultiple = !_isSelectMultiple;
+
+            buttonUndo.IsEnabled = !_isSelectMultiple;
+            buttonChangeColor.IsEnabled = !_isSelectMultiple;
+            buttonUploadImage.IsEnabled = !_isSelectMultiple;
+            buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
+            buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
+            buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
         }
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)
