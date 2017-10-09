@@ -629,7 +629,24 @@ namespace ARTAPclient
         }
         private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
         {
-            TestFlyout.IsOpen = true;
+            //Toggles the menu upon click
+            MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
+            
+        }
+
+        private void ChooseMarkerType(object sender, RoutedEventArgs e)
+        {
+            //The menu will have to be open to click a button so we don't have to toggle here
+            MenuFlyout.IsOpen = false;
+            Button btn = (Button)sender;
+            string btnName = btn.Name;
+            //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
+            //This needs to go somewhere
+            int last = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
+
+            //Works in theory, need to test
+            Image content = (Image)btn.Content;
+            buttonPlaceArrow.Content = content;
         }
 
         private void SetPlacingMarkers(bool placingArrow)

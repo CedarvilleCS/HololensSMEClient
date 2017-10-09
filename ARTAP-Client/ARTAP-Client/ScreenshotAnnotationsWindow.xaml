@@ -100,7 +100,7 @@
                 </Path>
             </Button>
             <Controls:FlyoutsControl>
-                <Controls:Flyout x:Name="TestFlyout" Header="OptionChooser" Position="Right" Width="180" Height="280">
+                <Controls:Flyout x:Name="MenuFlyout" Header="OptionChooser" Position="Right" Width="180" Height="280">
                     <Grid Height="180" Width="180">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -112,13 +112,10 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Button x:Name="button1" Grid.Column="0" Grid.Row="0" Width="60" Height="60" Background="White">
-                            <!--<Image x:Name="button1" Source="Assets\45WingsArrowLeftUp.png" RenderTransformOrigin=".5,.5">
-                                <Image.RenderTransform>
-                                    <RotateTransform Angle="-90" />
-                                </Image.RenderTransform>
-                            </Image>-->
-                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                        <Button x:Name="button1" Grid.Column="0" Grid.Row="0" Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\downright.png" />
+
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
                                         <PathGeometry.Transform>
@@ -127,15 +124,11 @@
                                     </PathGeometry>
 
                                 </Path.Data>
-                            </Path>
+                            </Path>-->
                         </Button>
-                        <Button x:Name="button2" Grid.Column="1" Grid.Row="0"  Width="60" Height="60" Background="White">
-                            <!--<Image x:Name="button2" Source="Assets\45WingsArrowUp.png" >
-                                <Image.RenderTransform>
-                                    <RotateTransform Angle="-45" />
-                                </Image.RenderTransform>
-                            </Image>-->
-                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                        <Button x:Name="button2" Grid.Column="1" Grid.Row="0"  Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\down.png" />
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry x:Name="button2path" Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
                                         <PathGeometry.Transform>
@@ -144,14 +137,10 @@
                                     </PathGeometry>
 
                                 </Path.Data>
-                            </Path>
+                            </Path>-->
                         </Button>
-                        <Button x:Name="button3" Grid.Column="2" Grid.Row="0"  Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
-                            <Image Source="Resources\downleft.png">
-                                <!--<Image.RenderTransform>
-                                    <RotateTransform Angle="45" />
-                                </Image.RenderTransform>-->
-                            </Image>
+                        <Button x:Name="button3" Grid.Column="2" Grid.Row="0"  Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\downleft.png" />
                             <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
@@ -163,15 +152,10 @@
                                 </Path.Data>
                             </Path>-->
                         </Button>
-                        <Button x:Name="button4" Grid.Column="0" Grid.Row="1"  Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
-                            <!--<Image Source="Resources\right.png">
-                                -->
-                            <!--<Image.RenderTransform>
-                                    <RotateTransform Angle="-135" />
-                                </Image.RenderTransform>-->
-                            <!--
-                            </Image>-->
-                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                        <Button x:Name="button4" Grid.Column="0" Grid.Row="1"  Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\right.png" />
+
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
                                         <PathGeometry.Transform>
@@ -180,22 +164,14 @@
                                     </PathGeometry>
 
                                 </Path.Data>
-                            </Path>
+                            </Path>-->
                         </Button>
-                        <Button x:Name="button5" Grid.Column="1" Grid.Row="1" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
-                            <!--<Image x:Name="button5" Source="Assets\45WingsArrow
-">
-
-                            </Image>-->
+                        <Button x:Name="button5" Grid.Column="1" Grid.Row="1" Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\filled-circle.png" />
                         </Button>
-                        <Button x:Name="button6" Grid.Column="2" Grid.Row="1" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
-                            <!--<Image x:Name="button6" Source="Assets\45WingsArrowRight.png">
-                                <Image.RenderTransform>
-                                    <RotateTransform Angle="45" />
-                                </Image.RenderTransform>
-                            </Image>-->
-
-                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                        <Button x:Name="button6" Grid.Column="2" Grid.Row="1" Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\left.png" />
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
                                         <PathGeometry.Transform>
@@ -204,15 +180,11 @@
                                     </PathGeometry>
 
                                 </Path.Data>
-                            </Path>
+                            </Path>-->
                         </Button>
-                        <Button x:Name="button7" Grid.Column="0" Grid.Row="2" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
-                            <!--<Image x:Name="button7" Source="Assets\45WingsArrowLeftDown.png">
-                                <Image.RenderTransform>
-                                    <RotateTransform Angle="-180" />
-                                </Image.RenderTransform>
-                            </Image>-->
-                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                        <Button x:Name="button7" Grid.Column="0" Grid.Row="2" Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\upright.png" />
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
                                         <PathGeometry.Transform>
@@ -221,15 +193,11 @@
                                     </PathGeometry>
 
                                 </Path.Data>
-                            </Path>
+                            </Path>-->
                         </Button>
-                        <Button x:Name="button8" Grid.Column="1" Grid.Row="2" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
-                            <!--<Image x:Name="button8" Source="Assets\45WingsArrowDown.png">
-                                <Image.RenderTransform>
-                                    <RotateTransform Angle="135" />
-                                </Image.RenderTransform>
-                            </Image>-->
-                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                        <Button x:Name="button8" Grid.Column="1" Grid.Row="2" Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\up.png" />
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
                                         <PathGeometry.Transform>
@@ -238,17 +206,11 @@
                                     </PathGeometry>
 
                                 </Path.Data>
-                            </Path>
+                            </Path>-->
                         </Button>
-                        <Button x:Name="button9" Grid.Column="2" Grid.Row="2" Width="60" Height="60" Background="White" RenderTransformOrigin=".5,.5">
-                            <!--<Image Source="Assets\45WingsArrowRightDown.png">
-                                
-                            <Image.RenderTransform>
-                                    <RotateTransform Angle="90" />
-                                </Image.RenderTransform>
-                            
-                            </Image>-->
-                            <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
+                        <Button x:Name="button9" Grid.Column="2" Grid.Row="2" Width="60" Height="60" Background="White" Click="ChooseMarkerType">
+                            <Image Source="Resources\upleft.png" />
+                            <!--<Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="46" >
                                 <Path.Data>
                                     <PathGeometry Figures="m 192.00296,205.33633 -5.82517,-5.89843 27.16993,-27.18561 27.16993,-27.18562 H 120.25883 0 v -8.53333 -8.53333 h 120.25883 120.25882 l -27.18243,-27.19813 -27.18244,-27.198125 5.8656,-5.865602 5.86561,-5.865603 37.32087,37.332307 37.32088,37.332303 -37.3488,37.34881 -37.34881,37.3488 z" FillRule="NonZero">
                                         <PathGeometry.Transform>
@@ -257,7 +219,7 @@
                                     </PathGeometry>
 
                                 </Path.Data>
-                            </Path>
+                            </Path>-->
                         </Button>
                     </Grid>
                 </Controls:Flyout>
