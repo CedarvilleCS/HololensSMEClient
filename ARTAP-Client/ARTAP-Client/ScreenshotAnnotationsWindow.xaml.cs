@@ -24,7 +24,7 @@ namespace ARTAPclient
     /// Interaction logic for Window2.xaml
     /// </summary>
     /// 
-    public partial class ScreenshotAnnotationsWindow : Window
+    public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
 
@@ -117,6 +117,10 @@ namespace ARTAPclient
 
         private int _thumbIndex = 0;
 
+        private bool _isSelectMultiple = false;
+
+        private List<int> _selectedImages;
+
 
         #endregion
 
@@ -131,6 +135,8 @@ namespace ARTAPclient
             _pictureBoxThumbnails.Add(imageThumb2);
             _pictureBoxThumbnails.Add(imageThumb3);
             _pictureBoxThumbnails.Add(imageThumb4);
+
+            _selectedImages = new List<int>();
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
@@ -316,7 +322,7 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 Debug.WriteLine("Placing Arrow: " + _placingMarker);
                 if (_placingMarker)
@@ -435,7 +441,7 @@ namespace ARTAPclient
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 //
                 // The sender == buttonClear clause makes sure that
@@ -462,31 +468,64 @@ namespace ARTAPclient
                     SaveCanvasToActiveImage();
                 }
             }
+            else if (_isSelectMultiple)
+            {
+                var borders = new Border[] {
+                    imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+                };
+
+                foreach (var border in borders)
+                {
+                    border.BorderBrush = Brushes.White;
+                }
+            }
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            var thumbnailBorder = GetBorderFromThumbnailName(((Image)sender).Name);
+            if (_isSelectMultiple)
+            {
+                if (thumbnailBorder.BorderBrush == Brushes.White)
+                {
+                    thumbnailBorder.BorderBrush = Brushes.Cyan;
+                }
+                else
+                {
+                    thumbnailBorder.BorderBrush = Brushes.White;
+                }
+
+                if (_selectedImages.Any(x => x == _thumbIndex))
+                {
+                    _selectedImages.Remove(_thumbIndex);
+                }
+                else
+                {
+                    _selectedImages.Add(_thumbIndex);
+                }
+            }
+
             SelectThumbnail(0 + _thumbIndex);
+
+            buttonUndo.IsEnabled = !_isSelectMultiple;
         }
 
-        private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
+        private Border GetBorderFromThumbnailName(string name)
         {
-            SelectThumbnail(1 + _thumbIndex);
-        }
-
-        private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(2 + _thumbIndex);
-        }
-
-        private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(3 + _thumbIndex);
-        }
-
-        private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(4 + _thumbIndex);
+            var character = name[name.Length - 1];
+            switch (character)
+            {
+                case '1':
+                    return imageThumb1Border;
+                case '2':
+                    return imageThumb2Border;
+                case '3':
+                    return imageThumb3Border;
+                case '4':
+                    return imageThumb4Border;
+                default:
+                    return imageThumbBorder;
+            }
         }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
@@ -531,13 +570,17 @@ namespace ARTAPclient
                 bool? result = pdfDialog.ShowDialog();
                 if (result == true)
                 {
-                    ImageSource img = pdfDialog.selectedImage;
-                    AddNewImage(new AnnotatedImage(img));
+                    List<ImageSource> images = new List<ImageSource>();
+                    foreach (var image in pdfDialog.selectedImages)
+                    {
+                        images.Add(image);
+                        AddNewImage(new AnnotatedImage(image));
+                    }
                 }
             }
             catch (TypeInitializationException)
             {
-                MessageBoxResult result = System.Windows.MessageBox.Show
+                MessageBoxResult result = MessageBox.Show
                     ("GhostScript must be installed to support this feature.\nWould you like to download it?",
                      "Dependency Missing",
                      MessageBoxButton.YesNo,
@@ -545,6 +588,14 @@ namespace ARTAPclient
 
                 if(result == MessageBoxResult.Yes)
                 {
+<<<<<<< HEAD
+=======
+                    result = MessageBox.Show
+                    ("NOTE: After installing, you must restart the application", "NOTE",
+                     MessageBoxButton.OK,
+                     MessageBoxImage.Exclamation);
+
+>>>>>>> PDF-Multiple-Pages
                     Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
@@ -586,6 +637,27 @@ namespace ARTAPclient
         {
             SetPlacingMarkers(!_placingMarker);
         }
+        private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
+        {
+            //Toggles the menu upon click
+            MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
+            
+        }
+
+        private void ChooseMarkerType(object sender, RoutedEventArgs e)
+        {
+            //The menu will have to be open to click a button so we don't have to toggle here
+            MenuFlyout.IsOpen = false;
+            Button btn = (Button)sender;
+            string btnName = btn.Name;
+            //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
+            //This needs to go somewhere
+            int last = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
+
+            //Works in theory, need to test
+            Image content = (Image)btn.Content;
+            buttonPlaceArrow.Content = content;
+        }
 
         private void SetPlacingMarkers(bool placingArrow)
         {
@@ -605,6 +677,18 @@ namespace ARTAPclient
                 
                 buttonPlaceArrow.Background = Brushes.LightGray;
             }
+        }
+
+        private void buttonSelectMultiple_Click(object sender, EventArgs e)
+        {
+            _isSelectMultiple = !_isSelectMultiple;
+
+            buttonUndo.IsEnabled = !_isSelectMultiple;
+            buttonChangeColor.IsEnabled = !_isSelectMultiple;
+            buttonUploadImage.IsEnabled = !_isSelectMultiple;
+            buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
+            buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
+            buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
         }
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)
