@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -32,6 +25,8 @@ namespace ARTAPclient
         /// Maximum number of images to hold in the history.
         /// </summary>
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
+
+        private const int THUMBNAIL_GALLERY_SIZE = 5;
 
         /// <summary>
         /// Current bitmap active for drawing
@@ -61,7 +56,7 @@ namespace ARTAPclient
         /// <summary>
         /// List containing all of the thumbnail pictureboxes to make updating easy
         /// </summary>
-        private List<Image> _pictureBoxThumbnails = new List<Image>();
+        private List<ThumbnailImage> _pictureBoxThumbnails = new List<ThumbnailImage>();
 
         /// <summary>
         /// List of all of the buttons we want to enable/disable during arrow placement
@@ -76,7 +71,6 @@ namespace ARTAPclient
         /// <summary>
         /// Number of thumbnail images
         /// </summary>
-        private const int NUMTHUMBNAILS = 5;
 
         /// <summary>
         /// Color used for canvas annotations, default to Red
@@ -117,9 +111,6 @@ namespace ARTAPclient
 
         private bool _isSelectMultiple = false;
 
-        private List<int> _selectedImages;
-
-
         #endregion
 
         #region Constructor
@@ -128,13 +119,11 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            _pictureBoxThumbnails.Add(imageThumb);
-            _pictureBoxThumbnails.Add(imageThumb1);
-            _pictureBoxThumbnails.Add(imageThumb2);
-            _pictureBoxThumbnails.Add(imageThumb3);
-            _pictureBoxThumbnails.Add(imageThumb4);
-
-            _selectedImages = new List<int>();
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
@@ -150,26 +139,23 @@ namespace ARTAPclient
         /// </summary>
         private void UpdateThumbnails()
         {
-            int numActiveThumbnails = 5;
+            int numActiveThumbnails = THUMBNAIL_GALLERY_SIZE;
 
             //Only use the number of active images
-            if (_imageHistory.Count < 5)
+            if (_imageHistory.Count < THUMBNAIL_GALLERY_SIZE)
             {
                 numActiveThumbnails = _imageHistory.Count;
 
             }
 
-            //int numActiveThumbnails = (_imageHistory.Count < 5) ? 
-            //    _imageHistory.Count : NUMTHUMBNAILS;
-
             int index = _thumbIndex;
             //Loop through and update images for all of the thumbnail frames
             for (int i = 0; i < numActiveThumbnails; i++, index++)
             {
-                _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
+                _pictureBoxThumbnails[i].Image.Source = _imageHistory[index].LatestImage;
             }
 
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 buttonNext.IsEnabled = true;
             } else
@@ -208,6 +194,7 @@ namespace ARTAPclient
 
                 _activeImage.LatestImage = rtb.Clone();
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -260,6 +247,7 @@ namespace ARTAPclient
             _currentImageIndex = 0;
             CheckMarkerPlacementAllowed();
             UpdateThumbnails();
+            UpdateThumbnailBorders();
         }
 
         /// <summary>
@@ -476,10 +464,29 @@ namespace ARTAPclient
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var thumbnailBorder = GetBorderFromThumbnailName(((Image)sender).Name);
             if (_isSelectMultiple)
             {
-                if (thumbnailBorder.BorderBrush == Brushes.White)
+                var thumbnail = _pictureBoxThumbnails.Find(x => ((Image)sender) == x.Image);
+                thumbnail.IsSelected = !thumbnail.IsSelected;
+            }
+
+            SelectThumbnail(0 + _thumbIndex);
+
+            buttonUndo.IsEnabled = !_isSelectMultiple;
+
+            UpdateThumbnailBorders();
+        }
+
+        private void UpdateThumbnailBorders()
+        {
+            var borders = new Border[] {
+                imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+            };
+
+            for (var i = 0; i < THUMBNAIL_GALLERY_SIZE; i++)
+            {
+                var thumbnailBorder = borders[i];
+                if (_pictureBoxThumbnails[i + _thumbIndex].IsSelected)
                 {
                     thumbnailBorder.BorderBrush = Brushes.Cyan;
                 }
@@ -487,20 +494,7 @@ namespace ARTAPclient
                 {
                     thumbnailBorder.BorderBrush = Brushes.White;
                 }
-
-                if (_selectedImages.Any(x => x == _thumbIndex))
-                {
-                    _selectedImages.Remove(_thumbIndex);
-                }
-                else
-                {
-                    _selectedImages.Add(_thumbIndex);
-                }
             }
-
-            SelectThumbnail(0 + _thumbIndex);
-
-            buttonUndo.IsEnabled = !_isSelectMultiple;
         }
 
         private Border GetBorderFromThumbnailName(string name)
@@ -683,10 +677,11 @@ namespace ARTAPclient
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)
         {
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 _thumbIndex++;
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -696,6 +691,7 @@ namespace ARTAPclient
             {
                 _thumbIndex--;
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
