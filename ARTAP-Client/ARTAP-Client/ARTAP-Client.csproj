@@ -156,6 +156,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -190,22 +191,37 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\check-mark.svg" />
+    <Resource Include="Resources\check-mark.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\down.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\downleft.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\down.png" />
     <Resource Include="Resources\downright.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\left.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\right.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\up.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\upleft.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\upright.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\filled-circle.png" />
+    <Resource Include="Resources\filled-circle %2864x64%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\filled_circle.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

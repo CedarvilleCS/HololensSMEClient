@@ -336,7 +336,7 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, Direction.TopMiddle, _brushColor)); // replace with enum value for testing
+                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor)); // replace with enum value for testing
 
                     //se
                     // Enable the undo button for placing arrows
@@ -433,6 +433,7 @@ namespace ARTAPclient
             }
         }
 
+        //Function implemented but not used, values used elsewhere
         private void buttonDirection_Click(object sender, RoutedEventArgs e)
         {
             var name = ((Button)sender).Name;
@@ -588,14 +589,14 @@ namespace ARTAPclient
 
                 if(result == MessageBoxResult.Yes)
                 {
-<<<<<<< HEAD
-=======
+//<<<<<<< HEAD
+//=======
                     result = MessageBox.Show
                     ("NOTE: After installing, you must restart the application", "NOTE",
                      MessageBoxButton.OK,
                      MessageBoxImage.Exclamation);
 
->>>>>>> PDF-Multiple-Pages
+//>>>>>>> PDF-Multiple-Pages
                     Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
@@ -646,17 +647,62 @@ namespace ARTAPclient
 
         private void ChooseMarkerType(object sender, RoutedEventArgs e)
         {
-            //The menu will have to be open to click a button so we don't have to toggle here
-            MenuFlyout.IsOpen = false;
+            
             Button btn = (Button)sender;
             string btnName = btn.Name;
             //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
             //This needs to go somewhere
-            int last = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
+            var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
+
+            _markerDirection = (Direction)direction;
 
             //Works in theory, need to test
             Image content = (Image)btn.Content;
-            buttonPlaceArrow.Content = content;
+            var test = content.Source;
+            buttonPlaceArrow.Content = (Image)btn.Content;
+
+            //System.Drawing.Bitmap(WpfApplication1.Properties.Resources.filled_circle);
+            String correctPhoto ="";
+            //The menu will have to be open to click a button so we don't have to toggle here
+            MenuFlyout.IsOpen = false;
+            switch (direction)
+            {
+                case 1:
+                    correctPhoto = "downright";
+                    break;
+                case 2:
+                    correctPhoto = "down";
+                    break;
+                case 3:
+                    correctPhoto = "downleft";
+                    break;
+                case 4:
+                    correctPhoto = "right";
+                    break;
+                case 5:
+                    correctPhoto = "filled_circle";
+                    break;
+                case 6:
+                    correctPhoto = "left";
+                    break;
+                case 7:
+                    correctPhoto = "upright";
+                    break;
+                case 8:
+                    correctPhoto = "up";
+                    break;
+                case 9:
+                    correctPhoto = "upleft";
+                    break;
+            }
+            btn.Content = new Image
+            {
+                Source = new BitmapImage(new Uri("Resources/"+correctPhoto+".png", UriKind.Relative)),
+                //Height = 60,
+                //Width = 60
+            };
+            //Maybe always set it to true?
+            SetPlacingMarkers(!_placingMarker);
         }
 
         private void SetPlacingMarkers(bool placingArrow)
@@ -681,14 +727,22 @@ namespace ARTAPclient
 
         private void buttonSelectMultiple_Click(object sender, EventArgs e)
         {
-            _isSelectMultiple = !_isSelectMultiple;
+            if (_placingMarker)
+            {
+                SetPlacingMarkers(!_placingMarker);
+            }
+            else
+            {
+                _isSelectMultiple = !_isSelectMultiple;
 
-            buttonUndo.IsEnabled = !_isSelectMultiple;
-            buttonChangeColor.IsEnabled = !_isSelectMultiple;
-            buttonUploadImage.IsEnabled = !_isSelectMultiple;
-            buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
-            buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
-            buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
+                buttonUndo.IsEnabled = !_isSelectMultiple;
+                buttonChangeColor.IsEnabled = !_isSelectMultiple;
+                buttonUploadImage.IsEnabled = !_isSelectMultiple;
+                buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
+            }
+            
         }
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)
