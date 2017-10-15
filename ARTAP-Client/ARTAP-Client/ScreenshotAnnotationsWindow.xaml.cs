@@ -468,7 +468,8 @@ namespace ARTAPclient
         {
             if (_isSelectMultiple)
             {
-                var thumbnail = _pictureBoxThumbnails.Find(x => ((Image)sender) == x.Image);
+                var index = GetIndexFromThumbnailName(((Image)sender).Name);
+                var thumbnail = _pictureBoxThumbnails[(int)index];
                 buttonUndo.IsEnabled = false;
 
                 if (!thumbnail.IsSelected && thumbnail.IsPdf)
@@ -497,7 +498,7 @@ namespace ARTAPclient
             for (var i = 0; i < THUMBNAIL_GALLERY_SIZE; i++)
             {
                 var thumbnailBorder = borders[i];
-                if (_pictureBoxThumbnails[i + _thumbIndex].IsSelected)
+                if (_pictureBoxThumbnails[i].IsSelected)
                 {
                     thumbnailBorder.BorderBrush = Brushes.Cyan;
                 }
@@ -505,6 +506,23 @@ namespace ARTAPclient
                 {
                     thumbnailBorder.BorderBrush = Brushes.White;
                 }
+            }
+        }
+        private int GetIndexFromThumbnailName(string name)
+        {
+            var character = name[name.Length - 1];
+            switch (character)
+            {
+                case '1':
+                    return 1;
+                case '2':
+                    return 2;
+                case '3':
+                    return 3;
+                case '4':
+                    return 4;
+                default:
+                    return 0;
             }
         }
 
