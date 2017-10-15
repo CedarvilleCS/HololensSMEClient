@@ -4,7 +4,7 @@ namespace WpfApplication1
 {
     public class ThumbnailImage
     {
-        public ThumbnailImage(Image image, bool isSelected)
+        public ThumbnailImage(Image image, bool isSelected, bool isPdf = false)
         {
             Image = image;
             IsSelected = isSelected;
@@ -12,5 +12,6 @@ namespace WpfApplication1
 
         public Image Image { get; set; }
         public bool IsSelected { get; set; }
+        public bool IsPdf { get; set; }
     }
 }

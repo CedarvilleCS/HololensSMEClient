@@ -29,10 +29,11 @@ namespace ARTAPclient
         /// Creates a new annotated image
         /// </summary>
         /// <param name="originalImage">Original image to create with</param>
-        public AnnotatedImage(ImageSource originalImage)
+        public AnnotatedImage(ImageSource originalImage, bool isPdf = false)
         {
             OriginalImage = originalImage;
             LatestImage = originalImage;
+            IsPdf = isPdf;
         }
 
         #endregion
@@ -120,6 +121,8 @@ namespace ARTAPclient
                 return _annotations.Count;
             }
         }
+
+        public bool IsPdf { get; set; }
 
         #endregion
 
