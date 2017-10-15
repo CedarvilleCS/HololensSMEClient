@@ -248,8 +248,8 @@ namespace ARTAPclient
             _activeImage = source;
             _imageHistory.Insert(0, source);
             _currentImageIndex = 0;
-            CheckMarkerPlacementAllowed();
 
+            CheckMarkerPlacementAllowed();
             UpdateThumbnails();
             UpdateThumbnailBorders();
         }
@@ -274,8 +274,7 @@ namespace ARTAPclient
                 canvasImageEditor.Width = 640;
                 canvasImageEditor.Height = (640/image.Width)*image.Height;
             }
-            //canvasImageEditor.Width = image.Width;
-            //canvasImageEditor.Height = image.Height;
+
             canvasImageEditor.Background = ib;
             canvasImageEditor.InvalidateVisual();
         }
@@ -470,20 +469,20 @@ namespace ARTAPclient
             if (_isSelectMultiple)
             {
                 var index = GetIndexFromThumbnailName(((Image)sender).Name);
-                var thumbnail = _pictureBoxThumbnails[(int)index];
+                var thumbnail = _pictureBoxThumbnails[index];
                 buttonUndo.IsEnabled = false;
 
                 if (!thumbnail.IsSelected && thumbnail.IsPdf)
                 {
                     _selectedImages.Add(thumbnail.Image);
-                    thumbnail.IsSelected = true;
                     _imageHistory[_thumbIndex + index].IsSelected = true;
+                    thumbnail.IsSelected = true;
                 }
                 else if (thumbnail.IsSelected && thumbnail.IsPdf)
                 {
                     _selectedImages.Remove(thumbnail.Image);
-                    thumbnail.IsSelected = false;
                     _imageHistory[_thumbIndex + index].IsSelected = false;
+                    thumbnail.IsSelected = false;
                 }
             }
 
