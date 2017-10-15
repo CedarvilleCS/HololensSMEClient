@@ -122,6 +122,8 @@ namespace ARTAPclient
             }
         }
 
+        public bool IsSelected { get; set; }
+
         public bool IsPdf { get; set; }
 
         #endregion

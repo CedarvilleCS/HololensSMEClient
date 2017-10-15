@@ -155,6 +155,7 @@ namespace ARTAPclient
             {
                 _pictureBoxThumbnails[i].Image.Source = _imageHistory[index].LatestImage;
                 _pictureBoxThumbnails[i].IsPdf = _imageHistory[index].IsPdf;
+                _pictureBoxThumbnails[i].IsSelected = _imageHistory[index].IsSelected;
             }
 
             if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
@@ -476,11 +477,13 @@ namespace ARTAPclient
                 {
                     _selectedImages.Add(thumbnail.Image);
                     thumbnail.IsSelected = true;
+                    _imageHistory[_thumbIndex + index].IsSelected = true;
                 }
                 else if (thumbnail.IsSelected && thumbnail.IsPdf)
                 {
                     _selectedImages.Remove(thumbnail.Image);
                     thumbnail.IsSelected = false;
+                    _imageHistory[_thumbIndex + index].IsSelected = false;
                 }
             }
 
