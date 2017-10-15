@@ -537,7 +537,7 @@ namespace ARTAPclient
                 {
                     foreach (var image in _selectedImages)
                     {
-                        _listener.SendBitmap(_activeImage.LatestImage);
+                        _listener.SendBitmap(image.Source);
                     }
                 }
                 else if (_placingMarker)
