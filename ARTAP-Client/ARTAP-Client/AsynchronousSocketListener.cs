@@ -40,7 +40,8 @@ namespace ARTAPclient
         private enum MessageType {  Bitmap = 1,
                                     PositionIDRequest = 2,
                                     ArrowPlacement = 3,
-                                    EraseMarkers = 4
+                                    EraseMarkers = 4,
+                                    Pdf = 5
                                  }
 
         /// <summary>
@@ -114,7 +115,14 @@ namespace ARTAPclient
                 imgStream.Position = 0;
                 imgData = imgStream.ToArray();
             }
+
             Send(MessageType.Bitmap, imgData);
+        }
+
+        public void SendPDF(PDFDocument document)
+        {
+            var imgData = document.ToByteArray();
+            Send(MessageType.Pdf, imgData);
         }
 
         /// <summary>

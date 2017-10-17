@@ -97,6 +97,7 @@
       <DependentUpon>AppSettings.settings</DependentUpon>
     </Compile>
     <Compile Include="Marker.cs" />
+    <Compile Include="PDFDocument.cs" />
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>

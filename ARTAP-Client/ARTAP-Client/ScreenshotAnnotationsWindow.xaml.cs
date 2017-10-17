@@ -10,6 +10,7 @@ using System.Windows.Shapes;
 using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace ARTAPclient
 {
@@ -534,10 +535,15 @@ namespace ARTAPclient
             {
                 if (_selectedImages.Any())
                 {
+                    var document = new PDFDocument();
                     foreach (var image in _selectedImages)
                     {
-                        _listener.SendBitmap(image.Source);
+                        var converter = new ImageConverter();
+                        var bytes = (byte[])converter.ConvertTo(image.Source, typeof(byte[]));
+                        document.Pages.Add(bytes);
                     }
+
+                    _listener.SendPDF(document);
                 }
                 else if (_placingMarker)
                 {
