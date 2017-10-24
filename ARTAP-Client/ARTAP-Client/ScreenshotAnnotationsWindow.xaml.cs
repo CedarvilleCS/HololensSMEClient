@@ -10,7 +10,7 @@ using System.Windows.Shapes;
 using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
-using System.Drawing;
+using System.IO;
 
 namespace ARTAPclient
 {
@@ -78,7 +78,7 @@ namespace ARTAPclient
         /// <summary>
         /// Color used for canvas annotations, default to Red
         /// </summary>
-        private Color _brushColor = Colors.Red;
+        private System.Windows.Media.Color _brushColor = Colors.Red;
 
         /// <summary>
         /// Size used for canvas annotations, default to 5
@@ -538,9 +538,22 @@ namespace ARTAPclient
                     var document = new PDFDocument();
                     foreach (var image in _selectedImages)
                     {
-                        var converter = new ImageConverter();
-                        var bytes = (byte[])converter.ConvertTo(image.Source, typeof(byte[]));
-                        document.Pages.Add(bytes);
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+                        var bitmapSource = image.Source as BitmapSource;
+
+                        if (bitmapSource != null)
+                        {
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                            using (var stream = new MemoryStream())
+                            {
+                                encoder.Save(stream);
+                                bytes = stream.ToArray();
+                            }
+
+                            document.Pages.Add(bytes);
+                        }
                     }
 
                     _listener.SendPDF(document);
