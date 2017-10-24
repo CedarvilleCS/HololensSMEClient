@@ -100,7 +100,7 @@
                 </Path>
             </Button>
             <Controls:FlyoutsControl>
-                <Controls:Flyout x:Name="MenuFlyout" Header="OptionChooser" Position="Right" Width="180" Height="280">
+                <Controls:Flyout x:Name="MenuFlyout" Header="Markers" Position="Right" Width="180" Height="280">
                     <Grid Height="180" Width="180">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

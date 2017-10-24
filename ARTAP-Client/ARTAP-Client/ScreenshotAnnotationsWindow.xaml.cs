@@ -408,7 +408,7 @@ namespace ARTAPclient
                     // If there are unsent markers we can undo
                     // 
                     if ((_activeImage as LocatableImage).NumMarkers > 0 &&
-                       !(_activeImage as LocatableImage).GetLastMarker().Sent)
+                       !(_activeImage as LocatableImage).HasUnsentMarkers())
                     {
                         canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
                         (_activeImage as LocatableImage).UndoMarker();
@@ -417,7 +417,7 @@ namespace ARTAPclient
                         // If there are no more unsent markers disable the undo button
                         //
                         buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 ||
-                                               !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                                               (_activeImage as LocatableImage).HasUnsentMarkers();
                     }
                 }
                 else
@@ -458,6 +458,7 @@ namespace ARTAPclient
                     }
                     (_activeImage as LocatableImage).ClearMarkers();
                     SaveCanvasToActiveImage();
+                    buttonUndo.IsEnabled = false;
                 }
                 else
                 {
@@ -651,10 +652,10 @@ namespace ARTAPclient
             Button btn = (Button)sender;
             string btnName = btn.Name;
             //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
-            //This needs to go somewhere
             var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
 
-            _markerDirection = (Direction)direction;
+            //Set the correction marker type
+            _markerDirection = (Direction)(direction-1);
 
             //Works in theory, need to test
             Image content = (Image)btn.Content;
@@ -663,8 +664,7 @@ namespace ARTAPclient
 
             //System.Drawing.Bitmap(WpfApplication1.Properties.Resources.filled_circle);
             String correctPhoto ="";
-            //The menu will have to be open to click a button so we don't have to toggle here
-            MenuFlyout.IsOpen = false;
+            
             switch (direction)
             {
                 case 1:
@@ -698,11 +698,17 @@ namespace ARTAPclient
             btn.Content = new Image
             {
                 Source = new BitmapImage(new Uri("Resources/"+correctPhoto+".png", UriKind.Relative)),
-                //Height = 60,
-                //Width = 60
             };
             //Maybe always set it to true?
-            SetPlacingMarkers(!_placingMarker);
+            SetPlacingMarkers(true);
+
+            //Disable all buttons that do not need to be available for this mode
+            buttonChangeColor.IsEnabled = false;
+            buttonUploadImage.IsEnabled = false;
+            buttonCaptureScreenshot.IsEnabled = false;
+
+            //The menu will have to be open to click a button so we don't have to toggle here
+            MenuFlyout.IsOpen = false;
         }
 
         private void SetPlacingMarkers(bool placingArrow)
@@ -713,7 +719,7 @@ namespace ARTAPclient
             if (placingArrow)
             {
                 buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
-                                       !(_activeImage as LocatableImage).GetLastMarker().Sent;
+                                       !(_activeImage as LocatableImage).HasUnsentMarkers();
                 
                 buttonPlaceArrow.Background = Brushes.LightGreen;
             }
@@ -727,9 +733,17 @@ namespace ARTAPclient
 
         private void buttonSelectMultiple_Click(object sender, EventArgs e)
         {
+            //If in placingMarker mode get out and reset everything
             if (_placingMarker)
             {
                 SetPlacingMarkers(!_placingMarker);
+                buttonChangeColor.IsEnabled = !_placingMarker;
+                buttonUploadImage.IsEnabled = !_placingMarker;
+                buttonCaptureScreenshot.IsEnabled = !_placingMarker;
+                //var pathGeo = new PathGeometry();
+                //pathGeo.Figures = Geometry.Parse("M2.69,320.439c - 3.768,4.305 - 3.553,10.796,0.494,14.842l1.535,1.536c4.047,4.046,10.537,4.262,14.842,0.493l105.377 - 92.199l - 30.049 - 30.049L2.69,320.439z M339.481,119.739c - 0.359 - 1.118 - 9.269 - 27.873 - 50.31 - 68.912C248.133,9.788,221.377,0.878,220.262,0.52c - 3.879 - 1.244 - 8.127 - 0.217 - 11.008,2.664l - 40.963,40.963c - 4.242,4.243 - 4.242,11.125,0,15.369l4.533,4.534L65.086,147.171c - 2.473,1.909 - 4.006,4.79 - 4.207,7.908c - 0.199,3.118,0.953,6.172,3.162,8.381l41.225,41.226l30.051,30.051l41.225,41.226c2.211,2.209,5.266,3.361,8.381,3.161c3.119 - 0.201,6 - 1.732,7.91 - 4.207l83.119 - 107.738l4.535,4.533c4.239,4.244,11.123,4.244,15.367,0l40.963 - 40.962C339.698,127.866,340.726,123.618,339.481,119.739z M187.751,109.478l - 66.539,56.51c - 4.346,3.691 - 10.75,3.372 - 14.713 - 0.589c - 0.209 - 0.209 - 0.412 - 0.429 - 0.607 - 0.659c - 3.883 - 4.574 - 3.324 - 11.434,1.25 - 15.318l66.537 - 56.509c4.574 - 3.886,11.428 - 3.333,15.318,1.249C192.882,98.735,192.322,105.595,187.751,109.478z");
+                //buttonPlaceArrow.Content = pathGeo;
+
             }
             else
             {

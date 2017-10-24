@@ -25,13 +25,82 @@ namespace ARTAPclient
         /// <summary>
         /// Points used to draw an X
         /// </summary>
-        private static readonly Point[] MARKER_POINTS = {new Point(-2, -2),
-                                                         new Point(0, 0),
-                                                         new Point(1, 1),
-                                                         new Point(0, 0),
-                                                         new Point(-1, 1),
-                                                         new Point(0, 0),
-                                                         new Point(2, -2)};
+        /// 
+        //x
+        //private static readonly Point[] MARKER_POINTS = {new Point(-2, -2),
+        //                                                 new Point(0, 0),
+        //                                                 new Point(1, 1),
+        //                                                 new Point(0, 0),
+        //                                                 new Point(-1, 1),
+        //                                                 new Point(0, 0),
+        //                                                 new Point(2, -2)};
+        //up
+        //private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+        //                                                  new Point(0, 3),
+        //                                                  new Point(0,0),
+        //                                                  new Point(1,1),
+        //                                                  new Point(0,0),
+        //                                                  new Point(-1,1),
+        //                                                  new Point(0,0)};
+        //up right
+        //private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+        //                                                  new Point(-2, 2),
+        //                                                  new Point(0,0),
+        //                                                  new Point(-1,0),
+        //                                                  new Point(0,0),
+        //                                                  new Point(0,1),
+        //                                                  new Point(0,0)};
+        //up left
+        //private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+        //                                                  new Point(2, 2),
+        //                                                  new Point(0,0),
+        //                                                  new Point(0,1),
+        //                                                  new Point(0,0),
+        //                                                  new Point(1,0),
+        //                                                  new Point(0,0)};
+        //
+        //down
+        //private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+        //                                                  new Point(0, -3),
+        //                                                  new Point(0,0),
+        //                                                  new Point(1,-1),
+        //                                                  new Point(0,0),
+        //                                                  new Point(-1,-1),
+        //                                                  new Point(0,0)};
+        //
+        //down left
+        //private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+        //                                                  new Point(2, -2),
+        //                                                  new Point(0,0),
+        //                                                  new Point(0,-1),
+        //                                                  new Point(0,0),
+        //                                                  new Point(1,0),
+        //                                                  new Point(0,0)};
+        //down right
+        //private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+        //                                                  new Point(-2, -2),
+        //                                                  new Point(0,0),
+        //                                                  new Point(0,-1),
+        //                                                  new Point(0,0),
+        //                                                  new Point(-1,0),
+        //                                                  new Point(0,0)};
+        //right
+        //private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+        //                                                  new Point(-3, 0),
+        //                                                  new Point(0,0),
+        //                                                  new Point(-1,-1),
+        //                                                  new Point(0,0),
+        //                                                  new Point(-1,1),
+        //                                                  new Point(0,0)};
+        //left
+        private static readonly Point[] MARKER_POINTS = { new Point(0, 0),
+                                                          new Point(3, 0),
+                                                          new Point(0,0),
+                                                          new Point(1,-1),
+                                                          new Point(0,0),
+                                                          new Point(1,1),
+                                                          new Point(0,0)};
+
 
         /// <summary>
         /// List of indicators of where markers are placed on the LocatableImage
@@ -130,7 +199,23 @@ namespace ARTAPclient
 
         public Marker GetLastMarker()
         {
-            return _markers.Last();
+            if (_markers.Count != 0) return _markers.Last();
+            else
+            {
+                var marker = new Marker(null, new Point(), new Point(), new Color());
+                marker.Sent = false;
+                return marker;
+            }
+        }
+
+        public bool HasUnsentMarkers()
+        {
+            if (_markers.Count != 0)
+            {
+                return GetLastMarker().Sent;
+            }
+            else return false;
+
         }
 
         /// <summary>
