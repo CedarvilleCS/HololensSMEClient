@@ -25,7 +25,7 @@ namespace ARTAPclient
         /// <summary>
         /// Points used to draw an X
         /// </summary>
-        /// 
+        ///
         private static readonly Point[][] MARKER_POINTS = new Point[9][]
         {
             //In order of direction enum
@@ -39,89 +39,89 @@ namespace ARTAPclient
                 new Point(-2, -2),
                 new Point(0,0),
                 new Point(0,-1),
-                                                          new Point(0,0),
-                                                          new Point(-1,0),
-                                                          new Point(0,0)
+                new Point(0,0),
+                new Point(-1,0),
+                new Point(0,0)
             },
             new Point[]
             {
                 new Point(0, 0),
-                                                          new Point(0, -3),
-                                                          new Point(0,0),
-                                                          new Point(1,-1),
-                                                          new Point(0,0),
-                                                          new Point(-1,-1),
-                                                          new Point(0,0)
+                new Point(0, -3),
+                new Point(0,0),
+                new Point(1,-1),
+                new Point(0,0),
+                new Point(-1,-1),
+                new Point(0,0)
             },
             new Point[]
             {
                 new Point(0, 0),
-                                                          new Point(2, -2),
-                                                          new Point(0,0),
-                                                          new Point(0,-1),
-                                                          new Point(0,0),
-                                                          new Point(1,0),
-                                                          new Point(0,0)
+                new Point(2, -2),
+                new Point(0,0),
+                new Point(0,-1),
+                new Point(0,0),
+                new Point(1,0),
+                new Point(0,0)
             },
             new Point[]
             {
                 new Point(0, 0),
-                                                          new Point(3, 0),
-                                                          new Point(0,0),
-                                                          new Point(1,-1),
-                                                          new Point(0,0),
-                                                          new Point(1,1),
-                                                          new Point(0,0)
+                new Point(3, 0),
+                new Point(0,0),
+                new Point(1,-1),
+                new Point(0,0),
+                new Point(1,1),
+                new Point(0,0)
             },
             new Point[]
             {
                 new Point(-2, -2),
-                                                         new Point(0, 0),
-                                                         new Point(1, 1),
-                                                         new Point(0, 0),
-                                                         new Point(-1, 1),
-                                                         new Point(0, 0),
-                                                         new Point(2, -2)
+                new Point(0, 0),
+                new Point(1, 1),
+                new Point(0, 0),
+                new Point(-1, 1),
+                new Point(0, 0),
+                new Point(2, -2)
             },
             new Point[]
             {
                 new Point(0, 0),
-                                                          new Point(-3, 0),
-                                                          new Point(0,0),
-                                                          new Point(-1,-1),
-                                                          new Point(0,0),
-                                                          new Point(-1,1),
-                                                          new Point(0,0)
+                new Point(-3, 0),
+                new Point(0,0),
+                new Point(-1,-1),
+                new Point(0,0),
+                new Point(-1,1),
+                new Point(0,0)
             },
             new Point[]
             {
                 new Point(0, 0),
-                                                          new Point(-2, 2),
-                                                          new Point(0,0),
-                                                          new Point(-1,0),
-                                                          new Point(0,0),
-                                                          new Point(0,1),
-                                                          new Point(0,0)
+                new Point(-2, 2),
+                new Point(0,0),
+                new Point(-1,0),
+                new Point(0,0),
+                new Point(0,1),
+                new Point(0,0)
             },
             new Point[]
             {
                 new Point(0, 0),
-                                                          new Point(0, 3),
-                                                          new Point(0,0),
-                                                          new Point(1,1),
-                                                          new Point(0,0),
-                                                          new Point(-1,1),
-                                                          new Point(0,0)
+                new Point(0, 3),
+                new Point(0,0),
+                new Point(1,1),
+                new Point(0,0),
+                new Point(-1,1),
+                new Point(0,0)
             },
             new Point[]
             {
                 new Point(0, 0),
-                                                          new Point(2, 2),
-                                                          new Point(0,0),
-                                                          new Point(0,1),
-                                                          new Point(0,0),
-                                                          new Point(1,0),
-                                                          new Point(0,0)
+                new Point(2, 2),
+                new Point(0,0),
+                new Point(0,1),
+                new Point(0,0),
+                new Point(1,0),
+                new Point(0,0)
             }
         };
 
@@ -139,12 +139,13 @@ namespace ARTAPclient
         /// <returns>Returns the PolyLine to add to the canvas.</returns>
         public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Direction direction, Color color)
         {
-            var newMarkerPoints = new PointCollection(MARKER_POINTS.Length);
+            var points = MARKER_POINTS[(int)direction];
+            var newMarkerPoints = new PointCollection(points.Length);
 
             //
             // Translate the shape of the marker so it will be placed where we want it
             //
-            foreach (Point original in MARKER_POINTS)
+            foreach (Point original in points)
             {
                 newMarkerPoints.Add(new Point(relativeLocation.X + original.X * SCALING,
                                               relativeLocation.Y + original.Y * SCALING));
