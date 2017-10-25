@@ -163,17 +163,6 @@ namespace ARTAPclient
         }
 
         /// <summary>
-        /// Removes the last annotation added
-        /// </summary>
-        public void UndoMarker()
-        {
-            if (_markers.Count > 0)
-            {
-                _markers.RemoveAt(_markers.Count - 1);
-            }
-        }
-
-        /// <summary>
         /// Clears all annotations
         /// </summary>
         public void ClearMarkers()

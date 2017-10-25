@@ -37,11 +37,14 @@ namespace ARTAPclient
         /// Types of messages that can be sent and their
         /// coresponding message  integer codes
         /// </summary>
-        private enum MessageType {  Bitmap = 1,
-                                    PositionIDRequest = 2,
-                                    ArrowPlacement = 3,
-                                    EraseMarkers = 4
-                                 }
+        private enum MessageType
+        {
+            Bitmap = 1,
+            PositionIDRequest = 2,
+            ArrowPlacement = 3,
+            EraseMarkers = 4,
+            EraseMarker = 6
+        }
 
         /// <summary>
         /// Handles timing for checking if the connection is alive
@@ -123,25 +126,31 @@ namespace ARTAPclient
         /// <param name="image">LocatableImage with placement data</param>
         public void SendArrowLocation(LocatableImage image)
         {
-            foreach (Marker m in image.Markers)
+            if (image.Markers.Length > 0)
             {
-                if (!m.Sent)
+                var marker = image.Markers.Last();
+                if (!marker.Sent)
                 {
                     byte[] width = GetShortBytesFromDouble(image.OriginalImage.Width);
                     byte[] height = GetShortBytesFromDouble(image.OriginalImage.Height);
-                    byte[] direction = GetShortBytesFromInt((int)m.Direction);
+                    byte[] direction = GetShortBytesFromInt((int)marker.Direction);
 
-                    byte[] x = GetShortBytesFromDouble(m.AbsoluteLocation.X);
-                    byte[] y = GetShortBytesFromDouble(m.AbsoluteLocation.Y);
+                    byte[] x = GetShortBytesFromDouble(marker.AbsoluteLocation.X);
+                    byte[] y = GetShortBytesFromDouble(marker.AbsoluteLocation.Y);
 
-                    byte[] color = { m.Color.R, m.Color.G, m.Color.B };
+                    byte[] color = { marker.Color.R, marker.Color.G, marker.Color.B };
 
                     byte[] message = CombineArrs(image.PositionID, width, height, x, y, direction, color);
                     Send(MessageType.ArrowPlacement, message);
 
-                    m.Sent = true;
+                    marker.Sent = true;
                 }
             }
+        }
+
+        public void EraseOneMarker(LocatableImage image)
+        {
+            Send(MessageType.EraseMarker, image.PositionID);
         }
 
         /// <summary>
@@ -396,7 +405,7 @@ namespace ARTAPclient
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
-           
+
         }
 
         #endregion
