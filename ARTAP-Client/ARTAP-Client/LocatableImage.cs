@@ -232,6 +232,14 @@ namespace ARTAPclient
 
         }
 
+        public void UndoMarker()
+        {
+            if (_markers.Count > 0)
+            {
+                _markers.RemoveAt(_markers.Count - 1);
+            }
+        }
+
         /// <summary>
         /// Gets the polylines that make up the annotations for this image
         /// </summary>

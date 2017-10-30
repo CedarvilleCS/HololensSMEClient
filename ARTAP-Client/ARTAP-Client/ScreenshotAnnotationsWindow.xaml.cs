@@ -416,6 +416,7 @@ namespace ARTAPclient
                 if (locatableImage.NumMarkers > 0)
                 {
                     canvasImageEditor.Children.Remove(locatableImage.GetLastMarker().Annotation);
+                    locatableImage.UndoMarker();
                     _listener.EraseOneMarker(locatableImage);
 
                     //
