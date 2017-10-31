@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -40,7 +41,8 @@ namespace ARTAPclient
         private enum MessageType {  Bitmap = 1,
                                     PositionIDRequest = 2,
                                     ArrowPlacement = 3,
-                                    EraseMarkers = 4
+                                    EraseMarkers = 4,
+                                    TaskList = 7
                                  }
 
         /// <summary>
@@ -158,6 +160,11 @@ namespace ARTAPclient
         public void SendEraseMarkers()
         {
             Send(MessageType.EraseMarkers, new byte[0]);
+        }
+
+        public void SendTaskList(TaskList list)
+        {
+            Send(MessageType.TaskList, new byte[0]);
         }
 
         /// <summary>
