@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
-using System.Windows.Controls;
 
 namespace WpfApplication1
 {
@@ -35,7 +34,8 @@ namespace WpfApplication1
             var name = BitConverter.ToString(SubArray(bytes, 9, currentPosition), 0);
 
             var imageLength = BitConverter.ToInt32(SubArray(bytes, currentPosition, currentPosition += 4), 0);
-            var image = BitConverter.ToString(SubArray(bytes, currentPosition, currentPosition + imageLength), 0);
+            var imageBytes = SubArray(bytes, currentPosition, currentPosition + imageLength);
+            var image = (Bitmap)((new ImageConverter()).ConvertFrom(imageBytes));
 
             return new Task
             {
@@ -58,19 +58,16 @@ namespace WpfApplication1
             var converter = new ImageConverter();
             var imageBytes = (byte[])converter.ConvertTo(Attachment, typeof(byte[]));
             var imageBytesLength = BitConverter.GetBytes(imageBytes.Length);
+            
+            var allBytes = idBytes.Concat(nameBytesLength)
+                .Concat(nameBytesLength)
+                .Concat(nameBytes)
+                .Concat(completedBytes)
+                .Concat(imageBytesLength)
+                .Concat(imageBytes)
+                .ToArray();
 
-            var allNameBytes = Concat(nameBytesLength, nameBytes);
-            var allImageBytes = Concat(imageBytesLength, imageBytes);
-
-            return Concat(Concat(idBytes, completedBytes), Concat(allNameBytes, allImageBytes));
-        }
-
-        public static byte[] Concat(byte[] arr1, byte[] arr2)
-        {
-            byte[] toReturn = new byte[arr1.Length + arr2.Length];
-            arr1.CopyTo(toReturn, 0);
-            arr2.CopyTo(toReturn, arr1.Length);
-            return toReturn;
+            return (BitConverter.GetBytes(allBytes.Length)).Concat(allBytes).ToArray();
         }
 
         public static byte[] SubArray(byte[] data, int start, int length)
