@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -17,6 +10,7 @@ using System.Windows.Shapes;
 using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
+using System.IO;
 
 namespace ARTAPclient
 {
@@ -33,6 +27,8 @@ namespace ARTAPclient
         /// </summary>
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
 
+        private const int THUMBNAIL_GALLERY_SIZE = 5;
+
         /// <summary>
         /// Current bitmap active for drawing
         /// </summary>
@@ -42,6 +38,8 @@ namespace ARTAPclient
         /// History of images snapped or uploaded
         /// </summary>
         private List<AnnotatedImage> _imageHistory = new List<AnnotatedImage>();
+
+        private List<Image> _selectedImages = new List<Image>();
 
         /// <summary>
         /// Inedex of current image in _imageHistory
@@ -63,7 +61,7 @@ namespace ARTAPclient
         /// <summary>
         /// List containing all of the thumbnail pictureboxes to make updating easy
         /// </summary>
-        private List<Image> _pictureBoxThumbnails = new List<Image>();
+        private List<ThumbnailImage> _pictureBoxThumbnails = new List<ThumbnailImage>();
 
         /// <summary>
         /// List of all of the buttons we want to enable/disable during arrow placement
@@ -78,12 +76,11 @@ namespace ARTAPclient
         /// <summary>
         /// Number of thumbnail images
         /// </summary>
-        private const int NUMTHUMBNAILS = 5;
 
         /// <summary>
         /// Color used for canvas annotations, default to Red
         /// </summary>
-        private Color _brushColor = Colors.Red;
+        private System.Windows.Media.Color _brushColor = Colors.Red;
 
         /// <summary>
         /// Size used for canvas annotations, default to 5
@@ -130,13 +127,11 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            _pictureBoxThumbnails.Add(imageThumb);
-            _pictureBoxThumbnails.Add(imageThumb1);
-            _pictureBoxThumbnails.Add(imageThumb2);
-            _pictureBoxThumbnails.Add(imageThumb3);
-            _pictureBoxThumbnails.Add(imageThumb4);
-
-            _selectedImages = new List<int>();
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
@@ -152,26 +147,24 @@ namespace ARTAPclient
         /// </summary>
         private void UpdateThumbnails()
         {
-            int numActiveThumbnails = 5;
+            int numActiveThumbnails = THUMBNAIL_GALLERY_SIZE;
 
             //Only use the number of active images
-            if (_imageHistory.Count < 5)
+            if (_imageHistory.Count < THUMBNAIL_GALLERY_SIZE)
             {
                 numActiveThumbnails = _imageHistory.Count;
-
             }
-
-            //int numActiveThumbnails = (_imageHistory.Count < 5) ? 
-            //    _imageHistory.Count : NUMTHUMBNAILS;
 
             int index = _thumbIndex;
             //Loop through and update images for all of the thumbnail frames
             for (int i = 0; i < numActiveThumbnails; i++, index++)
             {
-                _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
+                _pictureBoxThumbnails[i].Image.Source = _imageHistory[index].LatestImage;
+                _pictureBoxThumbnails[i].IsPdf = _imageHistory[index].IsPdf;
+                _pictureBoxThumbnails[i].IsSelected = _imageHistory[index].IsSelected;
             }
 
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 buttonNext.IsEnabled = true;
             }
@@ -213,6 +206,7 @@ namespace ARTAPclient
 
                 _activeImage.LatestImage = rtb.Clone();
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -263,8 +257,10 @@ namespace ARTAPclient
             _activeImage = source;
             _imageHistory.Insert(0, source);
             _currentImageIndex = 0;
+
             CheckMarkerPlacementAllowed();
             UpdateThumbnails();
+            UpdateThumbnailBorders();
         }
 
         /// <summary>
@@ -304,7 +300,6 @@ namespace ARTAPclient
             }
             else
             {
-
                 //
                 // Make sure we are not in marker placing mode
                 // if placing markers is not allowed
@@ -488,10 +483,41 @@ namespace ARTAPclient
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var thumbnailBorder = GetBorderFromThumbnailName(((Image)sender).Name);
             if (_isSelectMultiple)
             {
-                if (thumbnailBorder.BorderBrush == Brushes.White)
+                var index = GetIndexFromThumbnailName(((Image)sender).Name);
+                var thumbnail = _pictureBoxThumbnails[index];
+                buttonUndo.IsEnabled = false;
+
+                if (!thumbnail.IsSelected && thumbnail.IsPdf)
+                {
+                    _selectedImages.Add(thumbnail.Image);
+                    _imageHistory[_thumbIndex + index].IsSelected = true;
+                    thumbnail.IsSelected = true;
+                }
+                else if (thumbnail.IsSelected && thumbnail.IsPdf)
+                {
+                    _selectedImages.Remove(thumbnail.Image);
+                    _imageHistory[_thumbIndex + index].IsSelected = false;
+                    thumbnail.IsSelected = false;
+                }
+            }
+
+            SelectThumbnail(0 + _thumbIndex);
+
+            UpdateThumbnailBorders();
+        }
+
+        private void UpdateThumbnailBorders()
+        {
+            var borders = new Border[] {
+                imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+            };
+
+            for (var i = 0; i < THUMBNAIL_GALLERY_SIZE; i++)
+            {
+                var thumbnailBorder = borders[i];
+                if (_pictureBoxThumbnails[i].IsSelected)
                 {
                     thumbnailBorder.BorderBrush = Brushes.Cyan;
                 }
@@ -499,37 +525,23 @@ namespace ARTAPclient
                 {
                     thumbnailBorder.BorderBrush = Brushes.White;
                 }
-
-                if (_selectedImages.Any(x => x == _thumbIndex))
-                {
-                    _selectedImages.Remove(_thumbIndex);
-                }
-                else
-                {
-                    _selectedImages.Add(_thumbIndex);
-                }
             }
-
-            SelectThumbnail(0 + _thumbIndex);
-
-            buttonUndo.IsEnabled = !_isSelectMultiple;
         }
-
-        private Border GetBorderFromThumbnailName(string name)
+        private int GetIndexFromThumbnailName(string name)
         {
             var character = name[name.Length - 1];
             switch (character)
             {
                 case '1':
-                    return imageThumb1Border;
+                    return 1;
                 case '2':
-                    return imageThumb2Border;
+                    return 2;
                 case '3':
-                    return imageThumb3Border;
+                    return 3;
                 case '4':
-                    return imageThumb4Border;
+                    return 4;
                 default:
-                    return imageThumbBorder;
+                    return 0;
             }
         }
 
@@ -538,6 +550,39 @@ namespace ARTAPclient
             if (_activeImage != null)
             {
                 _listener.SendBitmap(_activeImage.LatestImage);
+                if (_selectedImages.Any())
+                {
+                    var document = new PDFDocument();
+                    foreach (var image in _selectedImages)
+                    {
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+                        var bitmapSource = image.Source as BitmapSource;
+
+                        if (bitmapSource != null)
+                        {
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                            using (var stream = new MemoryStream())
+                            {
+                                encoder.Save(stream);
+                                bytes = stream.ToArray();
+                            }
+
+                            document.Pages.Add(bytes);
+                        }
+                    }
+
+                    _listener.SendPDF(document);
+                }
+                else if (_placingMarker)
+                {
+                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                }
+                else
+                {
+                    _listener.SendBitmap(_activeImage.LatestImage);
+                }
             }
         }
 
@@ -572,7 +617,7 @@ namespace ARTAPclient
                     foreach (var image in pdfDialog.selectedImages)
                     {
                         images.Add(image);
-                        AddNewImage(new AnnotatedImage(image));
+                        AddNewImage(new AnnotatedImage(image, true));
                     }
                 }
             }
@@ -586,14 +631,11 @@ namespace ARTAPclient
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    //<<<<<<< HEAD
-                    //=======
                     result = MessageBox.Show
                     ("NOTE: After installing, you must restart the application", "NOTE",
                      MessageBoxButton.OK,
                      MessageBoxImage.Exclamation);
 
-                    //>>>>>>> PDF-Multiple-Pages
                     Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
@@ -755,10 +797,12 @@ namespace ARTAPclient
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)
         {
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 _thumbIndex++;
+
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -768,6 +812,7 @@ namespace ARTAPclient
             {
                 _thumbIndex--;
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
