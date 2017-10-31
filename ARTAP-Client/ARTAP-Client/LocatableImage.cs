@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows;
 using System.Windows.Shapes;
+using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -24,13 +25,106 @@ namespace ARTAPclient
         /// <summary>
         /// Points used to draw an X
         /// </summary>
-        private static readonly Point[] MARKER_POINTS = {new Point(-2, -2),
-                                                         new Point(0, 0),
-                                                         new Point(1, 1),
-                                                         new Point(0, 0),
-                                                         new Point(-1, 1),
-                                                         new Point(0, 0),
-                                                         new Point(2, -2)};
+        ///
+        private static readonly Point[][] MARKER_POINTS = new Point[9][]
+        {
+            //In order of direction enum
+
+            //down-right, down, down-left
+            //right, circle, left
+            //up-right, up, up-left
+
+            new Point[] {
+                new Point(0, 0),
+                new Point(-2, -2),
+                new Point(0,0),
+                new Point(0,-1),
+                new Point(0,0),
+                new Point(-1,0),
+                new Point(0,0)
+            },
+            new Point[]
+            {
+                new Point(0, 0),
+                new Point(0, -3),
+                new Point(0,0),
+                new Point(1,-1),
+                new Point(0,0),
+                new Point(-1,-1),
+                new Point(0,0)
+            },
+            new Point[]
+            {
+                new Point(0, 0),
+                new Point(2, -2),
+                new Point(0,0),
+                new Point(0,-1),
+                new Point(0,0),
+                new Point(1,0),
+                new Point(0,0)
+            },
+            new Point[]
+            {
+                new Point(0, 0),
+                new Point(-3, 0),
+                new Point(0,0),
+                new Point(-1,-1),
+                new Point(0,0),
+                new Point(-1,1),
+                new Point(0,0)
+            },
+            new Point[]
+            {
+                new Point(-2, -2),
+                new Point(0, 0),
+                new Point(1, 1),
+                new Point(0, 0),
+                new Point(-1, 1),
+                new Point(0, 0),
+                new Point(2, -2)
+            },
+            new Point[]
+            {
+                new Point(0, 0),
+                new Point(3, 0),
+                new Point(0,0),
+                new Point(1,-1),
+                new Point(0,0),
+                new Point(1,1),
+                new Point(0,0)
+            },
+            new Point[]
+            {
+                new Point(0, 0),
+                new Point(-2, 2),
+                new Point(0,0),
+                new Point(-1,0),
+                new Point(0,0),
+                new Point(0,1),
+                new Point(0,0)
+            },
+            new Point[]
+            {
+                new Point(0, 0),
+                new Point(0, 3),
+                new Point(0,0),
+                new Point(1,1),
+                new Point(0,0),
+                new Point(-1,1),
+                new Point(0,0)
+            },
+            new Point[]
+            {
+                new Point(0, 0),
+                new Point(2, 2),
+                new Point(0,0),
+                new Point(0,1),
+                new Point(0,0),
+                new Point(1,0),
+                new Point(0,0)
+            }
+        };
+
 
         /// <summary>
         /// List of indicators of where markers are placed on the LocatableImage
@@ -43,39 +137,29 @@ namespace ARTAPclient
         /// <param name="relativeLocation">Point to add the marker at.</param>
         /// <param name="color">Color to draw the marker.</param>
         /// <returns>Returns the PolyLine to add to the canvas.</returns>
-        public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Color color)
+        public Polyline AddMarker(Point relativeLocation, Point absoluteLocation, Direction direction, Color color)
         {
-            PointCollection newMarkerPoints = new PointCollection(MARKER_POINTS.Length);
+            var points = MARKER_POINTS[(int)direction];
+            var newMarkerPoints = new PointCollection(points.Length);
 
             //
             // Translate the shape of the marker so it will be placed where we want it
             //
-            foreach (Point original in MARKER_POINTS)
+            foreach (Point original in points)
             {
-                newMarkerPoints.Add(new Point(relativeLocation.X + original.X * SCALING, 
+                newMarkerPoints.Add(new Point(relativeLocation.X + original.X * SCALING,
                                               relativeLocation.Y + original.Y * SCALING));
             }
 
-            Polyline x = new Polyline();
+            var x = new Polyline();
 
             x.StrokeThickness = MARKER_THICKNESS;
             x.Stroke = new SolidColorBrush(color);
 
             x.Points = newMarkerPoints;
 
-            _markers.Add(new Marker(x, relativeLocation, absoluteLocation, color));
+            _markers.Add(new Marker(x, relativeLocation, absoluteLocation, color, direction));
             return x;
-        }
-
-        /// <summary>
-        /// Removes the last annotation added
-        /// </summary>
-        public void UndoMarker()
-        {
-            if (_markers.Count > 0)
-            {
-                _markers.RemoveAt(_markers.Count - 1);
-            }
         }
 
         /// <summary>
@@ -92,7 +176,7 @@ namespace ARTAPclient
         /// <param name="visibility">Visibility to set to</param>
         public void SetMarkersVisibility(Visibility visibility)
         {
-            foreach (Marker m in _markers)
+            foreach (var m in _markers)
             {
                 m.Annotation.Visibility = visibility;
             }
@@ -104,8 +188,8 @@ namespace ARTAPclient
         /// Creates a new locatable image
         /// </summary>
         /// <param name="originalImage">Original image passed to base constructor</param>
-        public LocatableImage(ImageSource originalImage) 
-            : base(originalImage) {}
+        public LocatableImage(ImageSource originalImage)
+            : base(originalImage) { }
 
         #endregion
 
@@ -129,7 +213,31 @@ namespace ARTAPclient
 
         public Marker GetLastMarker()
         {
-            return _markers.Last();
+            if (_markers.Count != 0) return _markers.Last();
+            else
+            {
+                var marker = new Marker(null, new Point(), new Point(), new Color());
+                marker.Sent = false;
+                return marker;
+            }
+        }
+
+        public bool HasUnsentMarkers()
+        {
+            if (_markers.Count != 0)
+            {
+                return GetLastMarker().Sent;
+            }
+            else return false;
+
+        }
+
+        public void UndoMarker()
+        {
+            if (_markers.Count > 0)
+            {
+                _markers.RemoveAt(_markers.Count - 1);
+            }
         }
 
         /// <summary>

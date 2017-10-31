@@ -11,7 +11,6 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -38,16 +37,22 @@ namespace ARTAPclient
         /// Types of messages that can be sent and their
         /// coresponding message  integer codes
         /// </summary>
+<<<<<<< HEAD
         private enum MessageType
         {
             Bitmap = 1,
             PositionIDRequest = 2,
             ArrowPlacement = 3,
             EraseMarkers = 4,
-	    Pdf = 5,
-            EraseMarker = 6,
-	    TaskList = 7
+            EraseMarker = 6
         }
+=======
+        private enum MessageType {  Bitmap = 1,
+                                    PositionIDRequest = 2,
+                                    ArrowPlacement = 3,
+                                    EraseMarkers = 4,
+                                    Pdf = 5
+                                 }
 >>>>>>> PDF-Multiple-Pages
 
         /// <summary>
@@ -179,11 +184,6 @@ namespace ARTAPclient
         public void SendEraseMarkers()
         {
             Send(MessageType.EraseMarkers, new byte[0]);
-        }
-
-        public void SendTaskList(TaskList list)
-        {
-            Send(MessageType.TaskList, new byte[0]);
         }
 
         /// <summary>

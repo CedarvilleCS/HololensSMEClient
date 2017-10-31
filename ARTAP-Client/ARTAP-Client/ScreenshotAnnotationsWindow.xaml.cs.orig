@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -17,6 +10,7 @@ using System.Windows.Shapes;
 using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
+using System.IO;
 
 namespace ARTAPclient
 {
@@ -24,7 +18,7 @@ namespace ARTAPclient
     /// Interaction logic for Window2.xaml
     /// </summary>
     /// 
-    public partial class ScreenshotAnnotationsWindow : Window
+    public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
 
@@ -32,6 +26,8 @@ namespace ARTAPclient
         /// Maximum number of images to hold in the history.
         /// </summary>
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
+
+        private const int THUMBNAIL_GALLERY_SIZE = 5;
 
         /// <summary>
         /// Current bitmap active for drawing
@@ -43,10 +39,14 @@ namespace ARTAPclient
         /// </summary>
         private List<AnnotatedImage> _imageHistory = new List<AnnotatedImage>();
 
+        private List<Image> _selectedImages = new List<Image>();
+
         /// <summary>
         /// Inedex of current image in _imageHistory
         /// </summary>
         private int _currentImageIndex = 0;
+
+        private Direction _markerDirection = Direction.MiddleMiddle;
 
         ///// <summary>
         ///// History of images snapped from the stream
@@ -61,7 +61,7 @@ namespace ARTAPclient
         /// <summary>
         /// List containing all of the thumbnail pictureboxes to make updating easy
         /// </summary>
-        private List<Image> _pictureBoxThumbnails = new List<Image>();
+        private List<ThumbnailImage> _pictureBoxThumbnails = new List<ThumbnailImage>();
 
         /// <summary>
         /// List of all of the buttons we want to enable/disable during arrow placement
@@ -76,12 +76,11 @@ namespace ARTAPclient
         /// <summary>
         /// Number of thumbnail images
         /// </summary>
-        private const int NUMTHUMBNAILS = 5;
 
         /// <summary>
         /// Color used for canvas annotations, default to Red
         /// </summary>
-        private Color _brushColor = Colors.Red;
+        private System.Windows.Media.Color _brushColor = Colors.Red;
 
         /// <summary>
         /// Size used for canvas annotations, default to 5
@@ -115,7 +114,14 @@ namespace ARTAPclient
 
         private int _thumbIndex = 0;
 
+        private bool _isSelectMultiple = false;
 
+<<<<<<< HEAD
+        private List<int> _selectedImages;
+
+        private System.Windows.Shapes.Path placeArrowPath;
+=======
+>>>>>>> PDF-Multiple-Pages
         #endregion
 
         #region Constructor
@@ -124,11 +130,11 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            _pictureBoxThumbnails.Add(imageThumb);
-            _pictureBoxThumbnails.Add(imageThumb1);
-            _pictureBoxThumbnails.Add(imageThumb2);
-            _pictureBoxThumbnails.Add(imageThumb3);
-            _pictureBoxThumbnails.Add(imageThumb4);
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
@@ -144,29 +150,28 @@ namespace ARTAPclient
         /// </summary>
         private void UpdateThumbnails()
         {
-            int numActiveThumbnails = 5;
+            int numActiveThumbnails = THUMBNAIL_GALLERY_SIZE;
 
             //Only use the number of active images
-            if (_imageHistory.Count < 5)
+            if (_imageHistory.Count < THUMBNAIL_GALLERY_SIZE)
             {
                 numActiveThumbnails = _imageHistory.Count;
-
             }
-
-            //int numActiveThumbnails = (_imageHistory.Count < 5) ? 
-            //    _imageHistory.Count : NUMTHUMBNAILS;
 
             int index = _thumbIndex;
             //Loop through and update images for all of the thumbnail frames
             for (int i = 0; i < numActiveThumbnails; i++, index++)
             {
-                _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
+                _pictureBoxThumbnails[i].Image.Source = _imageHistory[index].LatestImage;
+                _pictureBoxThumbnails[i].IsPdf = _imageHistory[index].IsPdf;
+                _pictureBoxThumbnails[i].IsSelected = _imageHistory[index].IsSelected;
             }
 
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 buttonNext.IsEnabled = true;
-            } else
+            }
+            else
             {
                 buttonNext.IsEnabled = false;
             }
@@ -174,7 +179,8 @@ namespace ARTAPclient
             if (_thumbIndex > 0)
             {
                 buttonPrev.IsEnabled = true;
-            } else
+            }
+            else
             {
                 buttonPrev.IsEnabled = false;
             }
@@ -185,16 +191,17 @@ namespace ARTAPclient
         /// </summary>
         private void SaveCanvasToActiveImage()
         {
-            if (_imageHistory.Count != 0) {
+            if (_imageHistory.Count != 0)
+            {
                 Rect bounds = VisualTreeHelper.GetDescendantBounds(canvasImageEditor);
-                RenderTargetBitmap rtb =
+                var rtb =
                     new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height,
-                    DPIX, DPIY, System.Windows.Media.PixelFormats.Default);
+                    DPIX, DPIY, PixelFormats.Default);
 
-                DrawingVisual dv = new DrawingVisual();
+                var dv = new DrawingVisual();
                 using (DrawingContext dc = dv.RenderOpen())
                 {
-                    VisualBrush vb = new VisualBrush(canvasImageEditor);
+                    var vb = new VisualBrush(canvasImageEditor);
                     dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
                 }
 
@@ -202,6 +209,7 @@ namespace ARTAPclient
 
                 _activeImage.LatestImage = rtb.Clone();
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -225,9 +233,9 @@ namespace ARTAPclient
             }
 
             //Add the markers if they exist
-            if(_activeImage is LocatableImage)
+            if (_activeImage is LocatableImage)
             {
-                foreach(Marker m in (_activeImage as LocatableImage).Markers)
+                foreach (var m in (_activeImage as LocatableImage).Markers)
                 {
                     canvasImageEditor.Children.Add(m.Annotation);
                 }
@@ -252,8 +260,10 @@ namespace ARTAPclient
             _activeImage = source;
             _imageHistory.Insert(0, source);
             _currentImageIndex = 0;
+
             CheckMarkerPlacementAllowed();
             UpdateThumbnails();
+            UpdateThumbnailBorders();
         }
 
         /// <summary>
@@ -266,18 +276,17 @@ namespace ARTAPclient
             ib.Stretch = Stretch.Uniform;
             ib.ImageSource = image.Clone();
             canvasImageEditor.Children.Clear();
-            if(image.Height < image.Width)
+            if (image.Height < image.Width)
             {
-                canvasImageEditor.Width = (360/image.Height) *image.Width;
+                canvasImageEditor.Width = (360 / image.Height) * image.Width;
                 canvasImageEditor.Height = 360;
             }
             else
             {
                 canvasImageEditor.Width = 640;
-                canvasImageEditor.Height = (640/image.Width)*image.Height;
+                canvasImageEditor.Height = (640 / image.Width) * image.Height;
             }
-            //canvasImageEditor.Width = image.Width;
-            //canvasImageEditor.Height = image.Height;
+
             canvasImageEditor.Background = ib;
             canvasImageEditor.InvalidateVisual();
         }
@@ -288,13 +297,12 @@ namespace ARTAPclient
         /// </summary>
         private void CheckMarkerPlacementAllowed()
         {
-            if(_activeImage is LocatableImage)
+            if (_activeImage is LocatableImage)
             {
                 buttonPlaceArrow.IsEnabled = true;
             }
             else
             {
-
                 //
                 // Make sure we are not in marker placing mode
                 // if placing markers is not allowed
@@ -315,7 +323,7 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 Debug.WriteLine("Placing Arrow: " + _placingMarker);
                 if (_placingMarker)
@@ -329,9 +337,10 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
+                    _listener.SendArrowLocation((LocatableImage)_activeImage);
 
-                    //
+                    //se
                     // Enable the undo button for placing arrows
                     //
                     buttonUndo.IsEnabled = true;
@@ -352,7 +361,7 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && 
+            if (e.LeftButton == MouseButtonState.Pressed &&
                 _activeImage != null &&
                 !_placingMarker)
             {
@@ -370,7 +379,7 @@ namespace ARTAPclient
                 {
                     polyLine = (Polyline)_activeImage.GetLastAnnotation();
                 }
-                
+
                 Point currentPoint = e.GetPosition(canvasImageEditor);
                 polyLine.Points.Add(currentPoint);
             }
@@ -383,6 +392,7 @@ namespace ARTAPclient
 
         private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
         {
+            placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
             LocatableImage img = new LocatableImage(screenshot);
             AddNewImage(img);
@@ -395,40 +405,45 @@ namespace ARTAPclient
             // We can't undo annotations if there is no
             // active image
             //
-            if (_activeImage != null) {
-                if (_placingMarker) {
-                    //
-                    // If there are unsent markers we can undo
-                    // 
-                    if ((_activeImage as LocatableImage).NumMarkers > 0 &&
-                       !(_activeImage as LocatableImage).GetLastMarker().Sent)
-                    {
-                        canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
-                        (_activeImage as LocatableImage).UndoMarker();
+            if (_activeImage != null)
+            {
+                //
+                // If there are unsent markers we can undo
+                // 
+                var locatableImage = _activeImage as LocatableImage;
 
-                        //
-                        // If there are no more unsent markers disable the undo button
-                        //
-                        buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 ||
-                                               !(_activeImage as LocatableImage).GetLastMarker().Sent;
-                    }
-                }
-                else
+                if (locatableImage.NumMarkers > 0)
                 {
-                    if (_activeImage.NumAnnotations > 0)
-                    {
-                        canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
-                        _activeImage.UndoAnnotation();
+                    canvasImageEditor.Children.Remove(locatableImage.GetLastMarker().Annotation);
+                    locatableImage.UndoMarker();
+                    _listener.EraseOneMarker(locatableImage);
 
-                        SaveCanvasToActiveImage();
-                    }
+                    //
+                    // If there are no more unsent markers disable the undo button
+                    //
+                    buttonUndo.IsEnabled = locatableImage.NumMarkers > 0;
+                }
+                
+                if (_activeImage.NumAnnotations > 0)
+                {
+                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                    _activeImage.UndoAnnotation();
+
+                    SaveCanvasToActiveImage();
                 }
             }
         }
 
+        //Function implemented but not used, values used elsewhere
+        private void buttonDirection_Click(object sender, RoutedEventArgs e)
+        {
+            var name = ((Button)sender).Name;
+            _markerDirection = (Direction)name[name.Length - 1];
+        }
+
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 //
                 // The sender == buttonClear clause makes sure that
@@ -444,6 +459,7 @@ namespace ARTAPclient
                     }
                     (_activeImage as LocatableImage).ClearMarkers();
                     SaveCanvasToActiveImage();
+                    buttonUndo.IsEnabled = false;
                 }
                 else
                 {
@@ -455,38 +471,116 @@ namespace ARTAPclient
                     SaveCanvasToActiveImage();
                 }
             }
+            else if (_isSelectMultiple)
+            {
+                var borders = new Border[] {
+                    imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+                };
+
+                foreach (var border in borders)
+                {
+                    border.BorderBrush = Brushes.White;
+                }
+            }
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (_isSelectMultiple)
+            {
+                var index = GetIndexFromThumbnailName(((Image)sender).Name);
+                var thumbnail = _pictureBoxThumbnails[index];
+                buttonUndo.IsEnabled = false;
+
+                if (!thumbnail.IsSelected && thumbnail.IsPdf)
+                {
+                    _selectedImages.Add(thumbnail.Image);
+                    _imageHistory[_thumbIndex + index].IsSelected = true;
+                    thumbnail.IsSelected = true;
+                }
+                else if (thumbnail.IsSelected && thumbnail.IsPdf)
+                {
+                    _selectedImages.Remove(thumbnail.Image);
+                    _imageHistory[_thumbIndex + index].IsSelected = false;
+                    thumbnail.IsSelected = false;
+                }
+            }
+
             SelectThumbnail(0 + _thumbIndex);
+
+            UpdateThumbnailBorders();
         }
 
-        private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
+        private void UpdateThumbnailBorders()
         {
-            SelectThumbnail(1 + _thumbIndex);
-        }
+            var borders = new Border[] {
+                imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+            };
 
-        private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(2 + _thumbIndex);
+            for (var i = 0; i < THUMBNAIL_GALLERY_SIZE; i++)
+            {
+                var thumbnailBorder = borders[i];
+                if (_pictureBoxThumbnails[i].IsSelected)
+                {
+                    thumbnailBorder.BorderBrush = Brushes.Cyan;
+                }
+                else
+                {
+                    thumbnailBorder.BorderBrush = Brushes.White;
+                }
+            }
         }
-
-        private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
+        private int GetIndexFromThumbnailName(string name)
         {
-            SelectThumbnail(3 + _thumbIndex);
-        }
-
-        private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(4 + _thumbIndex);
+            var character = name[name.Length - 1];
+            switch (character)
+            {
+                case '1':
+                    return 1;
+                case '2':
+                    return 2;
+                case '3':
+                    return 3;
+                case '4':
+                    return 4;
+                default:
+                    return 0;
+            }
         }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
             if (_activeImage != null)
             {
-                if (_placingMarker)
+<<<<<<< HEAD
+                _listener.SendBitmap(_activeImage.LatestImage);
+=======
+                if (_selectedImages.Any())
+                {
+                    var document = new PDFDocument();
+                    foreach (var image in _selectedImages)
+                    {
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+                        var bitmapSource = image.Source as BitmapSource;
+
+                        if (bitmapSource != null)
+                        {
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                            using (var stream = new MemoryStream())
+                            {
+                                encoder.Save(stream);
+                                bytes = stream.ToArray();
+                            }
+
+                            document.Pages.Add(bytes);
+                        }
+                    }
+
+                    _listener.SendPDF(document);
+                }
+                else if (_placingMarker)
                 {
                     _listener.SendArrowLocation((LocatableImage)_activeImage);
                 }
@@ -494,6 +588,7 @@ namespace ARTAPclient
                 {
                     _listener.SendBitmap(_activeImage.LatestImage);
                 }
+>>>>>>> PDF-Multiple-Pages
             }
         }
 
@@ -509,7 +604,7 @@ namespace ARTAPclient
 
             bool? result = openDialog.ShowDialog();
 
-            if(result == true)
+            if (result == true)
             {
                 string pdfFile = openDialog.FileName;
                 LoadPDF(pdfFile);
@@ -524,8 +619,12 @@ namespace ARTAPclient
                 bool? result = pdfDialog.ShowDialog();
                 if (result == true)
                 {
-                    ImageSource img = pdfDialog.selectedImage;
-                    AddNewImage(new AnnotatedImage(img));
+                    List<ImageSource> images = new List<ImageSource>();
+                    foreach (var image in pdfDialog.selectedImages)
+                    {
+                        images.Add(image);
+                        AddNewImage(new AnnotatedImage(image, true));
+                    }
                 }
             }
             catch (TypeInitializationException)
@@ -536,18 +635,17 @@ namespace ARTAPclient
                      MessageBoxButton.YesNo,
                      MessageBoxImage.Error);
 
-                if(result == MessageBoxResult.Yes)
+                if (result == MessageBoxResult.Yes)
                 {
-<<<<<<< Updated upstream
-                    System.Diagnostics.Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
-=======
+                    //<<<<<<< HEAD
+                    //=======
                     result = MessageBox.Show
                     ("NOTE: After installing, you must restart the application", "NOTE",
                      MessageBoxButton.OK,
                      MessageBoxImage.Exclamation);
 
+                    //>>>>>>> PDF-Multiple-Pages
                     Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
->>>>>>> Stashed changes
                 }
             }
         }
@@ -588,6 +686,78 @@ namespace ARTAPclient
         {
             SetPlacingMarkers(!_placingMarker);
         }
+        private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
+        {
+            //Toggles the menu upon click
+            MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
+
+        }
+
+        private void ChooseMarkerType(object sender, RoutedEventArgs e)
+        {
+
+            Button btn = (Button)sender;
+            string btnName = btn.Name;
+            
+            //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
+            var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
+
+            //Set the correction marker type
+            _markerDirection = (Direction)(direction - 1);
+
+            //Works in theory, need to test
+            Image content = (Image)btn.Content;
+            var test = content.Source;
+            buttonPlaceArrow.Content = (Image)btn.Content;
+
+            //System.Drawing.Bitmap(WpfApplication1.Properties.Resources.filled_circle);
+            String correctPhoto = "";
+
+            switch (direction)
+            {
+                case 1:
+                    correctPhoto = "downright";
+                    break;
+                case 2:
+                    correctPhoto = "down";
+                    break;
+                case 3:
+                    correctPhoto = "downleft";
+                    break;
+                case 4:
+                    correctPhoto = "right";
+                    break;
+                case 5:
+                    correctPhoto = "filled_circle";
+                    break;
+                case 6:
+                    correctPhoto = "left";
+                    break;
+                case 7:
+                    correctPhoto = "upright";
+                    break;
+                case 8:
+                    correctPhoto = "up";
+                    break;
+                case 9:
+                    correctPhoto = "upleft";
+                    break;
+            }
+            btn.Content = new Image
+            {
+                Source = new BitmapImage(new Uri("Resources/" + correctPhoto + ".png", UriKind.Relative)),
+            };
+            //Maybe always set it to true?
+            SetPlacingMarkers(true);
+
+            //Disable all buttons that do not need to be available for this mode
+            buttonChangeColor.IsEnabled = false;
+            buttonUploadImage.IsEnabled = false;
+            buttonCaptureScreenshot.IsEnabled = false;
+
+            //The menu will have to be open to click a button so we don't have to toggle here
+            MenuFlyout.IsOpen = false;
+        }
 
         private void SetPlacingMarkers(bool placingArrow)
         {
@@ -597,24 +767,51 @@ namespace ARTAPclient
             if (placingArrow)
             {
                 buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
-                                       !(_activeImage as LocatableImage).GetLastMarker().Sent;
-                
+                                       !(_activeImage as LocatableImage).HasUnsentMarkers();
+
                 buttonPlaceArrow.Background = Brushes.LightGreen;
             }
             else
             {
                 buttonUndo.IsEnabled = true;
-                
+
                 buttonPlaceArrow.Background = Brushes.LightGray;
             }
         }
 
+        private void buttonSelectMultiple_Click(object sender, EventArgs e)
+        {
+            //If in placingMarker mode get out and reset everything
+            if (_placingMarker)
+            {
+                SetPlacingMarkers(!_placingMarker);
+                buttonChangeColor.IsEnabled = !_placingMarker;
+                buttonUploadImage.IsEnabled = !_placingMarker;
+                buttonCaptureScreenshot.IsEnabled = !_placingMarker;
+                buttonPlaceArrow.Content = placeArrowPath;
+            }
+            else
+            {
+                _isSelectMultiple = !_isSelectMultiple;
+
+                buttonUndo.IsEnabled = !_isSelectMultiple;
+                buttonChangeColor.IsEnabled = !_isSelectMultiple;
+                buttonUploadImage.IsEnabled = !_isSelectMultiple;
+                buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
+            }
+
+        }
+
         private void buttonNext_Click(object sender, RoutedEventArgs e)
         {
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 _thumbIndex++;
+
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -624,6 +821,7 @@ namespace ARTAPclient
             {
                 _thumbIndex--;
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -645,7 +843,7 @@ namespace ARTAPclient
             if (_listener != null && _listener.Connected)
             {
                 _listener.SendEraseMarkers();
-                foreach(LocatableImage image in _imageHistory.OfType<LocatableImage>())
+                foreach (LocatableImage image in _imageHistory.OfType<LocatableImage>())
                 {
                     image.ClearMarkers();
                 }

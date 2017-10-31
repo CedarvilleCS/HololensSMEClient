@@ -90,6 +90,7 @@
     </ApplicationDefinition>
     <Compile Include="AnnotatedImage.cs" />
     <Compile Include="AsynchronousSocketListener.cs" />
+    <Compile Include="Direction.cs" />
     <Compile Include="LocatableImage.cs" />
     <Compile Include="AppSettings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -99,6 +100,7 @@
     <Compile Include="Marker.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="TaskList.cs" />
+    <Compile Include="PDFDocument.cs" />
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>
@@ -158,6 +160,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -192,19 +195,37 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\check-mark.svg" />
+    <Resource Include="Resources\check-mark.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\down.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\downleft.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\down.png" />
     <Resource Include="Resources\downright.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\left.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\right.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\up.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\upleft.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\upright.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\filled-circle %2864x64%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\filled_circle.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\filled-circle.png" />
