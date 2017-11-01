@@ -116,8 +116,6 @@ namespace ARTAPclient
 
         private bool _isSelectMultiple = false;
 
-        private List<int> _selectedImages;
-
         private System.Windows.Shapes.Path placeArrowPath;
         #endregion
 

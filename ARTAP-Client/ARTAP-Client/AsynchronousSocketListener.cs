@@ -37,7 +37,6 @@ namespace ARTAPclient
         /// Types of messages that can be sent and their
         /// coresponding message  integer codes
         /// </summary>
-<<<<<<< HEAD
         private enum MessageType
         {
             Bitmap = 1,
@@ -47,14 +46,6 @@ namespace ARTAPclient
 	    Pdf = 5,
             EraseMarker = 6
         }
-=======
-        private enum MessageType {  Bitmap = 1,
-                                    PositionIDRequest = 2,
-                                    ArrowPlacement = 3,
-                                    EraseMarkers = 4,
-                                    Pdf = 5
-                                 }
->>>>>>> PDF-Multiple-Pages
 
         /// <summary>
         /// Handles timing for checking if the connection is alive
