@@ -202,7 +202,6 @@
     <Resource Include="Resources\downleft.png" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
     <Resource Include="Resources\downright.png" />
   </ItemGroup>
   <ItemGroup>
@@ -225,18 +224,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\filled_circle.png" />
-=======
-    <Resource Include="Resources\down.png" />
-    <Resource Include="Resources\downright.png" />
-    <Resource Include="Resources\left.png" />
-    <Resource Include="Resources\right.png" />
-    <Resource Include="Resources\up.png" />
-    <Resource Include="Resources\upleft.png" />
-    <Resource Include="Resources\upright.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\filled-circle.png" />
->>>>>>> PDF-Multiple-Pages
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
