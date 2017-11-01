@@ -48,7 +48,6 @@ namespace ARTAPclient
             EraseMarker = 6,
 	    TaskList = 7
         }
->>>>>>> PDF-Multiple-Pages
 
         /// <summary>
         /// Handles timing for checking if the connection is alive
