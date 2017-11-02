@@ -29,13 +29,17 @@ namespace WpfApplication1
             var id = BitConverter.ToInt32(SubArray(bytes, 0, 4), 0);
             var isCompleted = BitConverter.ToBoolean(SubArray(bytes, 4, 1), 0);
 
-            var nameLength = BitConverter.ToInt32(SubArray(bytes, 5, 9), 0);
+            var nameLength = BitConverter.ToInt32(SubArray(bytes, 5, 4), 0);
             var currentPosition = 9 + nameLength;
-            var name = BitConverter.ToString(SubArray(bytes, 9, currentPosition), 0);
+            var name = Encoding.ASCII.GetString(SubArray(bytes, 9, nameLength));
 
-            var imageLength = BitConverter.ToInt32(SubArray(bytes, currentPosition, currentPosition += 4), 0);
-            var imageBytes = SubArray(bytes, currentPosition, currentPosition + imageLength);
-            var image = (Bitmap)((new ImageConverter()).ConvertFrom(imageBytes));
+            var imageLength = BitConverter.ToInt32(SubArray(bytes, currentPosition, 4), 0);
+            var imageBytes = SubArray(bytes, currentPosition + 4, imageLength);
+            Bitmap image = null;
+            if (imageBytes.Length > 0)
+            {
+                image = (Bitmap)((new ImageConverter()).ConvertFrom(imageBytes));
+            }
 
             return new Task
             {
@@ -50,8 +54,8 @@ namespace WpfApplication1
         {
             var idBytes = BitConverter.GetBytes(Id);
 
-            var nameBytesLength = BitConverter.GetBytes(Name.Length);
             var nameBytes = Encoding.ASCII.GetBytes(Name);
+            var nameBytesLength = BitConverter.GetBytes(nameBytes.Length);
 
             var completedBytes = BitConverter.GetBytes(IsCompleted);
 
@@ -59,15 +63,14 @@ namespace WpfApplication1
             var imageBytes = (byte[])converter.ConvertTo(Attachment, typeof(byte[]));
             var imageBytesLength = BitConverter.GetBytes(imageBytes.Length);
             
-            var allBytes = idBytes.Concat(nameBytesLength)
+            var allBytes = idBytes.Concat(completedBytes)
                 .Concat(nameBytesLength)
                 .Concat(nameBytes)
-                .Concat(completedBytes)
                 .Concat(imageBytesLength)
                 .Concat(imageBytes)
                 .ToArray();
 
-            return (BitConverter.GetBytes(allBytes.Length)).Concat(allBytes).ToArray();
+            return (BitConverter.GetBytes(allBytes.Length + 4)).Concat(allBytes).ToArray();
         }
 
         public static byte[] SubArray(byte[] data, int start, int length)
