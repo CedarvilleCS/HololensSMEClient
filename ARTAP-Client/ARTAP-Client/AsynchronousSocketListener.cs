@@ -150,6 +150,36 @@ namespace ARTAPclient
 
                     byte[] color = { marker.Color.R, marker.Color.G, marker.Color.B };
 
+                    if (width == null)
+                    {
+                        Debug.WriteLine("width");
+                    }
+
+                    if (height == null)
+                    {
+                        Debug.WriteLine("height");
+                    }
+
+                    if (direction == null)
+                    {
+                        Debug.WriteLine("direction");
+                    }
+
+                    if (x == null)
+                    {
+                        Debug.WriteLine("x");
+                    }
+
+                    if (y == null)
+                    {
+                        Debug.WriteLine("y");
+                    }
+
+                    if (color == null)
+                    {
+                        Debug.WriteLine("color");
+                    }
+
                     byte[] message = CombineArrs(image.PositionID, width, height, x, y, direction, color);
                     Send(MessageType.ArrowPlacement, message);
 
@@ -230,8 +260,8 @@ namespace ARTAPclient
         /// <returns>A single combined byte array</returns>
         private byte[] CombineArrs(params byte[][] arrays)
         {
-            byte[] rv = new byte[arrays.Sum(a => a.Length)];
-            int offset = 0;
+            var rv = new byte[arrays.Sum(a => a.Length)];
+            var offset = 0;
             foreach (byte[] array in arrays)
             {
                 Buffer.BlockCopy(array, 0, rv, offset, array.Length);
