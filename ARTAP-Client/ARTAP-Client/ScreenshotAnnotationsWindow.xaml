@@ -189,10 +189,7 @@
                         <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
                     <TabControl Grid.Column="0" Grid.Row="0" TabStripPlacement="Left">
-                        <TabItem Header="Test" Width="150" TextBlock.TextAlignment="Center">
-                            
-                        </TabItem>
-                        <!--<TabItem Header="Test 2" Width="150" TextBlock.TextAlignment="Center"></TabItem>-->
+                        <!--<TabItem Header="Test" Width="150" TextBlock.TextAlignment="Center"></TabItem>-->
                     </TabControl>
                     <Button x:Name="buttonAddList" Grid.Column="0" Grid.Row="1" Height="30" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5,5,5,5" Background="Transparent" BorderThickness="0">
                         <Path Stretch="Fill"
