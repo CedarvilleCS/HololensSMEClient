@@ -150,36 +150,6 @@ namespace ARTAPclient
 
                     byte[] color = { marker.Color.R, marker.Color.G, marker.Color.B };
 
-                    if (width == null)
-                    {
-                        Debug.WriteLine("width");
-                    }
-
-                    if (height == null)
-                    {
-                        Debug.WriteLine("height");
-                    }
-
-                    if (direction == null)
-                    {
-                        Debug.WriteLine("direction");
-                    }
-
-                    if (x == null)
-                    {
-                        Debug.WriteLine("x");
-                    }
-
-                    if (y == null)
-                    {
-                        Debug.WriteLine("y");
-                    }
-
-                    if (color == null)
-                    {
-                        Debug.WriteLine("color");
-                    }
-
                     byte[] message = CombineArrs(image.PositionID, width, height, x, y, direction, color);
                     Send(MessageType.ArrowPlacement, message);
 
@@ -431,7 +401,7 @@ namespace ARTAPclient
             ///
             /// For testing purposes
             ///
-            Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
+            Debug.WriteLine($"Sent {bytesSent} bytes to server.");
         }
 
         /// <summary>
@@ -450,7 +420,6 @@ namespace ARTAPclient
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
-
         }
 
         #endregion

@@ -334,8 +334,10 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    var locatableImage = _activeImage as LocatableImage;
+                    canvasImageEditor.Children.Add(locatableImage.AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
+                    
+                    _listener.SendArrowLocation(locatableImage);
 
                     //se
                     // Enable the undo button for placing arrows
@@ -577,7 +579,10 @@ namespace ARTAPclient
                 }
                 else if (_placingMarker)
                 {
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    if (((LocatableImage)_activeImage).PositionID != null)
+                    {
+                        _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    }
                 }
                 else
                 {
