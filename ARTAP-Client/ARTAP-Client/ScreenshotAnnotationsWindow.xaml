@@ -6,7 +6,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:ARTAPclient"
         mc:Ignorable="d"
-        Title="Annotations" Height="574.24" Width="691.131" WindowStartupLocation="CenterScreen" MinWidth="780" MinHeight="540">
+        Title="Annotations" Height="568.24" Width="691.131" WindowStartupLocation="CenterScreen" MinWidth="780" MinHeight="540">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
@@ -21,8 +21,8 @@
                 <MenuItem Header="Change Brush Color/Size..." Click="buttonChangeColor_Click"/>
             </MenuItem>
         </Menu>
-        <TabControl>
-            <TabItem Header="Image">
+        <TabControl >
+            <TabItem Header="Image" Controls:ControlsHelper.HeaderFontSize="20">
                 <StackPanel>
                     <Grid Margin="0, 0, 0, 2">
                         <Grid.RowDefinitions>
@@ -176,6 +176,21 @@
                         <Button x:Name="buttonPrev" Content="&lt;" IsEnabled="False" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="26" Height="35" Click="buttonPrev_Click"/>
                     </Grid>
                 </StackPanel>
+            </TabItem>
+            <TabItem Header="Task List" Controls:ControlsHelper.HeaderFontSize="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <!--<Separator />-->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    
+                </Grid>
             </TabItem>
         </TabControl>
     </DockPanel>
