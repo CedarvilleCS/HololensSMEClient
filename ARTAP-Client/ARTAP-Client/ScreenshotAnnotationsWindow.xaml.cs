@@ -34,6 +34,8 @@ namespace ARTAPclient
         /// </summary>
         private AnnotatedImage _activeImage;
 
+        private List<TaskList> _taskLists = new List<TaskList>();
+
         /// <summary>
         /// History of images snapped or uploaded
         /// </summary>
@@ -583,6 +585,10 @@ namespace ARTAPclient
                     {
                         _listener.SendArrowLocation((LocatableImage)_activeImage);
                     }
+                    else
+                    {
+                        MessageBox.Show("Waiting for Location ID from Image", "Error", MessageBoxButton.OK);
+                    }
                 }
                 else
                 {
@@ -843,6 +849,85 @@ namespace ARTAPclient
                 {
                     image.ClearMarkers();
                 }
+            }
+        }
+
+        private void list_Click(object sender, RoutedEventArgs e)
+        {
+            //var lastChar = ((Button)sender).Name.Last();
+            //var index = (int)Char.GetNumericValue(lastChar);
+            var userControl = new TaskListUserControl();
+            //var taskList = _taskLists[index];
+
+            var taskList = new TaskList()
+            {
+                Id = 0,
+                Name = "List",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            };
+
+            AddTaskListName(userControl, taskList.Name);
+            AddTaskListTasks(userControl, taskList.Tasks);
+            TaskListGrid.Children.Add(userControl);
+        }
+
+        private void AddTaskListName(TaskListUserControl userControl, string name)
+        {
+            var nameLabel = new Label()
+            {
+                Content = name,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            userControl.TaskListGrid.Children.Add(nameLabel);
+            Grid.SetRow(nameLabel, 2);
+        }
+
+        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks)
+        {
+            var startingRow = 5;
+
+            foreach (var task in tasks)
+            {
+                var taskName = new Label()
+                {
+                    Content = task.Name,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                var checkBox = new CheckBox()
+                {
+                    IsChecked = task.IsCompleted,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                userControl.TaskListGrid.Children.Add(taskName);
+                userControl.TaskListGrid.Children.Add(checkBox);
+
+                Grid.SetRow(taskName, startingRow);
+                Grid.SetRow(checkBox, startingRow);
+
+                startingRow += 2;
             }
         }
 

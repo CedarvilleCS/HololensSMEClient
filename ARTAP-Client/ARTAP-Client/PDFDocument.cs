@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 public class PDFDocument
 {
+    public static int CurrentId = 0;
     public int Id { get; set; }
     public List<byte[]> Pages { get; set; }
 
     public PDFDocument()
     {
-        Id = (new Random()).Next();
+        Id = CurrentId++;
         Pages = new List<byte[]>();
     }
 

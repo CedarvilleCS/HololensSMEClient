@@ -104,6 +104,9 @@
     <Compile Include="Task.cs" />
     <Compile Include="TaskList.cs" />
     <Compile Include="PDFDocument.cs" />
+    <Compile Include="TaskListUserControl.xaml.cs">
+      <DependentUpon>TaskListUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>
@@ -129,6 +132,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="TaskListUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="thumbnailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
