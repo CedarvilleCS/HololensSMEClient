@@ -940,7 +940,6 @@ namespace ARTAPclient
             }
         }
 
-<<<<<<< Updated upstream
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
             Button list = new Button();
@@ -958,9 +957,7 @@ namespace ARTAPclient
         {
 
         }
-
-=======
->>>>>>> Stashed changes
+        
         #endregion
     }
 }

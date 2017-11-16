@@ -178,11 +178,7 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="Task List" Controls:ControlsHelper.HeaderFontSize="20">
-<<<<<<< Updated upstream
-                <Grid x:Name="TaskListGrid">
-=======
                 <Grid Name="TaskListGrid">
->>>>>>> Stashed changes
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="*" />
