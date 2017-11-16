@@ -118,7 +118,11 @@ namespace ARTAPclient
 
         private bool _isSelectMultiple = false;
 
-        //private List<int> _selectedImages;
+        /// <summary>
+        /// Variable to keep track of number of lists.
+        /// Starts at 1 because the window will always have at least one task-list
+        /// </summary>
+        private int numLists = 1;
 
         private System.Windows.Shapes.Path placeArrowPath;
         #endregion
@@ -889,6 +893,8 @@ namespace ARTAPclient
             AddTaskListName(userControl, taskList.Name);
             AddTaskListTasks(userControl, taskList.Tasks);
             TaskListGrid.Children.Add(userControl);
+            Grid.SetRow(userControl, 0);
+            Grid.SetColumn(userControl, 1);
         }
 
         private void AddTaskListName(TaskListUserControl userControl, string name)
@@ -931,7 +937,24 @@ namespace ARTAPclient
             }
         }
 
-        #endregion
+        private void buttonAddList_Click(object sender, RoutedEventArgs e)
+        {
+            Button list = new Button();
+            list.Name = "list" + numLists.ToString();
+            numLists++;
+            list.Width = 150;
+            list.Height = 30;
+            list.VerticalAlignment = VerticalAlignment.Top;
+            list.Click += list_Click;
 
+            taskListButtons.Children.Add(list);
+        }
+
+        private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        #endregion
     }
 }
