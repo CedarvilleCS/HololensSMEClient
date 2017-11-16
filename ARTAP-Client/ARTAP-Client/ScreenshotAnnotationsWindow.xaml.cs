@@ -940,8 +940,8 @@ namespace ARTAPclient
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
             Button list = new Button();
-            list.Name = "list" + numLists.ToString();
-            numLists++;
+            list.Name = $"list{numLists++}";
+            list.Content = "Task List " + numLists.ToString();
             list.Width = 150;
             list.Height = 30;
             list.VerticalAlignment = VerticalAlignment.Top;

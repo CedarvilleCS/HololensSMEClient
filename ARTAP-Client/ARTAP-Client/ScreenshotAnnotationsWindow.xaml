@@ -188,22 +188,22 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
-                    
+
                     <StackPanel x:Name="taskListButtons" Grid.Column="0" Grid.Row="0">
-                        <Button x:Name="list0" Width="150" Height="30" VerticalAlignment="Top" Click="list_Click"></Button>
+                        <Button x:Name="list0" Width="150" Height="30" VerticalAlignment="Top" Click="list_Click" Content="Task List 1"></Button>
                     </StackPanel>
-                   
-                    <Button x:Name="buttonAddList" Grid.Column="0" Grid.Row="1" Height="20" Width="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5,5,5,10" Background="Transparent" BorderThickness="0" Click="buttonAddList_Click">
-                            <Path Stretch="Fill"
-                              Stroke="#4286f4"
-                              StrokeThickness="1.3"
-                              Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"
+
+                    <Button x:Name="buttonAddList" Grid.Column="0" Grid.Row="1" Height="20" Width="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5,5,5,10" Background="Transparent" BorderThickness="0" Click="buttonAddList_Click" Template="{DynamicResource PlusTemplate}">
+                        <Path Stretch="Fill"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"
+                              StrokeThickness="1.5"
+                              
                               Data="M0,5 H10 M5,0 V10" />
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Foreground" Value="#FF4F90F9" />
+                                        <Setter Property="Foreground" Value="#FF84AEF1" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="False">
                                         <Setter Property="Foreground" Value="#4286f4" />
@@ -220,7 +220,7 @@
                     <Button x:Name="buttonRemoveList" Grid.Column="0" Grid.Row="1" Height="20" Width="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,5,5,10" Background="Transparent" BorderThickness="0" Style="{x:Null}" Click="buttonRemoveList_Click">
                         <Path Stretch="Fill"
                               Stroke="#f91d04"
-                              StrokeThickness="1.3"
+                              StrokeThickness="1.5"
                               Data="M0,5 H10" />
                     </Button>
 
@@ -238,6 +238,27 @@
         <RoutedUICommand x:Key="sendCommand" Text="Send" />
         <RoutedUICommand x:Key="nextCommand" Text="Next" />
         <RoutedUICommand x:Key="prevCommand" Text="Prev" />
+        <ControlTemplate x:Key="PlusTemplate" TargetType="{x:Type ButtonBase}">
+            <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsDefaulted" Value="True">
+                    <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True"/>
+                <Trigger Property="IsPressed" Value="True"/>
+                <Trigger Property="ToggleButton.IsChecked" Value="True">
+                    <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                    <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#FF838383"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource undoCommand}" 
