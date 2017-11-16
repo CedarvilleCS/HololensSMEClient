@@ -861,6 +861,7 @@ namespace ARTAPclient
             //var lastChar = ((Button)sender).Name.Last();
             //var index = (int)Char.GetNumericValue(lastChar);
             var userControl = new TaskListUserControl();
+            var dockPanel = new DockPanel();
             //var taskList = _taskLists[index];
 
             var taskList = new TaskList()
@@ -890,14 +891,16 @@ namespace ARTAPclient
                 }
             };
 
-            AddTaskListName(userControl, taskList.Name);
-            AddTaskListTasks(userControl, taskList.Tasks);
+            AddTaskListName(dockPanel, taskList.Name);
+            AddTaskListTasks(dockPanel, taskList.Tasks);
+            userControl.TaskListGrid.Children.Add(dockPanel);
             TaskListGrid.Children.Add(userControl);
-            Grid.SetRow(userControl, 0);
+
             Grid.SetColumn(userControl, 1);
+            Grid.SetRow(userControl, 0);
         }
 
-        private void AddTaskListName(TaskListUserControl userControl, string name)
+        private void AddTaskListName(DockPanel dockPanel, string name)
         {
             var nameLabel = new Label()
             {
@@ -905,11 +908,11 @@ namespace ARTAPclient
                 HorizontalAlignment = HorizontalAlignment.Center
             };
 
-            userControl.TaskListGrid.Children.Add(nameLabel);
+            dockPanel.Children.Add(nameLabel);
             Grid.SetRow(nameLabel, 2);
         }
 
-        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks)
+        private void AddTaskListTasks(DockPanel dockPanel, List<Task> tasks)
         {
             var startingRow = 5;
 
@@ -927,8 +930,8 @@ namespace ARTAPclient
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
 
-                userControl.TaskListGrid.Children.Add(taskName);
-                userControl.TaskListGrid.Children.Add(checkBox);
+                dockPanel.Children.Add(taskName);
+                dockPanel.Children.Add(checkBox);
 
                 Grid.SetRow(taskName, startingRow);
                 Grid.SetRow(checkBox, startingRow);
@@ -937,6 +940,7 @@ namespace ARTAPclient
             }
         }
 
+<<<<<<< Updated upstream
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
             Button list = new Button();
@@ -955,6 +959,8 @@ namespace ARTAPclient
 
         }
 
+=======
+>>>>>>> Stashed changes
         #endregion
     }
 }

@@ -34,6 +34,8 @@ namespace ARTAPclient
         /// </summary>
         private AnnotatedImage _activeImage;
 
+        private List<TaskList> _taskLists = new List<TaskList>();
+
         /// <summary>
         /// History of images snapped or uploaded
         /// </summary>
@@ -116,12 +118,13 @@ namespace ARTAPclient
 
         private bool _isSelectMultiple = false;
 
-<<<<<<< HEAD
-        private List<int> _selectedImages;
+        /// <summary>
+        /// Variable to keep track of number of lists.
+        /// Starts at 1 because the window will always have at least one task-list
+        /// </summary>
+        private int numLists = 1;
 
         private System.Windows.Shapes.Path placeArrowPath;
-=======
->>>>>>> PDF-Multiple-Pages
         #endregion
 
         #region Constructor
@@ -337,8 +340,10 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    var locatableImage = _activeImage as LocatableImage;
+                    canvasImageEditor.Children.Add(locatableImage.AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
+                    
+                    _listener.SendArrowLocation(locatableImage);
 
                     //se
                     // Enable the undo button for placing arrows
@@ -552,9 +557,7 @@ namespace ARTAPclient
         {
             if (_activeImage != null)
             {
-<<<<<<< HEAD
                 _listener.SendBitmap(_activeImage.LatestImage);
-=======
                 if (_selectedImages.Any())
                 {
                     var document = new PDFDocument();
@@ -582,13 +585,19 @@ namespace ARTAPclient
                 }
                 else if (_placingMarker)
                 {
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    if (((LocatableImage)_activeImage).PositionID != null)
+                    {
+                        _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Waiting for Location ID from Image", "Error", MessageBoxButton.OK);
+                    }
                 }
                 else
                 {
                     _listener.SendBitmap(_activeImage.LatestImage);
                 }
->>>>>>> PDF-Multiple-Pages
             }
         }
 
@@ -637,14 +646,11 @@ namespace ARTAPclient
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    //<<<<<<< HEAD
-                    //=======
                     result = MessageBox.Show
                     ("NOTE: After installing, you must restart the application", "NOTE",
                      MessageBoxButton.OK,
                      MessageBoxImage.Exclamation);
 
-                    //>>>>>>> PDF-Multiple-Pages
                     Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
@@ -850,7 +856,116 @@ namespace ARTAPclient
             }
         }
 
-        #endregion
+        private void list_Click(object sender, RoutedEventArgs e)
+        {
+            //var lastChar = ((Button)sender).Name.Last();
+            //var index = (int)Char.GetNumericValue(lastChar);
+            var userControl = new TaskListUserControl();
+            var dockPanel = new DockPanel();
+            //var taskList = _taskLists[index];
 
+            var taskList = new TaskList()
+            {
+                Id = 0,
+                Name = "List",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            };
+
+            AddTaskListName(dockPanel, taskList.Name);
+            AddTaskListTasks(dockPanel, taskList.Tasks);
+            userControl.TaskListGrid.Children.Add(dockPanel);
+            TaskListGrid.Children.Add(userControl);
+<<<<<<< Updated upstream
+            Grid.SetRow(userControl, 0);
+            Grid.SetColumn(userControl, 1);
+=======
+
+            Grid.SetColumn(userControl, 1);
+            Grid.SetRow(userControl, 0);
+>>>>>>> Stashed changes
+        }
+
+        private void AddTaskListName(DockPanel dockPanel, string name)
+        {
+            var nameLabel = new Label()
+            {
+                Content = name,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            dockPanel.Children.Add(nameLabel);
+            Grid.SetRow(nameLabel, 2);
+        }
+
+        private void AddTaskListTasks(DockPanel dockPanel, List<Task> tasks)
+        {
+            var startingRow = 5;
+
+            foreach (var task in tasks)
+            {
+                var taskName = new Label()
+                {
+                    Content = task.Name,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                var checkBox = new CheckBox()
+                {
+                    IsChecked = task.IsCompleted,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                dockPanel.Children.Add(taskName);
+                dockPanel.Children.Add(checkBox);
+
+                Grid.SetRow(taskName, startingRow);
+                Grid.SetRow(checkBox, startingRow);
+
+                startingRow += 2;
+            }
+        }
+
+<<<<<<< Updated upstream
+        private void buttonAddList_Click(object sender, RoutedEventArgs e)
+        {
+            Button list = new Button();
+            list.Name = $"list{numLists++}";
+            list.Content = "Task List " + numLists.ToString();
+            list.Width = 150;
+            list.Height = 30;
+            list.VerticalAlignment = VerticalAlignment.Top;
+            list.Click += list_Click;
+
+            taskListButtons.Children.Add(list);
+        }
+
+        private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+=======
+>>>>>>> Stashed changes
+        #endregion
     }
 }
