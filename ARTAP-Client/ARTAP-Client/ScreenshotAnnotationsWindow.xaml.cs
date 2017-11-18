@@ -34,7 +34,37 @@ namespace ARTAPclient
         /// </summary>
         private AnnotatedImage _activeImage;
 
-        private List<TaskList> _taskLists = new List<TaskList>();
+        private List<TaskList> _taskLists = new List<TaskList>
+        {
+            new TaskList
+            {
+                Id = 0,
+                Name = "List",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            }
+        };
+
+        private TaskList _currentTaskList;
 
         /// <summary>
         /// History of images snapped or uploaded
@@ -117,12 +147,6 @@ namespace ARTAPclient
         private int _thumbIndex = 0;
 
         private bool _isSelectMultiple = false;
-
-        /// <summary>
-        /// Variable to keep track of number of lists.
-        /// Starts at 1 because the window will always have at least one task-list
-        /// </summary>
-        private int numLists = 1;
 
         private System.Windows.Shapes.Path placeArrowPath;
         #endregion
@@ -858,37 +882,12 @@ namespace ARTAPclient
 
         private void list_Click(object sender, RoutedEventArgs e)
         {
-            //var lastChar = ((Button)sender).Name.Last();
-            //var index = (int)Char.GetNumericValue(lastChar);
+            var lastChar = ((Button)sender).Name.Last();
+            var index = (int)Char.GetNumericValue(lastChar);
+            var taskList = _taskLists[index];
             var userControl = new TaskListUserControl();
-            //var taskList = _taskLists[index];
 
-            var taskList = new TaskList()
-            {
-                Id = 0,
-                Name = "List",
-                Tasks = new List<Task>()
-                {
-                    new Task
-                    {
-                        Id = 0,
-                        Name = "task 1",
-                        IsCompleted = false
-                    },
-                    new Task
-                    {
-                        Id = 1,
-                        Name = "task 2",
-                        IsCompleted = true
-                    },
-                    new Task
-                    {
-                        Id = 2,
-                        Name = "task 3",
-                        IsCompleted = true
-                    },
-                }
-            };
+            _currentTaskList = taskList;
 
             AddTaskListName(userControl, taskList.Name);
             AddTaskListTasks(userControl, taskList.Tasks);
@@ -948,12 +947,15 @@ namespace ARTAPclient
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
-            var list = new Button();
-            list.Name = $"list{numLists++}";
-            list.Content = "Task List " + numLists.ToString();
-            list.Width = 150;
-            list.Height = 30;
-            list.VerticalAlignment = VerticalAlignment.Top;
+            var list = new Button
+            {
+                Name = $"list{_taskLists.Count}",
+                Content = $"list{_taskLists.Count}",
+                Width = 150,
+                Height = 30,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
             list.Click += list_Click;
 
             taskListButtons.Children.Add(list);
@@ -962,12 +964,25 @@ namespace ARTAPclient
         public void UpdateTaskList(object sender, RoutedEventArgs e)
         {
             var box = (TextBox)sender;
-            var taskList = _taskLists.Find(x => x.Name == box.Name);
+            _currentTaskList.Name = box.Text;
+            box.Name = box.Text;
+
+        }
+
+        public void UpdateTaskName(object sender, RoutedEventArgs e)
+        {
+            var box = (TextBox)sender;
+            _currentTaskList.Tasks.Find(x => x.Name == box.Name).Name = box.Text;
+            box.Name = box.Text;
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
         {
+            var button = (Button)sender;
+            var index = (int)Char.GetNumericValue(button.Name.Last()) - 1;
 
+            _taskLists.RemoveAt(index);
+            taskListButtons.Children.Remove(button);
         }
         
         #endregion
