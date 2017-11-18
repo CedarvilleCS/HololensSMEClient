@@ -861,7 +861,6 @@ namespace ARTAPclient
             //var lastChar = ((Button)sender).Name.Last();
             //var index = (int)Char.GetNumericValue(lastChar);
             var userControl = new TaskListUserControl();
-            var dockPanel = new DockPanel();
             //var taskList = _taskLists[index];
 
             var taskList = new TaskList()
@@ -891,58 +890,65 @@ namespace ARTAPclient
                 }
             };
 
-            AddTaskListName(dockPanel, taskList.Name);
-            AddTaskListTasks(dockPanel, taskList.Tasks);
-            userControl.TaskListGrid.Children.Add(dockPanel);
+            AddTaskListName(userControl, taskList.Name);
+            AddTaskListTasks(userControl, taskList.Tasks);
             TaskListGrid.Children.Add(userControl);
 
             Grid.SetColumn(userControl, 1);
             Grid.SetRow(userControl, 0);
         }
 
-        private void AddTaskListName(DockPanel dockPanel, string name)
+        private void AddTaskListName(TaskListUserControl userControl, string name)
         {
-            var nameLabel = new Label()
+            var nameLabel = new TextBox()
             {
-                Content = name,
-                HorizontalAlignment = HorizontalAlignment.Center
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Name = name,
+                Text = name,
+                VerticalAlignment = VerticalAlignment.Top,
             };
 
-            dockPanel.Children.Add(nameLabel);
-            Grid.SetRow(nameLabel, 2);
+            nameLabel.TextChanged += UpdateTaskList;
+
+            userControl.TaskListGrid.Children.Add(nameLabel);
         }
 
-        private void AddTaskListTasks(DockPanel dockPanel, List<Task> tasks)
+        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks)
         {
-            var startingRow = 5;
+            var startingMargin = 60;
 
             foreach (var task in tasks)
             {
-                var taskName = new Label()
+                var taskName = new TextBox()
                 {
-                    Content = task.Name,
-                    HorizontalAlignment = HorizontalAlignment.Center
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, startingMargin, 150, 0),
+                    MaxWidth = 200,
+                    Name = task.Name,
+                    Text = task.Name,
+                    VerticalAlignment = VerticalAlignment.Top,
                 };
 
                 var checkBox = new CheckBox()
                 {
                     IsChecked = task.IsCompleted,
-                    HorizontalAlignment = HorizontalAlignment.Center
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(150, startingMargin, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Top,
                 };
 
-                dockPanel.Children.Add(taskName);
-                dockPanel.Children.Add(checkBox);
+                userControl.TaskListGrid.Children.Add(taskName);
+                userControl.TaskListGrid.Children.Add(checkBox);
 
-                Grid.SetRow(taskName, startingRow);
-                Grid.SetRow(checkBox, startingRow);
-
-                startingRow += 2;
+                startingMargin += 50;
             }
         }
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
-            Button list = new Button();
+            var list = new Button();
             list.Name = $"list{numLists++}";
             list.Content = "Task List " + numLists.ToString();
             list.Width = 150;
@@ -951,6 +957,12 @@ namespace ARTAPclient
             list.Click += list_Click;
 
             taskListButtons.Children.Add(list);
+        }
+
+        public void UpdateTaskList(object sender, RoutedEventArgs e)
+        {
+            var box = (TextBox)sender;
+            var taskList = _taskLists.Find(x => x.Name == box.Name);
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
