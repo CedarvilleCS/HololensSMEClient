@@ -943,6 +943,21 @@ namespace ARTAPclient
 
                 startingMargin += 50;
             }
+
+            var sendButton = new Button
+            {
+                Background = new SolidColorBrush(Colors.Azure),
+                Content = "Send",
+                Foreground = new SolidColorBrush(Colors.White),
+                Margin = new Thickness(150, startingMargin, 0, 0)
+            };
+
+            sendButton.Click += SendTaskList;
+        }
+
+        public void SendTaskList(object sender, RoutedEventArgs e)
+        {
+            _listener.SendTaskList(_currentTaskList);
         }
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
