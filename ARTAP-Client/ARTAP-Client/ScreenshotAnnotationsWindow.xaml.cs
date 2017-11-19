@@ -167,6 +167,7 @@ namespace ARTAPclient
             _listener = listener;
 
             _taskLists.AsParallel().ForAll(x => AddTaskButton(x));
+            MakeAddTaskButton();
         }
 
         #endregion
@@ -185,6 +186,22 @@ namespace ARTAPclient
             };
 
             list.Click += list_Click;
+
+            taskListButtons.Children.Add(list);
+        }
+
+        public void MakeAddTaskButton()
+        {
+            var list = new Button
+            {
+                Name = "AddTaskList",
+                Content = "Add new TaskList",
+                Width = 150,
+                Height = 30,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            list.Click += buttonAddList_Click;
 
             taskListButtons.Children.Add(list);
         }
@@ -1018,7 +1035,6 @@ namespace ARTAPclient
             var box = (TextBox)sender;
             _currentTaskList.Tasks.Find(x => x.Name == box.Name).Name = box.Text;
             box.Name = box.Text;
-            var test = TaskListGrid.Children.AsParallel().(x => ((Control)x).Name == box.Name);
 
             foreach (var child in TaskListGrid.Children)
             {
