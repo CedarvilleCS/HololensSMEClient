@@ -165,12 +165,29 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-            //_listener.ConnectionClosed += _listener_ConnectionClosed;
+
+            _taskLists.AsParallel().ForAll(x => AddTaskButton(x));
         }
 
         #endregion
 
         #region PrivateMethods
+
+        private void AddTaskButton(TaskList taskList)
+        {
+            var list = new Button
+            {
+                Name = taskList.Name.ToString(),
+                Content = taskList.Name.ToString(),
+                Width = 150,
+                Height = 30,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            list.Click += list_Click;
+
+            taskListButtons.Children.Add(list);
+        }
 
         /// <summary>
         /// Updates the thumbnails with the latest images captured
@@ -899,7 +916,7 @@ namespace ARTAPclient
 
         private void AddTaskListName(TaskListUserControl userControl, string name)
         {
-            var nameLabel = new TextBox()
+            var nameText = new TextBox()
             {
                 FontSize = 24,
                 FontWeight = FontWeights.Bold,
@@ -909,9 +926,9 @@ namespace ARTAPclient
                 VerticalAlignment = VerticalAlignment.Top,
             };
 
-            nameLabel.TextChanged += UpdateTaskList;
+            nameText.TextChanged += UpdateTaskList;
 
-            userControl.TaskListGrid.Children.Add(nameLabel);
+            userControl.TaskListGrid.Children.Add(nameText);
         }
 
         private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks)
@@ -937,6 +954,9 @@ namespace ARTAPclient
                     Margin = new Thickness(150, startingMargin, 0, 0),
                     VerticalAlignment = VerticalAlignment.Top,
                 };
+
+                taskName.TextChanged += UpdateTaskName;
+                checkBox.Checked += UpdateTaskCompletion;
 
                 userControl.TaskListGrid.Children.Add(taskName);
                 userControl.TaskListGrid.Children.Add(checkBox);
@@ -982,6 +1002,15 @@ namespace ARTAPclient
             _currentTaskList.Name = box.Text;
             box.Name = box.Text;
 
+            foreach (var child in TaskListGrid.Children)
+            {
+                var control = (Control)child;
+                if (control.Name == box.Name)
+                {
+                    control.Name = box.Name;
+                    break;
+                }
+            }
         }
 
         public void UpdateTaskName(object sender, RoutedEventArgs e)
@@ -989,6 +1018,25 @@ namespace ARTAPclient
             var box = (TextBox)sender;
             _currentTaskList.Tasks.Find(x => x.Name == box.Name).Name = box.Text;
             box.Name = box.Text;
+            var test = TaskListGrid.Children.AsParallel().(x => ((Control)x).Name == box.Name);
+
+            foreach (var child in TaskListGrid.Children)
+            {
+                if (child is Control control)
+                {
+                    if (control.Name == box.Name)
+                    {
+                        control.Name = box.Name;
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void UpdateTaskCompletion(object sender, RoutedEventArgs e)
+        {
+            var box = (CheckBox)sender;
+            _currentTaskList.Tasks.Find(x => x.Name == box.Name).IsCompleted = box.IsChecked ?? false;
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
