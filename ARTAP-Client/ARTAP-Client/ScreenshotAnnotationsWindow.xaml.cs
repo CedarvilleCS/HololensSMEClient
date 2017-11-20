@@ -29,6 +29,10 @@ namespace ARTAPclient
 
         private const int THUMBNAIL_GALLERY_SIZE = 5;
 
+        private string _oldText = "";
+
+        private TaskListUserControl _userControl;
+
         /// <summary>
         /// Current bitmap active for drawing
         /// </summary>
@@ -112,7 +116,7 @@ namespace ARTAPclient
         /// <summary>
         /// Color used for canvas annotations, default to Red
         /// </summary>
-        private System.Windows.Media.Color _brushColor = Colors.Red;
+        private Color _brushColor = Colors.Red;
 
         /// <summary>
         /// Size used for canvas annotations, default to 5
@@ -165,9 +169,7 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-
-            _taskLists.AsParallel().ForAll(x => AddTaskButton(x));
-            MakeAddTaskButton();
+            _taskLists.ForEach(x => AddTaskButton(x));
         }
 
         #endregion
@@ -178,7 +180,7 @@ namespace ARTAPclient
         {
             var list = new Button
             {
-                Name = taskList.Name.ToString(),
+                Name = $"List{_taskLists.Count - 1}",
                 Content = taskList.Name.ToString(),
                 Width = 150,
                 Height = 30,
@@ -186,22 +188,6 @@ namespace ARTAPclient
             };
 
             list.Click += list_Click;
-
-            taskListButtons.Children.Add(list);
-        }
-
-        public void MakeAddTaskButton()
-        {
-            var list = new Button
-            {
-                Name = "AddTaskList",
-                Content = "Add new TaskList",
-                Width = 150,
-                Height = 30,
-                VerticalAlignment = VerticalAlignment.Top
-            };
-
-            list.Click += buttonAddList_Click;
 
             taskListButtons.Children.Add(list);
         }
@@ -916,19 +902,21 @@ namespace ARTAPclient
 
         private void list_Click(object sender, RoutedEventArgs e)
         {
+            _taskLists.Add(new TaskList());
+
             var lastChar = ((Button)sender).Name.Last();
             var index = (int)Char.GetNumericValue(lastChar);
             var taskList = _taskLists[index];
-            var userControl = new TaskListUserControl();
+           _userControl = new TaskListUserControl();
 
             _currentTaskList = taskList;
 
-            AddTaskListName(userControl, taskList.Name);
-            AddTaskListTasks(userControl, taskList.Tasks);
-            TaskListGrid.Children.Add(userControl);
+            AddTaskListName(_userControl, taskList.Name);
+            AddTaskListTasks(_userControl, taskList.Tasks);
+            TaskListGrid.Children.Add(_userControl);
 
-            Grid.SetColumn(userControl, 1);
-            Grid.SetRow(userControl, 0);
+            Grid.SetColumn(_userControl, 1);
+            Grid.SetRow(_userControl, 0);
         }
 
         private void AddTaskListName(TaskListUserControl userControl, string name)
@@ -959,7 +947,6 @@ namespace ARTAPclient
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, startingMargin, 150, 0),
                     MaxWidth = 200,
-                    Name = task.Name,
                     Text = task.Name,
                     VerticalAlignment = VerticalAlignment.Top,
                 };
@@ -972,8 +959,12 @@ namespace ARTAPclient
                     VerticalAlignment = VerticalAlignment.Top,
                 };
 
+                _oldText = taskName.Text;
+                checkBox.Tag = taskName.Text;
+
                 taskName.TextChanged += UpdateTaskName;
                 checkBox.Checked += UpdateTaskCompletion;
+                checkBox.Unchecked += UpdateTaskCompletion;
 
                 userControl.TaskListGrid.Children.Add(taskName);
                 userControl.TaskListGrid.Children.Add(checkBox);
@@ -1015,17 +1006,18 @@ namespace ARTAPclient
 
         public void UpdateTaskList(object sender, RoutedEventArgs e)
         {
-            var box = (TextBox)sender;
-            _currentTaskList.Name = box.Text;
-            box.Name = box.Text;
-
-            foreach (var child in TaskListGrid.Children)
+            var stackPanel = (StackPanel)(TaskListGrid.Children[0]);
+            
+            foreach (var panelChild in stackPanel.Children)
             {
-                var control = (Control)child;
-                if (control.Name == box.Name)
+                if (panelChild is Button button)
                 {
-                    control.Name = box.Name;
-                    break;
+                    if ((string)(button.Content) == _currentTaskList.Name)
+                    {
+                        var box = ((TextBox)sender);
+                        _currentTaskList.Name = box.Text;
+                        button.Content = box.Text;
+                    }
                 }
             }
         }
@@ -1033,18 +1025,14 @@ namespace ARTAPclient
         public void UpdateTaskName(object sender, RoutedEventArgs e)
         {
             var box = (TextBox)sender;
-            _currentTaskList.Tasks.Find(x => x.Name == box.Name).Name = box.Text;
-            box.Name = box.Text;
+            _currentTaskList.Tasks.Find(x => x.Name == _oldText).Name = box.Text;
+            _oldText = box.Text;
 
-            foreach (var child in TaskListGrid.Children)
+            foreach (var child in _userControl.TaskListGrid.Children)
             {
-                if (child is Control control)
+                if (child is CheckBox check)
                 {
-                    if (control.Name == box.Name)
-                    {
-                        control.Name = box.Name;
-                        break;
-                    }
+                    check.Tag = box.Text;
                 }
             }
         }
@@ -1052,7 +1040,8 @@ namespace ARTAPclient
         public void UpdateTaskCompletion(object sender, RoutedEventArgs e)
         {
             var box = (CheckBox)sender;
-            _currentTaskList.Tasks.Find(x => x.Name == box.Name).IsCompleted = box.IsChecked ?? false;
+            var name = (string)(box.Tag);
+            _currentTaskList.Tasks.Find(x => x.Name == name).IsCompleted = (bool)(box.IsChecked);
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
