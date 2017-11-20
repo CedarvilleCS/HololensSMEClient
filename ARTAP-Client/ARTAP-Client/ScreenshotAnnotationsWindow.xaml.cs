@@ -216,7 +216,7 @@ namespace ARTAPclient
         {
             _currentImageIndex = thumbnailNum;
             _activeImage = _imageHistory[_currentImageIndex];
-            CheckMarkerPlacementAllowed();
+            CheckMarkerPlacementWrapper();
 
             //Draw the orignal image to the canvas
             DrawImageToCanvas(_activeImage.OriginalImage);
@@ -256,7 +256,7 @@ namespace ARTAPclient
             _imageHistory.Insert(0, source);
             _currentImageIndex = 0;
 
-            CheckMarkerPlacementAllowed();
+            CheckMarkerPlacementWrapper();
             UpdateThumbnails();
             UpdateThumbnailBorders();
         }
@@ -284,6 +284,11 @@ namespace ARTAPclient
 
             canvasImageEditor.Background = ib;
             canvasImageEditor.InvalidateVisual();
+        }
+
+        public virtual void CheckMarkerPlacementWrapper()
+        {
+            CheckMarkerPlacementAllowed();
         }
 
         /// <summary>
