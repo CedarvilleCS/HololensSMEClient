@@ -71,7 +71,7 @@
                             </Path>
                         </Button>
 
-                        <Button x:Name="buttonCaptureScreenshot" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,220,5,0" Grid.Row="0" 
+                        <Button x:Name="buttonCaptureScreenshot" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,220,5,0" Grid.Row="0"
                         VerticalAlignment="Top" Click="buttonCaptureScreenshot_Click" Grid.Column="1" ToolTip="Capture Image">
                             <Path Fill="#FF030104" Stretch="Uniform"  HorizontalAlignment="Center" Width="40" Grid.ColumnSpan="2" Height="34.25" >
                                 <Path.Data>
@@ -94,7 +94,7 @@
                                 </Path.Data>
                             </Path>
                         </Button>
-                        <Button x:Name="buttonUploadImage" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,165,5,0" Grid.Row="0" VerticalAlignment="Top" 
+                        <Button x:Name="buttonUploadImage" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,165,5,0" Grid.Row="0" VerticalAlignment="Top"
                         Grid.Column="1" Click="buttonUploadImage_Click" ToolTip="Load Image From Desktop">
                             <Path Fill="#FF030104" Stretch="Uniform" Height="39.088" Width="40" >
                                 <Path.Data>
@@ -162,7 +162,7 @@
                             </Path>
 
                         </Button>
-                        <Button x:Name="buttonSelectImages" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,379,5,0" VerticalAlignment="Top" 
+                        <Button x:Name="buttonSelectImages" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,379,5,0" VerticalAlignment="Top"
                         Grid.Column="1" Click="buttonSelectMultiple_Click" ToolTip="Select multiple uploaded images" Grid.RowSpan="2">
                             <Path Fill="#030104" Stretch="Uniform" Height="35" Width="40" >
                                 <Path.Data>
@@ -188,10 +188,6 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
-
-                    <StackPanel x:Name="taskListButtons" Grid.Column="0" Grid.Row="0">
-                        <Button x:Name="AddListButton" Width="150" Height="30" VerticalAlignment="Top" Click="buttonAddList_Click" Content="Add New TaskList"></Button>
-                    </StackPanel>
 
                     <Button x:Name="buttonAddList" Grid.Column="0" Grid.Row="1" Height="20" Width="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5,5,5,10" Background="Transparent" BorderThickness="0" Click="buttonAddList_Click" Template="{DynamicResource PlusTemplate}">
                         <Path Stretch="Fill"
@@ -239,9 +235,9 @@
                         </Button.Style>
                     </Button>
 
-                    <!--<Border Grid.Column="0" Grid.RowSpan="2" BorderBrush="Black" 
+                    <!--<Border Grid.Column="0" Grid.RowSpan="2" BorderBrush="Black"
                     BorderThickness="1,1,1,1" Background="{x:Null}" />
-                    <Border Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black" 
+                    <Border Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black"
                     BorderThickness="0,1,1,1" Background="{x:Null}" />-->
                 </Grid>
             </TabItem>
@@ -297,15 +293,15 @@
         </ControlTemplate>
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource undoCommand}" 
+        <CommandBinding Command="{StaticResource undoCommand}"
                     Executed="undoButton_Click" />
-        <CommandBinding Command="{StaticResource captureCommand}" 
+        <CommandBinding Command="{StaticResource captureCommand}"
                     Executed="buttonCaptureScreenshot_Click" />
-        <CommandBinding Command="{StaticResource sendCommand}" 
+        <CommandBinding Command="{StaticResource sendCommand}"
                     Executed="buttonSendScreenshot_Click" />
-        <CommandBinding Command="{StaticResource nextCommand}" 
+        <CommandBinding Command="{StaticResource nextCommand}"
                     Executed="buttonNext_Click" />
-        <CommandBinding Command="{StaticResource prevCommand}" 
+        <CommandBinding Command="{StaticResource prevCommand}"
                     Executed="buttonPrev_Click" />
     </Window.CommandBindings>
     <Window.InputBindings>

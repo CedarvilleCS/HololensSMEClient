@@ -10,7 +10,11 @@ namespace WpfApplication1
     {
         public TaskList()
         {
-            Tasks = new List<Task>();
+            Name = "Tasklist Name";
+            Tasks = new List<Task>
+            {
+                new Task(0)
+            };
         }
 
         public int Id { get; set; }

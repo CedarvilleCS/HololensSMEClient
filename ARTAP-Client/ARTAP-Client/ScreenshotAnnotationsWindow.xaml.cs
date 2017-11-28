@@ -17,7 +17,7 @@ namespace ARTAPclient
     /// <summary>
     /// Interaction logic for Window2.xaml
     /// </summary>
-    /// 
+    ///
     public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
@@ -386,7 +386,7 @@ namespace ARTAPclient
 
                     var locatableImage = _activeImage as LocatableImage;
                     canvasImageEditor.Children.Add(locatableImage.AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
-                    
+
                     _listener.SendArrowLocation(locatableImage);
 
                     //se
@@ -458,7 +458,7 @@ namespace ARTAPclient
             {
                 //
                 // If there are unsent markers we can undo
-                // 
+                //
                 var locatableImage = _activeImage as LocatableImage;
 
                 if (locatableImage.NumMarkers > 0)
@@ -472,7 +472,7 @@ namespace ARTAPclient
                     //
                     buttonUndo.IsEnabled = locatableImage.NumMarkers > 0;
                 }
-                
+
                 if (_activeImage.NumAnnotations > 0)
                 {
                     canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
@@ -748,7 +748,7 @@ namespace ARTAPclient
 
             Button btn = (Button)sender;
             string btnName = btn.Name;
-            
+
             //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
             var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
 
@@ -913,6 +913,7 @@ namespace ARTAPclient
 
             AddTaskListName(_userControl, taskList.Name);
             AddTaskListTasks(_userControl, taskList.Tasks);
+            MakeAddTaskButton(_userControl);
             TaskListGrid.Children.Add(_userControl);
 
             Grid.SetColumn(_userControl, 1);
@@ -936,10 +937,8 @@ namespace ARTAPclient
             userControl.TaskListGrid.Children.Add(nameText);
         }
 
-        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks)
+        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
         {
-            var startingMargin = 60;
-
             foreach (var task in tasks)
             {
                 var taskName = new TextBox()
@@ -969,23 +968,45 @@ namespace ARTAPclient
                 userControl.TaskListGrid.Children.Add(taskName);
                 userControl.TaskListGrid.Children.Add(checkBox);
 
-                startingMargin += 50;
+                startingMargin += 30;
             }
 
-            var sendButton = new Button
-            {
-                Background = new SolidColorBrush(Colors.Azure),
-                Content = "Send",
-                Foreground = new SolidColorBrush(Colors.White),
-                Margin = new Thickness(150, startingMargin, 0, 0)
-            };
+            // var sendButton = new Button
+            // {
+            //     Background = new SolidColorBrush(Colors.Azure),
+            //     Content = "Send",
+            //     Foreground = new SolidColorBrush(Colors.White),
+            //     Margin = new Thickness(150, startingMargin, 0, 0)
+            // };
 
-            sendButton.Click += SendTaskList;
+            // var addButton = new Button
+            // {
+            //     Content = "Add new Task",
+            //     Foreground = new SolidColorBrush(Colors.Azure),
+            //     Margin = new Thickness(250, startingMargin, 0, 0)
+            // };
+
+            // sendButton.Click += SendTaskList;
+            // addButton.Click += MakeNewTask;
         }
 
         public void SendTaskList(object sender, RoutedEventArgs e)
         {
             _listener.SendTaskList(_currentTaskList);
+        }
+
+        public void MakeNewTask(object sender, RoutedEventArgs e)
+        {
+            var id = _currentTaskList.Tasks.Count;
+            var task = new Task(id - 1);
+            _currentTaskList.Tasks.Add(task);
+            var count = _currentTaskList.Tasks.Count;
+            var taskArg = new List<Task>
+            {
+                task
+            };
+
+            AddTaskListTasks(_userControl, taskArg, 60 + (30 * count));
         }
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
@@ -1007,7 +1028,7 @@ namespace ARTAPclient
         public void UpdateTaskList(object sender, RoutedEventArgs e)
         {
             var stackPanel = (StackPanel)(TaskListGrid.Children[0]);
-            
+
             foreach (var panelChild in stackPanel.Children)
             {
                 if (panelChild is Button button)
@@ -1052,7 +1073,7 @@ namespace ARTAPclient
             _taskLists.RemoveAt(index);
             taskListButtons.Children.Remove(button);
         }
-        
+
         #endregion
     }
 }

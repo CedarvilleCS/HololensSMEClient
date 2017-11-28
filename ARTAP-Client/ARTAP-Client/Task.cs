@@ -12,8 +12,10 @@ namespace WpfApplication1
         public bool IsCompleted { get; set; }
         public Image Attachment { get; set; }
 
-        public Task()
+        public Task(int id)
         {
+            Id = id;
+            Name = $"Task {Id + 1}";
             IsCompleted = false;
         }
 
@@ -62,7 +64,7 @@ namespace WpfApplication1
             var converter = new ImageConverter();
             var imageBytes = (byte[])converter.ConvertTo(Attachment, typeof(byte[]));
             var imageBytesLength = BitConverter.GetBytes(imageBytes.Length);
-            
+
             var allBytes = idBytes.Concat(completedBytes)
                 .Concat(nameBytesLength)
                 .Concat(nameBytes)
