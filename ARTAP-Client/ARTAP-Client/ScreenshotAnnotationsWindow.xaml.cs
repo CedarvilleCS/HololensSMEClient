@@ -43,7 +43,59 @@ namespace ARTAPclient
             new TaskList
             {
                 Id = 0,
-                Name = "List",
+                Name = "Listtt",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            },
+            new TaskList
+            {
+                Id = 0,
+                Name = "Lsdfhgdist",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            },
+            new TaskList
+            {
+                Id = 0,
+                Name = "Listdfgsdsdf",
                 Tasks = new List<Task>()
                 {
                     new Task
@@ -180,7 +232,7 @@ namespace ARTAPclient
         {
             var list = new Button
             {
-                Name = $"List{_taskLists.Count - 1}",
+                Name = $"List{taskList.Id + 1}",
                 Content = taskList.Name.ToString(),
                 Width = 150,
                 Height = 30,
@@ -902,18 +954,30 @@ namespace ARTAPclient
 
         private void list_Click(object sender, RoutedEventArgs e)
         {
-            _taskLists.Add(new TaskList());
+            _taskLists.Add(new TaskList(_taskLists.Count));
 
+            var button = (Button)sender;
             var lastChar = ((Button)sender).Name.Last();
-            var index = (int)Char.GetNumericValue(lastChar);
+
+            var buttons = taskListButtons.Children;
+            var index = 0;
+            for (var i = 1; i < buttons.Count; i++)
+            {
+                var child = (Button)buttons[i];
+                if (child.Name == button.Name)
+                {
+                    index = i;
+                }
+            }
+
             var taskList = _taskLists[index];
-           _userControl = new TaskListUserControl();
+            _userControl = new TaskListUserControl();
 
             _currentTaskList = taskList;
 
             AddTaskListName(_userControl, taskList.Name);
             AddTaskListTasks(_userControl, taskList.Tasks);
-            MakeAddTaskButton(_userControl);
+            //MakeAddTaskButton(_userControl);
             TaskListGrid.Children.Add(_userControl);
 
             Grid.SetColumn(_userControl, 1);
@@ -933,7 +997,6 @@ namespace ARTAPclient
             };
 
             nameText.TextChanged += UpdateTaskList;
-
             userControl.TaskListGrid.Children.Add(nameText);
         }
 
@@ -1011,18 +1074,23 @@ namespace ARTAPclient
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
-            var list = new Button
+            if (_taskLists.Count < 14)
             {
-                Name = $"list{_taskLists.Count}",
-                Content = $"list{_taskLists.Count}",
-                Width = 150,
-                Height = 30,
-                VerticalAlignment = VerticalAlignment.Top
-            };
+                var list = new Button
+                {
+                    Name = $"list{_taskLists.Count + 1}",
+                    Content = $"list{_taskLists.Count + 1}",
+                    Width = 150,
+                    Height = 30,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
 
-            list.Click += list_Click;
+                _taskLists.Add(new TaskList(_taskLists.Count));
 
-            taskListButtons.Children.Add(list);
+                list.Click += list_Click;
+
+                taskListButtons.Children.Add(list);
+            }
         }
 
         public void UpdateTaskList(object sender, RoutedEventArgs e)

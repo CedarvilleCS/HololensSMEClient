@@ -12,10 +12,12 @@ namespace WpfApplication1
         public bool IsCompleted { get; set; }
         public Image Attachment { get; set; }
 
+        public Task() { }
+
         public Task(int id)
         {
             Id = id;
-            Name = $"Task {Id + 1}";
+            Name = $"Task{Id + 1}";
             IsCompleted = false;
         }
 

@@ -8,9 +8,12 @@ namespace WpfApplication1
 {
     public class TaskList
     {
-        public TaskList()
+        public TaskList() { }
+
+        public TaskList(int id)
         {
-            Name = "Tasklist Name";
+            Id = id;
+            Name = $"List{id + 1}";
             Tasks = new List<Task>
             {
                 new Task(0)

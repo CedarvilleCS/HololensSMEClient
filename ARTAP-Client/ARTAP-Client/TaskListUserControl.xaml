@@ -5,5 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Background="White" Name="TaskListGrid"/>
+    <Grid Background="White" Name="TaskListGrid">
+        <Border BorderBrush="#1065ed" BorderThickness="1,1,1,1" CornerRadius="8,8,8,8">
+            <Button Content="Add Task" HorizontalAlignment="Left" Margin="10,265,0,0" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White"/>
+        </Border>
+        <Button Content="Send Task List" HorizontalAlignment="Left" Margin="100,265,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" FontSize="8" Background="#FF1065ED" Foreground="White"/>
+    </Grid>
 </UserControl>

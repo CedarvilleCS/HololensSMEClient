@@ -44,9 +44,9 @@ namespace ARTAPclient
             PositionIDRequest = 2,
             ArrowPlacement = 3,
             EraseMarkers = 4,
-	    Pdf = 5,
+	        Pdf = 5,
             EraseMarker = 6,
-	    TaskList = 7
+	        TaskList = 7
         }
 
         /// <summary>
