@@ -381,7 +381,7 @@ namespace ARTAPclient
                 Connected = true;
                 ConnectionEstablished?.Invoke(this, new EventArgs());
             }
-            catch (System.Net.Sockets.SocketException)
+            catch (SocketException)
             {
                 ConnectionTimedOut?.Invoke(this, new EventArgs());
             }

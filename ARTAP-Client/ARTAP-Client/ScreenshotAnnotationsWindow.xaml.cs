@@ -371,9 +371,20 @@ namespace ARTAPclient
         /// <param name="image">Image to draw</param>
         private void DrawImageToCanvas(ImageSource image)
         {
-            ImageBrush ib = new ImageBrush();
-            ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = image.Clone();
+            //add a try catch here
+            try
+            {
+                var ib = new ImageBrush
+                {
+                    Stretch = Stretch.Uniform,
+                    ImageSource = image.Clone()
+                };
+            }
+            catch (NullReferenceException e)
+            {
+                MessageBox.Show("The selected file must be an image.", "Not an image file", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
             canvasImageEditor.Children.Clear();
             if (image.Height < image.Width)
             {
