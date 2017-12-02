@@ -43,7 +43,7 @@ namespace ARTAPclient
             new TaskList
             {
                 Id = 0,
-                Name = "Listtt",
+                Name = "Example",
                 Tasks = new List<Task>()
                 {
                     new Task
@@ -68,8 +68,8 @@ namespace ARTAPclient
             },
             new TaskList
             {
-                Id = 0,
-                Name = "Lsdfhgdist",
+                Id = 1,
+                Name = "Directions",
                 Tasks = new List<Task>()
                 {
                     new Task
@@ -94,8 +94,8 @@ namespace ARTAPclient
             },
             new TaskList
             {
-                Id = 0,
-                Name = "Listdfgsdsdf",
+                Id = 2,
+                Name = "Example2",
                 Tasks = new List<Task>()
                 {
                     new Task
@@ -120,7 +120,7 @@ namespace ARTAPclient
             }
         };
 
-        private TaskList _currentTaskList;
+        public TaskList CurrentTaskList { get; set; }
 
         /// <summary>
         /// History of images snapped or uploaded
@@ -964,10 +964,10 @@ namespace ARTAPclient
 
         private void list_Click(object sender, RoutedEventArgs e)
         {
-            _taskLists.Add(new TaskList(_taskLists.Count));
+            _taskLists.Add(new TaskList());
 
             var button = (Button)sender;
-            var lastChar = ((Button)sender).Name.Last();
+            var lastChar = button.Name.Last();
 
             var buttons = taskListButtons.Children;
             var index = 0;
@@ -977,17 +977,18 @@ namespace ARTAPclient
                 if (child.Name == button.Name)
                 {
                     index = i;
+                    break;
                 }
             }
 
             var taskList = _taskLists[index];
-            _userControl = new TaskListUserControl();
+            _userControl = new TaskListUserControl(this);
+            _taskLists.Last().Id = index + 1;
 
-            _currentTaskList = taskList;
+            CurrentTaskList = taskList;
 
             AddTaskListName(_userControl, taskList.Name);
             AddTaskListTasks(_userControl, taskList.Tasks);
-            //MakeAddTaskButton(_userControl);
             TaskListGrid.Children.Add(_userControl);
 
             Grid.SetColumn(_userControl, 1);
@@ -1063,17 +1064,17 @@ namespace ARTAPclient
             // addButton.Click += MakeNewTask;
         }
 
-        public void SendTaskList(object sender, RoutedEventArgs e)
+        public void SendTaskList()
         {
-            _listener.SendTaskList(_currentTaskList);
+            _listener.SendTaskList(CurrentTaskList);
         }
 
         public void MakeNewTask(object sender, RoutedEventArgs e)
         {
-            var id = _currentTaskList.Tasks.Count;
+            var id = CurrentTaskList.Tasks.Count;
             var task = new Task(id - 1);
-            _currentTaskList.Tasks.Add(task);
-            var count = _currentTaskList.Tasks.Count;
+            CurrentTaskList.Tasks.Add(task);
+            var count = CurrentTaskList.Tasks.Count;
             var taskArg = new List<Task>
             {
                 task
@@ -1111,10 +1112,10 @@ namespace ARTAPclient
             {
                 if (panelChild is Button button)
                 {
-                    if ((string)(button.Content) == _currentTaskList.Name)
+                    if ((string)(button.Content) == CurrentTaskList.Name)
                     {
                         var box = ((TextBox)sender);
-                        _currentTaskList.Name = box.Text;
+                        CurrentTaskList.Name = box.Text;
                         button.Content = box.Text;
                     }
                 }
@@ -1124,7 +1125,7 @@ namespace ARTAPclient
         public void UpdateTaskName(object sender, RoutedEventArgs e)
         {
             var box = (TextBox)sender;
-            _currentTaskList.Tasks.Find(x => x.Name == _oldText).Name = box.Text;
+            CurrentTaskList.Tasks.Find(x => x.Name == _oldText).Name = box.Text;
             _oldText = box.Text;
 
             foreach (var child in _userControl.TaskListGrid.Children)
@@ -1140,7 +1141,7 @@ namespace ARTAPclient
         {
             var box = (CheckBox)sender;
             var name = (string)(box.Tag);
-            _currentTaskList.Tasks.Find(x => x.Name == name).IsCompleted = (bool)(box.IsChecked);
+            CurrentTaskList.Tasks.Find(x => x.Name == name).IsCompleted = (bool)(box.IsChecked);
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)

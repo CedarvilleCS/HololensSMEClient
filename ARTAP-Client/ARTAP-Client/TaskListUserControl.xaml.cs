@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ARTAPclient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,19 +21,26 @@ namespace WpfApplication1
     /// </summary>
     public partial class TaskListUserControl : UserControl
     {
-        public TaskListUserControl()
+        private ScreenshotAnnotationsWindow _ui;
+
+        public TaskListUserControl(ScreenshotAnnotationsWindow window)
         {
+            _ui = window;
             InitializeComponent();
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        private void AddTaskClick(object sender, RoutedEventArgs e)
         {
+            var list = _ui.CurrentTaskList;
+            var currentId = list.Tasks.Last().Id;
+            _ui.CurrentTaskList.Tasks.Add(new Task(currentId + 1));
 
+            _ui.MakeNewTask(null, null);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void SendTaskClick(object sender, RoutedEventArgs e)
         {
-
+            _ui.SendTaskList();
         }
     }
 }
