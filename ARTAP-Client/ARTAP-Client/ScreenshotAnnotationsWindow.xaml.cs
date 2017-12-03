@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -17,14 +10,15 @@ using System.Windows.Shapes;
 using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
+using System.IO;
 
 namespace ARTAPclient
 {
     /// <summary>
     /// Interaction logic for Window2.xaml
     /// </summary>
-    /// 
-    public partial class ScreenshotAnnotationsWindow : Window
+    ///
+    public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
 
@@ -33,20 +27,114 @@ namespace ARTAPclient
         /// </summary>
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
 
+        private const int THUMBNAIL_GALLERY_SIZE = 5;
+
+        private string _oldText = "";
+
+        private TaskListUserControl _userControl;
+
         /// <summary>
         /// Current bitmap active for drawing
         /// </summary>
         private AnnotatedImage _activeImage;
+
+        private List<TaskList> _taskLists = new List<TaskList>
+        {
+            new TaskList
+            {
+                Id = 0,
+                Name = "Example",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            },
+            new TaskList
+            {
+                Id = 1,
+                Name = "Directions",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            },
+            new TaskList
+            {
+                Id = 2,
+                Name = "Example2",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            }
+        };
+
+        public TaskList CurrentTaskList { get; set; }
 
         /// <summary>
         /// History of images snapped or uploaded
         /// </summary>
         private List<AnnotatedImage> _imageHistory = new List<AnnotatedImage>();
 
+        private List<Image> _selectedImages = new List<Image>();
+
         /// <summary>
         /// Inedex of current image in _imageHistory
         /// </summary>
         private int _currentImageIndex = 0;
+
+        private Direction _markerDirection = Direction.MiddleMiddle;
 
         ///// <summary>
         ///// History of images snapped from the stream
@@ -61,7 +149,7 @@ namespace ARTAPclient
         /// <summary>
         /// List containing all of the thumbnail pictureboxes to make updating easy
         /// </summary>
-        private List<Image> _pictureBoxThumbnails = new List<Image>();
+        private List<ThumbnailImage> _pictureBoxThumbnails = new List<ThumbnailImage>();
 
         /// <summary>
         /// List of all of the buttons we want to enable/disable during arrow placement
@@ -76,7 +164,6 @@ namespace ARTAPclient
         /// <summary>
         /// Number of thumbnail images
         /// </summary>
-        private const int NUMTHUMBNAILS = 5;
 
         /// <summary>
         /// Color used for canvas annotations, default to Red
@@ -115,7 +202,9 @@ namespace ARTAPclient
 
         private int _thumbIndex = 0;
 
+        private bool _isSelectMultiple = false;
 
+        private System.Windows.Shapes.Path placeArrowPath;
         #endregion
 
         #region Constructor
@@ -124,49 +213,64 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            _pictureBoxThumbnails.Add(imageThumb);
-            _pictureBoxThumbnails.Add(imageThumb1);
-            _pictureBoxThumbnails.Add(imageThumb2);
-            _pictureBoxThumbnails.Add(imageThumb3);
-            _pictureBoxThumbnails.Add(imageThumb4);
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-            //_listener.ConnectionClosed += _listener_ConnectionClosed;
+            _taskLists.ForEach(x => AddTaskButton(x));
         }
 
         #endregion
 
         #region PrivateMethods
 
+        private void AddTaskButton(TaskList taskList)
+        {
+            var list = new Button
+            {
+                Name = $"List{taskList.Id + 1}",
+                Content = taskList.Name.ToString(),
+                Width = 150,
+                Height = 30,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            list.Click += list_Click;
+
+            taskListButtons.Children.Add(list);
+        }
+
         /// <summary>
         /// Updates the thumbnails with the latest images captured
         /// </summary>
         private void UpdateThumbnails()
         {
-            int numActiveThumbnails = 5;
+            int numActiveThumbnails = THUMBNAIL_GALLERY_SIZE;
 
             //Only use the number of active images
-            if (_imageHistory.Count < 5)
+            if (_imageHistory.Count < THUMBNAIL_GALLERY_SIZE)
             {
                 numActiveThumbnails = _imageHistory.Count;
-
             }
-
-            //int numActiveThumbnails = (_imageHistory.Count < 5) ? 
-            //    _imageHistory.Count : NUMTHUMBNAILS;
 
             int index = _thumbIndex;
             //Loop through and update images for all of the thumbnail frames
             for (int i = 0; i < numActiveThumbnails; i++, index++)
             {
-                _pictureBoxThumbnails[i].Source = _imageHistory[index].LatestImage;
+                _pictureBoxThumbnails[i].Image.Source = _imageHistory[index].LatestImage;
+                _pictureBoxThumbnails[i].IsPdf = _imageHistory[index].IsPdf;
+                _pictureBoxThumbnails[i].IsSelected = _imageHistory[index].IsSelected;
             }
 
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 buttonNext.IsEnabled = true;
-            } else
+            }
+            else
             {
                 buttonNext.IsEnabled = false;
             }
@@ -174,7 +278,8 @@ namespace ARTAPclient
             if (_thumbIndex > 0)
             {
                 buttonPrev.IsEnabled = true;
-            } else
+            }
+            else
             {
                 buttonPrev.IsEnabled = false;
             }
@@ -185,16 +290,17 @@ namespace ARTAPclient
         /// </summary>
         private void SaveCanvasToActiveImage()
         {
-            if (_imageHistory.Count != 0) {
+            if (_imageHistory.Count != 0)
+            {
                 Rect bounds = VisualTreeHelper.GetDescendantBounds(canvasImageEditor);
-                RenderTargetBitmap rtb =
+                var rtb =
                     new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height,
-                    DPIX, DPIY, System.Windows.Media.PixelFormats.Default);
+                    DPIX, DPIY, PixelFormats.Default);
 
-                DrawingVisual dv = new DrawingVisual();
+                var dv = new DrawingVisual();
                 using (DrawingContext dc = dv.RenderOpen())
                 {
-                    VisualBrush vb = new VisualBrush(canvasImageEditor);
+                    var vb = new VisualBrush(canvasImageEditor);
                     dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
                 }
 
@@ -202,6 +308,7 @@ namespace ARTAPclient
 
                 _activeImage.LatestImage = rtb.Clone();
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -225,9 +332,9 @@ namespace ARTAPclient
             }
 
             //Add the markers if they exist
-            if(_activeImage is LocatableImage)
+            if (_activeImage is LocatableImage)
             {
-                foreach(Marker m in (_activeImage as LocatableImage).Markers)
+                foreach (var m in (_activeImage as LocatableImage).Markers)
                 {
                     canvasImageEditor.Children.Add(m.Annotation);
                 }
@@ -252,8 +359,10 @@ namespace ARTAPclient
             _activeImage = source;
             _imageHistory.Insert(0, source);
             _currentImageIndex = 0;
+
             CheckMarkerPlacementAllowed();
             UpdateThumbnails();
+            UpdateThumbnailBorders();
         }
 
         /// <summary>
@@ -262,22 +371,31 @@ namespace ARTAPclient
         /// <param name="image">Image to draw</param>
         private void DrawImageToCanvas(ImageSource image)
         {
-            ImageBrush ib = new ImageBrush();
-            ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = image.Clone();
-            canvasImageEditor.Children.Clear();
-            if(image.Height < image.Width)
+            var ib = new ImageBrush();
+
+            try
             {
-                canvasImageEditor.Width = (360/image.Height) *image.Width;
+                ib.Stretch = Stretch.Uniform;
+                ib.ImageSource = image.Clone();
+            }
+            catch (NotSupportedException)
+            {
+                MessageBox.Show("The selected file must be an image.", "Not an image file", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            canvasImageEditor.Children.Clear();
+            if (image.Height < image.Width)
+            {
+                canvasImageEditor.Width = (360 / image.Height) * image.Width;
                 canvasImageEditor.Height = 360;
             }
             else
             {
                 canvasImageEditor.Width = 640;
-                canvasImageEditor.Height = (640/image.Width)*image.Height;
+                canvasImageEditor.Height = (640 / image.Width) * image.Height;
             }
-            //canvasImageEditor.Width = image.Width;
-            //canvasImageEditor.Height = image.Height;
+
             canvasImageEditor.Background = ib;
             canvasImageEditor.InvalidateVisual();
         }
@@ -288,13 +406,12 @@ namespace ARTAPclient
         /// </summary>
         private void CheckMarkerPlacementAllowed()
         {
-            if(_activeImage is LocatableImage)
+            if (_activeImage is LocatableImage)
             {
                 buttonPlaceArrow.IsEnabled = true;
             }
             else
             {
-
                 //
                 // Make sure we are not in marker placing mode
                 // if placing markers is not allowed
@@ -315,7 +432,7 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 Debug.WriteLine("Placing Arrow: " + _placingMarker);
                 if (_placingMarker)
@@ -329,9 +446,12 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _brushColor));
+                    var locatableImage = _activeImage as LocatableImage;
+                    canvasImageEditor.Children.Add(locatableImage.AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
 
-                    //
+                    _listener.SendArrowLocation(locatableImage);
+
+                    //se
                     // Enable the undo button for placing arrows
                     //
                     buttonUndo.IsEnabled = true;
@@ -352,7 +472,7 @@ namespace ARTAPclient
 
         private void canvasImageEditor_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && 
+            if (e.LeftButton == MouseButtonState.Pressed &&
                 _activeImage != null &&
                 !_placingMarker)
             {
@@ -370,7 +490,7 @@ namespace ARTAPclient
                 {
                     polyLine = (Polyline)_activeImage.GetLastAnnotation();
                 }
-                
+
                 Point currentPoint = e.GetPosition(canvasImageEditor);
                 polyLine.Points.Add(currentPoint);
             }
@@ -383,6 +503,7 @@ namespace ARTAPclient
 
         private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
         {
+            placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
             LocatableImage img = new LocatableImage(screenshot);
             AddNewImage(img);
@@ -395,40 +516,45 @@ namespace ARTAPclient
             // We can't undo annotations if there is no
             // active image
             //
-            if (_activeImage != null) {
-                if (_placingMarker) {
-                    //
-                    // If there are unsent markers we can undo
-                    // 
-                    if ((_activeImage as LocatableImage).NumMarkers > 0 &&
-                       !(_activeImage as LocatableImage).GetLastMarker().Sent)
-                    {
-                        canvasImageEditor.Children.Remove((_activeImage as LocatableImage).GetLastMarker().Annotation);
-                        (_activeImage as LocatableImage).UndoMarker();
+            if (_activeImage != null)
+            {
+                //
+                // If there are unsent markers we can undo
+                //
+                var locatableImage = _activeImage as LocatableImage;
 
-                        //
-                        // If there are no more unsent markers disable the undo button
-                        //
-                        buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 ||
-                                               !(_activeImage as LocatableImage).GetLastMarker().Sent;
-                    }
-                }
-                else
+                if (locatableImage.NumMarkers > 0)
                 {
-                    if (_activeImage.NumAnnotations > 0)
-                    {
-                        canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
-                        _activeImage.UndoAnnotation();
+                    canvasImageEditor.Children.Remove(locatableImage.GetLastMarker().Annotation);
+                    locatableImage.UndoMarker();
+                    _listener.EraseOneMarker(locatableImage);
 
-                        SaveCanvasToActiveImage();
-                    }
+                    //
+                    // If there are no more unsent markers disable the undo button
+                    //
+                    buttonUndo.IsEnabled = locatableImage.NumMarkers > 0;
+                }
+
+                if (_activeImage.NumAnnotations > 0)
+                {
+                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                    _activeImage.UndoAnnotation();
+
+                    SaveCanvasToActiveImage();
                 }
             }
         }
 
+        //Function implemented but not used, values used elsewhere
+        private void buttonDirection_Click(object sender, RoutedEventArgs e)
+        {
+            var name = ((Button)sender).Name;
+            _markerDirection = (Direction)name[name.Length - 1];
+        }
+
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage != null)
+            if (_activeImage != null && !_isSelectMultiple)
             {
                 //
                 // The sender == buttonClear clause makes sure that
@@ -444,6 +570,7 @@ namespace ARTAPclient
                     }
                     (_activeImage as LocatableImage).ClearMarkers();
                     SaveCanvasToActiveImage();
+                    buttonUndo.IsEnabled = false;
                 }
                 else
                 {
@@ -455,40 +582,122 @@ namespace ARTAPclient
                     SaveCanvasToActiveImage();
                 }
             }
+            else if (_isSelectMultiple)
+            {
+                var borders = new Border[] {
+                    imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+                };
+
+                foreach (var border in borders)
+                {
+                    border.BorderBrush = Brushes.White;
+                }
+            }
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (_isSelectMultiple)
+            {
+                var index = GetIndexFromThumbnailName(((Image)sender).Name);
+                var thumbnail = _pictureBoxThumbnails[index];
+                buttonUndo.IsEnabled = false;
+
+                if (!thumbnail.IsSelected && thumbnail.IsPdf)
+                {
+                    _selectedImages.Add(thumbnail.Image);
+                    _imageHistory[_thumbIndex + index].IsSelected = true;
+                    thumbnail.IsSelected = true;
+                }
+                else if (thumbnail.IsSelected && thumbnail.IsPdf)
+                {
+                    _selectedImages.Remove(thumbnail.Image);
+                    _imageHistory[_thumbIndex + index].IsSelected = false;
+                    thumbnail.IsSelected = false;
+                }
+            }
+
             SelectThumbnail(0 + _thumbIndex);
+
+            UpdateThumbnailBorders();
         }
 
-        private void imageThumb1_MouseUp(object sender, MouseButtonEventArgs e)
+        private void UpdateThumbnailBorders()
         {
-            SelectThumbnail(1 + _thumbIndex);
-        }
+            var borders = new Border[] {
+                imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+            };
 
-        private void imageThumb2_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(2 + _thumbIndex);
+            for (var i = 0; i < THUMBNAIL_GALLERY_SIZE; i++)
+            {
+                var thumbnailBorder = borders[i];
+                if (_pictureBoxThumbnails[i].IsSelected)
+                {
+                    thumbnailBorder.BorderBrush = Brushes.Cyan;
+                }
+                else
+                {
+                    thumbnailBorder.BorderBrush = Brushes.White;
+                }
+            }
         }
-
-        private void imageThumb3_MouseUp(object sender, MouseButtonEventArgs e)
+        private int GetIndexFromThumbnailName(string name)
         {
-            SelectThumbnail(3 + _thumbIndex);
-        }
-
-        private void imageThumb4_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            SelectThumbnail(4 + _thumbIndex);
+            var character = name[name.Length - 1];
+            switch (character)
+            {
+                case '1':
+                    return 1;
+                case '2':
+                    return 2;
+                case '3':
+                    return 3;
+                case '4':
+                    return 4;
+                default:
+                    return 0;
+            }
         }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
             if (_activeImage != null)
             {
-                if (_placingMarker)
+                _listener.SendBitmap(_activeImage.LatestImage);
+                if (_selectedImages.Any())
                 {
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    var document = new PDFDocument();
+                    foreach (var image in _selectedImages)
+                    {
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+
+                        if (image.Source is BitmapSource bitmapSource)
+                        {
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                            using (var stream = new MemoryStream())
+                            {
+                                encoder.Save(stream);
+                                bytes = stream.ToArray();
+                            }
+
+                            document.Pages.Add(bytes);
+                        }
+                    }
+
+                    _listener.SendPDF(document);
+                }
+                else if (_placingMarker)
+                {
+                    if (((LocatableImage)_activeImage).PositionID != null)
+                    {
+                        _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Waiting for Location ID from Image", "Error", MessageBoxButton.OK);
+                    }
                 }
                 else
                 {
@@ -509,7 +718,7 @@ namespace ARTAPclient
 
             bool? result = openDialog.ShowDialog();
 
-            if(result == true)
+            if (result == true)
             {
                 string pdfFile = openDialog.FileName;
                 LoadPDF(pdfFile);
@@ -524,21 +733,30 @@ namespace ARTAPclient
                 bool? result = pdfDialog.ShowDialog();
                 if (result == true)
                 {
-                    ImageSource img = pdfDialog.selectedImage;
-                    AddNewImage(new AnnotatedImage(img));
+                    List<ImageSource> images = new List<ImageSource>();
+                    foreach (var image in pdfDialog.selectedImages)
+                    {
+                        images.Add(image);
+                        AddNewImage(new AnnotatedImage(image, true));
+                    }
                 }
             }
             catch (TypeInitializationException)
             {
-                MessageBoxResult result = System.Windows.MessageBox.Show
+                MessageBoxResult result = MessageBox.Show
                     ("GhostScript must be installed to support this feature.\nWould you like to download it?",
                      "Dependency Missing",
                      MessageBoxButton.YesNo,
                      MessageBoxImage.Error);
 
-                if(result == MessageBoxResult.Yes)
+                if (result == MessageBoxResult.Yes)
                 {
-                    System.Diagnostics.Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+                    result = MessageBox.Show
+                    ("NOTE: After installing, you must restart the application", "NOTE",
+                     MessageBoxButton.OK,
+                     MessageBoxImage.Exclamation);
+
+                    Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
                 }
             }
         }
@@ -579,6 +797,72 @@ namespace ARTAPclient
         {
             SetPlacingMarkers(!_placingMarker);
         }
+        private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
+        }
+
+        private void ChooseMarkerType(object sender, RoutedEventArgs e)
+        {
+
+            Button btn = (Button)sender;
+            string btnName = btn.Name;
+
+            var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
+
+            _markerDirection = (Direction)(direction - 1);
+
+            Image content = (Image)btn.Content;
+            var test = content.Source;
+            buttonPlaceArrow.Content = (Image)btn.Content;
+
+            String correctPhoto = "";
+
+            switch (direction)
+            {
+                case 1:
+                    correctPhoto = "downright";
+                    break;
+                case 2:
+                    correctPhoto = "down";
+                    break;
+                case 3:
+                    correctPhoto = "downleft";
+                    break;
+                case 4:
+                    correctPhoto = "right";
+                    break;
+                case 5:
+                    correctPhoto = "filled_circle";
+                    break;
+                case 6:
+                    correctPhoto = "left";
+                    break;
+                case 7:
+                    correctPhoto = "upright";
+                    break;
+                case 8:
+                    correctPhoto = "up";
+                    break;
+                case 9:
+                    correctPhoto = "upleft";
+                    break;
+            }
+            btn.Content = new Image
+            {
+                Source = new BitmapImage(new Uri("Resources/" + correctPhoto + ".png", UriKind.Relative)),
+            };
+            //Maybe always set it to true?
+            SetPlacingMarkers(true);
+
+            //Disable all buttons that do not need to be available for this mode
+            buttonChangeColor.IsEnabled = false;
+            buttonUploadImage.IsEnabled = false;
+            buttonCaptureScreenshot.IsEnabled = false;
+
+            //The menu will have to be open to click a button so we don't have to toggle here
+            MenuFlyout.IsOpen = false;
+        }
 
         private void SetPlacingMarkers(bool placingArrow)
         {
@@ -588,24 +872,50 @@ namespace ARTAPclient
             if (placingArrow)
             {
                 buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
-                                       !(_activeImage as LocatableImage).GetLastMarker().Sent;
-                
+                                       !(_activeImage as LocatableImage).HasUnsentMarkers();
+
                 buttonPlaceArrow.Background = Brushes.LightGreen;
             }
             else
             {
                 buttonUndo.IsEnabled = true;
-                
+
                 buttonPlaceArrow.Background = Brushes.LightGray;
             }
         }
 
+        private void buttonSelectMultiple_Click(object sender, EventArgs e)
+        {
+            if (_placingMarker)
+            {
+                SetPlacingMarkers(!_placingMarker);
+                buttonChangeColor.IsEnabled = !_placingMarker;
+                buttonUploadImage.IsEnabled = !_placingMarker;
+                buttonCaptureScreenshot.IsEnabled = !_placingMarker;
+                buttonPlaceArrow.Content = placeArrowPath;
+            }
+            else
+            {
+                _isSelectMultiple = !_isSelectMultiple;
+
+                buttonUndo.IsEnabled = !_isSelectMultiple;
+                buttonChangeColor.IsEnabled = !_isSelectMultiple;
+                buttonUploadImage.IsEnabled = !_isSelectMultiple;
+                buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
+            }
+
+        }
+
         private void buttonNext_Click(object sender, RoutedEventArgs e)
         {
-            if ((_thumbIndex + 5) < _imageHistory.Count)
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
             {
                 _thumbIndex++;
+
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -615,6 +925,7 @@ namespace ARTAPclient
             {
                 _thumbIndex--;
                 UpdateThumbnails();
+                UpdateThumbnailBorders();
             }
         }
 
@@ -636,14 +947,191 @@ namespace ARTAPclient
             if (_listener != null && _listener.Connected)
             {
                 _listener.SendEraseMarkers();
-                foreach(LocatableImage image in _imageHistory.OfType<LocatableImage>())
+                foreach (LocatableImage image in _imageHistory.OfType<LocatableImage>())
                 {
                     image.ClearMarkers();
                 }
             }
         }
 
-        #endregion
+        private void list_Click(object sender, RoutedEventArgs e)
+        {
+            _taskLists.Add(new TaskList());
 
+            var button = (Button)sender;
+            var lastChar = button.Name.Last();
+
+            var buttons = taskListButtons.Children;
+            var index = 0;
+            for (var i = 1; i < buttons.Count; i++)
+            {
+                var child = (Button)buttons[i];
+                if (child.Name == button.Name)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            var taskList = _taskLists[index];
+            _userControl = new TaskListUserControl(this);
+            _taskLists.Last().Id = index + 1;
+
+            CurrentTaskList = taskList;
+
+            AddTaskListName(_userControl, taskList.Name);
+            AddTaskListTasks(_userControl, taskList.Tasks);
+            TaskListGrid.Children.Add(_userControl);
+
+            Grid.SetColumn(_userControl, 1);
+            Grid.SetRow(_userControl, 0);
+        }
+
+        private void AddTaskListName(TaskListUserControl userControl, string name)
+        {
+            var nameText = new TextBox()
+            {
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Name = name,
+                Text = name,
+                VerticalAlignment = VerticalAlignment.Top,
+            };
+
+            nameText.TextChanged += UpdateTaskList;
+            userControl.TaskListGrid.Children.Add(nameText);
+        }
+
+        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
+        {
+            foreach (var task in tasks)
+            {
+                var taskName = new TextBox()
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, startingMargin, 150, 0),
+                    MaxWidth = 200,
+                    Text = task.Name,
+                    VerticalAlignment = VerticalAlignment.Top,
+                };
+
+                var checkBox = new CheckBox()
+                {
+                    IsChecked = task.IsCompleted,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(150, startingMargin, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Top,
+                };
+
+                _oldText = taskName.Text;
+                checkBox.Tag = taskName.Text;
+
+                taskName.TextChanged += UpdateTaskName;
+                checkBox.Checked += UpdateTaskCompletion;
+                checkBox.Unchecked += UpdateTaskCompletion;
+
+                userControl.TaskListGrid.Children.Add(taskName);
+                userControl.TaskListGrid.Children.Add(checkBox);
+
+                startingMargin += 30;
+            }
+        }
+
+        public void SendTaskList()
+        {
+            _listener.SendTaskList(CurrentTaskList);
+        }
+
+        public void MakeNewTask(object sender, RoutedEventArgs e)
+        {
+            var id = CurrentTaskList.Tasks.Count;
+            var task = new Task(id);
+            CurrentTaskList.Tasks.Add(task);
+            var count = CurrentTaskList.Tasks.Count;
+            var taskArg = new List<Task>
+            {
+                task
+            };
+
+            AddTaskListTasks(_userControl, taskArg, 60 + (30 * (count - 1)));
+        }
+
+        private void buttonAddList_Click(object sender, RoutedEventArgs e)
+        {
+            if (_taskLists.Count < 14)
+            {
+                var list = new Button
+                {
+                    Name = $"list{_taskLists.Count + 1}",
+                    Content = $"list{_taskLists.Count + 1}",
+                    Width = 150,
+                    Height = 30,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+
+                _taskLists.Add(new TaskList(_taskLists.Count));
+
+                list.Click += list_Click;
+
+                taskListButtons.Children.Add(list);
+            }
+        }
+
+        public void UpdateTaskList(object sender, RoutedEventArgs e)
+        {
+            var stackPanel = (StackPanel)(TaskListGrid.Children[0]);
+
+            foreach (var panelChild in stackPanel.Children)
+            {
+                if (panelChild is Button button)
+                {
+                    if ((string)(button.Content) == CurrentTaskList.Name)
+                    {
+                        var box = ((TextBox)sender);
+                        CurrentTaskList.Name = box.Text;
+                        button.Content = box.Text;
+                    }
+                }
+            }
+        }
+
+        public void UpdateTaskName(object sender, RoutedEventArgs e)
+        {
+            var box = (TextBox)sender;
+            CurrentTaskList.Tasks.Find(x => x.Name == _oldText).Name = box.Text;
+            _oldText = box.Text;
+
+            foreach (var child in _userControl.TaskListGrid.Children)
+            {
+                if (child is CheckBox check)
+                {
+                    check.Tag = box.Text;
+                }
+            }
+        }
+
+        public void UpdateTaskCompletion(object sender, RoutedEventArgs e)
+        {
+            var box = (CheckBox)sender;
+            var name = (string)(box.Tag);
+            CurrentTaskList.Tasks.Find(x => x.Name == name).IsCompleted = (bool)(box.IsChecked);
+        }
+
+        private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
+        {
+            var dialogResult = MessageBox.Show("Are you sure you want to delete this TaskList?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                var button = (Button)sender;
+                var index = _taskLists.FindIndex(x => x == CurrentTaskList);
+
+                _taskLists.RemoveAt(index);
+                taskListButtons.Children.RemoveAt(index);
+            }
+        }
+
+        #endregion
     }
 }

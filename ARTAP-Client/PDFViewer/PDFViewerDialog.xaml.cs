@@ -36,7 +36,7 @@ namespace PDFViewer
         /// is closed without a page being selected, this will
         /// remain null.
         /// </summary>
-        public BitmapImage selectedImage { get; private set; } = null;
+        public List<BitmapImage> selectedImages { get; private set; } = null;
 
         /// <summary>
         /// Keeps track of the total number of pages in the current PDF.
@@ -57,6 +57,8 @@ namespace PDFViewer
             InitializeComponent();
 
             textBoxPageNumber.Text = Convert.ToString(INITIAL_PAGE_TO_DISPLAY);
+
+            selectedImages = new List<BitmapImage>();
         }
 
         /// <summary>
@@ -172,14 +174,18 @@ namespace PDFViewer
 
         /// <summary>
         /// When the select button is clicked, this event fires, closing the
-        /// window and setting the <see cref="selectedImage"/> to the currently
+        /// window and setting the <see cref="selectedImages"/> to the currently
         /// displayed image.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void onClickButtonSelect(object sender, RoutedEventArgs e)
         {
-            selectedImage = (BitmapImage)imagePageDisplay.Source;
+            selectedImages.Add((BitmapImage)imagePageDisplay.Source);
+        }
+
+        private void onCloseButtonSelect(object sender, RoutedEventArgs e)
+        {
             Close();
         }
 
@@ -188,7 +194,7 @@ namespace PDFViewer
         /// </summary>
         private new void Close()
         {
-            DialogResult = selectedImage != null;
+            DialogResult = selectedImages.Any();
             base.Close();
         }
 

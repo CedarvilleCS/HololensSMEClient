@@ -35,9 +35,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>ARTAPclient.App</StartupObject>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ghostscript.NET, Version=1.2.1.0, Culture=neutral, PublicKeyToken=f85051de34525b59, processorArchitecture=MSIL">
       <HintPath>..\packages\Ghostscript.NET.1.2.1\lib\net40\Ghostscript.NET.dll</HintPath>
@@ -101,12 +98,12 @@
       <DependentUpon>AppSettings.settings</DependentUpon>
     </Compile>
     <Compile Include="Marker.cs" />
+<<<<<<< HEAD
     <Compile Include="Task.cs" />
     <Compile Include="TaskList.cs" />
+=======
     <Compile Include="PDFDocument.cs" />
-    <Compile Include="TaskListUserControl.xaml.cs">
-      <DependentUpon>TaskListUserControl.xaml</DependentUpon>
-    </Compile>
+>>>>>>> dev
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>
@@ -132,10 +129,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TaskListUserControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="thumbnailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -214,6 +207,7 @@
     <Resource Include="Resources\downleft.png" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Resource Include="Resources\downright.png" />
   </ItemGroup>
   <ItemGroup>
@@ -236,6 +230,18 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\filled_circle.png" />
+=======
+    <Resource Include="Resources\down.png" />
+    <Resource Include="Resources\downright.png" />
+    <Resource Include="Resources\left.png" />
+    <Resource Include="Resources\right.png" />
+    <Resource Include="Resources\up.png" />
+    <Resource Include="Resources\upleft.png" />
+    <Resource Include="Resources\upright.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\filled-circle.png" />
+>>>>>>> PDF-Multiple-Pages
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

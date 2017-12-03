@@ -38,16 +38,28 @@ namespace ARTAPclient
         /// Types of messages that can be sent and their
         /// coresponding message  integer codes
         /// </summary>
+<<<<<<< HEAD
         private enum MessageType
         {
             Bitmap = 1,
             PositionIDRequest = 2,
             ArrowPlacement = 3,
             EraseMarkers = 4,
-	        Pdf = 5,
-            EraseMarker = 6,
-	        TaskList = 7
+	    Pdf = 5,
+            EraseMarker = 6
         }
+=======
+        private enum MessageType {  Bitmap = 1,
+                                    PositionIDRequest = 2,
+                                    ArrowPlacement = 3,
+                                    EraseMarkers = 4,
+<<<<<<< HEAD
+                                    TaskList = 7
+=======
+                                    Pdf = 5
+>>>>>>> dev
+                                 }
+>>>>>>> PDF-Multiple-Pages
 
         /// <summary>
         /// Handles timing for checking if the connection is alive
@@ -230,8 +242,8 @@ namespace ARTAPclient
         /// <returns>A single combined byte array</returns>
         private byte[] CombineArrs(params byte[][] arrays)
         {
-            var rv = new byte[arrays.Sum(a => a.Length)];
-            var offset = 0;
+            byte[] rv = new byte[arrays.Sum(a => a.Length)];
+            int offset = 0;
             foreach (byte[] array in arrays)
             {
                 Buffer.BlockCopy(array, 0, rv, offset, array.Length);
@@ -381,7 +393,7 @@ namespace ARTAPclient
                 Connected = true;
                 ConnectionEstablished?.Invoke(this, new EventArgs());
             }
-            catch (SocketException)
+            catch (System.Net.Sockets.SocketException)
             {
                 ConnectionTimedOut?.Invoke(this, new EventArgs());
             }
@@ -401,7 +413,7 @@ namespace ARTAPclient
             ///
             /// For testing purposes
             ///
-            Debug.WriteLine($"Sent {bytesSent} bytes to server.");
+            Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
         }
 
         /// <summary>
@@ -420,6 +432,7 @@ namespace ARTAPclient
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
+
         }
 
         #endregion
