@@ -211,9 +211,6 @@
     <Resource Include="Resources\downleft.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\downright.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\filled_circle.png" />
   </ItemGroup>
   <ItemGroup>
