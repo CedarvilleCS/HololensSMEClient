@@ -199,6 +199,7 @@
     <Resource Include="Resources\downleft.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\downright.png" />
     <Resource Include="Resources\filled-circle %2864x64%29.png" />
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +213,10 @@
     <Resource Include="Resources\upright.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\filled-circle %2864x64%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\filled_circle.png" />
     <Resource Include="Resources\downright.png" />
   </ItemGroup>
   <ItemGroup>

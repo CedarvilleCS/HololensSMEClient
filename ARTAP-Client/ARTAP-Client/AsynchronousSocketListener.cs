@@ -46,7 +46,7 @@ namespace ARTAPclient
 	    Pdf = 5,
             EraseMarker = 6
         }
-
+      
         /// <summary>
         /// Handles timing for checking if the connection is alive
         /// </summary>

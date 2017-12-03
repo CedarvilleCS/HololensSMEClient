@@ -21,7 +21,7 @@ namespace ARTAPclient
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// Test Commit! Spencer
-    public partial class MainWindow : Window
+    public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
     {
         private AsynchronousSocketListener _listener;
 
