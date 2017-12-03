@@ -671,9 +671,8 @@ namespace ARTAPclient
                     {
                         byte[] bytes;
                         var encoder = new PngBitmapEncoder();
-                        var bitmapSource = image.Source as BitmapSource;
 
-                        if (bitmapSource != null)
+                        if (image.Source is BitmapSource bitmapSource)
                         {
                             encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
 
@@ -800,9 +799,7 @@ namespace ARTAPclient
         }
         private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
         {
-            //Toggles the menu upon click
             MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
-
         }
 
         private void ChooseMarkerType(object sender, RoutedEventArgs e)
@@ -811,18 +808,14 @@ namespace ARTAPclient
             Button btn = (Button)sender;
             string btnName = btn.Name;
 
-            //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
             var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
 
-            //Set the correction marker type
             _markerDirection = (Direction)(direction - 1);
 
-            //Works in theory, need to test
             Image content = (Image)btn.Content;
             var test = content.Source;
             buttonPlaceArrow.Content = (Image)btn.Content;
 
-            //System.Drawing.Bitmap(WpfApplication1.Properties.Resources.filled_circle);
             String correctPhoto = "";
 
             switch (direction)
@@ -893,7 +886,6 @@ namespace ARTAPclient
 
         private void buttonSelectMultiple_Click(object sender, EventArgs e)
         {
-            //If in placingMarker mode get out and reset everything
             if (_placingMarker)
             {
                 SetPlacingMarkers(!_placingMarker);
@@ -1044,24 +1036,6 @@ namespace ARTAPclient
 
                 startingMargin += 30;
             }
-
-            // var sendButton = new Button
-            // {
-            //     Background = new SolidColorBrush(Colors.Azure),
-            //     Content = "Send",
-            //     Foreground = new SolidColorBrush(Colors.White),
-            //     Margin = new Thickness(150, startingMargin, 0, 0)
-            // };
-
-            // var addButton = new Button
-            // {
-            //     Content = "Add new Task",
-            //     Foreground = new SolidColorBrush(Colors.Azure),
-            //     Margin = new Thickness(250, startingMargin, 0, 0)
-            // };
-
-            // sendButton.Click += SendTaskList;
-            // addButton.Click += MakeNewTask;
         }
 
         public void SendTaskList()
@@ -1146,11 +1120,13 @@ namespace ARTAPclient
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
         {
-            var button = (Button)sender;
-            var index = (int)Char.GetNumericValue(button.Name.Last()) - 1;
+            var dialogResult = MessageBox.Show("Are you sure you want to delete this TaskList?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
-            _taskLists.RemoveAt(index);
-            taskListButtons.Children.Remove(button);
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                var button = (Button)sender;
+                _taskLists.Remove(CurrentTaskList);
+            }
         }
 
         #endregion
