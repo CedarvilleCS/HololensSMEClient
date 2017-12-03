@@ -35,6 +35,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>ARTAPclient.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ghostscript.NET, Version=1.2.1.0, Culture=neutral, PublicKeyToken=f85051de34525b59, processorArchitecture=MSIL">
       <HintPath>..\packages\Ghostscript.NET.1.2.1\lib\net40\Ghostscript.NET.dll</HintPath>
@@ -98,7 +101,12 @@
       <DependentUpon>AppSettings.settings</DependentUpon>
     </Compile>
     <Compile Include="Marker.cs" />
+    <Compile Include="Task.cs" />
+    <Compile Include="TaskList.cs" />
     <Compile Include="PDFDocument.cs" />
+    <Compile Include="TaskListUserControl.xaml.cs">
+      <DependentUpon>TaskListUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>
@@ -124,6 +132,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="TaskListUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="thumbnailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

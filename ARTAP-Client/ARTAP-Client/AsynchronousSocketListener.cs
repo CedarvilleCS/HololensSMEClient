@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -43,8 +44,9 @@ namespace ARTAPclient
             PositionIDRequest = 2,
             ArrowPlacement = 3,
             EraseMarkers = 4,
-	    Pdf = 5,
-            EraseMarker = 6
+	        Pdf = 5,
+            EraseMarker = 6,
+	        TaskList = 7
         }
       
         /// <summary>
@@ -178,6 +180,11 @@ namespace ARTAPclient
             Send(MessageType.EraseMarkers, new byte[0]);
         }
 
+        public void SendTaskList(TaskList list)
+        {
+            Send(MessageType.TaskList, new byte[0]);
+        }
+
         /// <summary>
         /// Converts a double into short byte form
         /// </summary>
@@ -223,8 +230,8 @@ namespace ARTAPclient
         /// <returns>A single combined byte array</returns>
         private byte[] CombineArrs(params byte[][] arrays)
         {
-            byte[] rv = new byte[arrays.Sum(a => a.Length)];
-            int offset = 0;
+            var rv = new byte[arrays.Sum(a => a.Length)];
+            var offset = 0;
             foreach (byte[] array in arrays)
             {
                 Buffer.BlockCopy(array, 0, rv, offset, array.Length);
@@ -374,7 +381,7 @@ namespace ARTAPclient
                 Connected = true;
                 ConnectionEstablished?.Invoke(this, new EventArgs());
             }
-            catch (System.Net.Sockets.SocketException)
+            catch (SocketException)
             {
                 ConnectionTimedOut?.Invoke(this, new EventArgs());
             }
@@ -394,7 +401,7 @@ namespace ARTAPclient
             ///
             /// For testing purposes
             ///
-            Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
+            Debug.WriteLine($"Sent {bytesSent} bytes to server.");
         }
 
         /// <summary>
@@ -413,7 +420,6 @@ namespace ARTAPclient
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
-
         }
 
         #endregion

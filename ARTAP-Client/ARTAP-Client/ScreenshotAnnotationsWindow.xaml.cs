@@ -17,7 +17,7 @@ namespace ARTAPclient
     /// <summary>
     /// Interaction logic for Window2.xaml
     /// </summary>
-    /// 
+    ///
     public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
@@ -29,10 +29,98 @@ namespace ARTAPclient
 
         private const int THUMBNAIL_GALLERY_SIZE = 5;
 
+        private string _oldText = "";
+
+        private TaskListUserControl _userControl;
+
         /// <summary>
         /// Current bitmap active for drawing
         /// </summary>
         private AnnotatedImage _activeImage;
+
+        private List<TaskList> _taskLists = new List<TaskList>
+        {
+            new TaskList
+            {
+                Id = 0,
+                Name = "Example",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            },
+            new TaskList
+            {
+                Id = 1,
+                Name = "Directions",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            },
+            new TaskList
+            {
+                Id = 2,
+                Name = "Example2",
+                Tasks = new List<Task>()
+                {
+                    new Task
+                    {
+                        Id = 0,
+                        Name = "task 1",
+                        IsCompleted = false
+                    },
+                    new Task
+                    {
+                        Id = 1,
+                        Name = "task 2",
+                        IsCompleted = true
+                    },
+                    new Task
+                    {
+                        Id = 2,
+                        Name = "task 3",
+                        IsCompleted = true
+                    },
+                }
+            }
+        };
+
+        public TaskList CurrentTaskList { get; set; }
 
         /// <summary>
         /// History of images snapped or uploaded
@@ -80,7 +168,7 @@ namespace ARTAPclient
         /// <summary>
         /// Color used for canvas annotations, default to Red
         /// </summary>
-        private System.Windows.Media.Color _brushColor = Colors.Red;
+        private Color _brushColor = Colors.Red;
 
         /// <summary>
         /// Size used for canvas annotations, default to 5
@@ -133,12 +221,28 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-            //_listener.ConnectionClosed += _listener_ConnectionClosed;
+            _taskLists.ForEach(x => AddTaskButton(x));
         }
 
         #endregion
 
         #region PrivateMethods
+
+        private void AddTaskButton(TaskList taskList)
+        {
+            var list = new Button
+            {
+                Name = $"List{taskList.Id + 1}",
+                Content = taskList.Name.ToString(),
+                Width = 150,
+                Height = 30,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            list.Click += list_Click;
+
+            taskListButtons.Children.Add(list);
+        }
 
         /// <summary>
         /// Updates the thumbnails with the latest images captured
@@ -267,9 +371,19 @@ namespace ARTAPclient
         /// <param name="image">Image to draw</param>
         private void DrawImageToCanvas(ImageSource image)
         {
-            ImageBrush ib = new ImageBrush();
-            ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = image.Clone();
+            var ib = new ImageBrush();
+
+            try
+            {
+                ib.Stretch = Stretch.Uniform;
+                ib.ImageSource = image.Clone();
+            }
+            catch (NotSupportedException)
+            {
+                MessageBox.Show("The selected file must be an image.", "Not an image file", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             canvasImageEditor.Children.Clear();
             if (image.Height < image.Width)
             {
@@ -332,8 +446,10 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    var locatableImage = _activeImage as LocatableImage;
+                    canvasImageEditor.Children.Add(locatableImage.AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
+
+                    _listener.SendArrowLocation(locatableImage);
 
                     //se
                     // Enable the undo button for placing arrows
@@ -404,7 +520,7 @@ namespace ARTAPclient
             {
                 //
                 // If there are unsent markers we can undo
-                // 
+                //
                 var locatableImage = _activeImage as LocatableImage;
 
                 if (locatableImage.NumMarkers > 0)
@@ -418,7 +534,7 @@ namespace ARTAPclient
                     //
                     buttonUndo.IsEnabled = locatableImage.NumMarkers > 0;
                 }
-                
+
                 if (_activeImage.NumAnnotations > 0)
                 {
                     canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
@@ -555,9 +671,8 @@ namespace ARTAPclient
                     {
                         byte[] bytes;
                         var encoder = new PngBitmapEncoder();
-                        var bitmapSource = image.Source as BitmapSource;
 
-                        if (bitmapSource != null)
+                        if (image.Source is BitmapSource bitmapSource)
                         {
                             encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
 
@@ -575,7 +690,14 @@ namespace ARTAPclient
                 }
                 else if (_placingMarker)
                 {
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    if (((LocatableImage)_activeImage).PositionID != null)
+                    {
+                        _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Waiting for Location ID from Image", "Error", MessageBoxButton.OK);
+                    }
                 }
                 else
                 {
@@ -677,9 +799,7 @@ namespace ARTAPclient
         }
         private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
         {
-            //Toggles the menu upon click
             MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
-
         }
 
         private void ChooseMarkerType(object sender, RoutedEventArgs e)
@@ -687,19 +807,15 @@ namespace ARTAPclient
 
             Button btn = (Button)sender;
             string btnName = btn.Name;
-            
-            //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
+
             var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
 
-            //Set the correction marker type
             _markerDirection = (Direction)(direction - 1);
 
-            //Works in theory, need to test
             Image content = (Image)btn.Content;
             var test = content.Source;
             buttonPlaceArrow.Content = (Image)btn.Content;
 
-            //System.Drawing.Bitmap(WpfApplication1.Properties.Resources.filled_circle);
             String correctPhoto = "";
 
             switch (direction)
@@ -770,7 +886,6 @@ namespace ARTAPclient
 
         private void buttonSelectMultiple_Click(object sender, EventArgs e)
         {
-            //If in placingMarker mode get out and reset everything
             if (_placingMarker)
             {
                 SetPlacingMarkers(!_placingMarker);
@@ -839,7 +954,184 @@ namespace ARTAPclient
             }
         }
 
-        #endregion
+        private void list_Click(object sender, RoutedEventArgs e)
+        {
+            _taskLists.Add(new TaskList());
 
+            var button = (Button)sender;
+            var lastChar = button.Name.Last();
+
+            var buttons = taskListButtons.Children;
+            var index = 0;
+            for (var i = 1; i < buttons.Count; i++)
+            {
+                var child = (Button)buttons[i];
+                if (child.Name == button.Name)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            var taskList = _taskLists[index];
+            _userControl = new TaskListUserControl(this);
+            _taskLists.Last().Id = index + 1;
+
+            CurrentTaskList = taskList;
+
+            AddTaskListName(_userControl, taskList.Name);
+            AddTaskListTasks(_userControl, taskList.Tasks);
+            TaskListGrid.Children.Add(_userControl);
+
+            Grid.SetColumn(_userControl, 1);
+            Grid.SetRow(_userControl, 0);
+        }
+
+        private void AddTaskListName(TaskListUserControl userControl, string name)
+        {
+            var nameText = new TextBox()
+            {
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Name = name,
+                Text = name,
+                VerticalAlignment = VerticalAlignment.Top,
+            };
+
+            nameText.TextChanged += UpdateTaskList;
+            userControl.TaskListGrid.Children.Add(nameText);
+        }
+
+        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
+        {
+            foreach (var task in tasks)
+            {
+                var taskName = new TextBox()
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, startingMargin, 150, 0),
+                    MaxWidth = 200,
+                    Text = task.Name,
+                    VerticalAlignment = VerticalAlignment.Top,
+                };
+
+                var checkBox = new CheckBox()
+                {
+                    IsChecked = task.IsCompleted,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(150, startingMargin, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Top,
+                };
+
+                _oldText = taskName.Text;
+                checkBox.Tag = taskName.Text;
+
+                taskName.TextChanged += UpdateTaskName;
+                checkBox.Checked += UpdateTaskCompletion;
+                checkBox.Unchecked += UpdateTaskCompletion;
+
+                userControl.TaskListGrid.Children.Add(taskName);
+                userControl.TaskListGrid.Children.Add(checkBox);
+
+                startingMargin += 30;
+            }
+        }
+
+        public void SendTaskList()
+        {
+            _listener.SendTaskList(CurrentTaskList);
+        }
+
+        public void MakeNewTask(object sender, RoutedEventArgs e)
+        {
+            var id = CurrentTaskList.Tasks.Count;
+            var task = new Task(id);
+            CurrentTaskList.Tasks.Add(task);
+            var count = CurrentTaskList.Tasks.Count;
+            var taskArg = new List<Task>
+            {
+                task
+            };
+
+            AddTaskListTasks(_userControl, taskArg, 60 + (30 * (count - 1)));
+        }
+
+        private void buttonAddList_Click(object sender, RoutedEventArgs e)
+        {
+            if (_taskLists.Count < 14)
+            {
+                var list = new Button
+                {
+                    Name = $"list{_taskLists.Count + 1}",
+                    Content = $"list{_taskLists.Count + 1}",
+                    Width = 150,
+                    Height = 30,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+
+                _taskLists.Add(new TaskList(_taskLists.Count));
+
+                list.Click += list_Click;
+
+                taskListButtons.Children.Add(list);
+            }
+        }
+
+        public void UpdateTaskList(object sender, RoutedEventArgs e)
+        {
+            var stackPanel = (StackPanel)(TaskListGrid.Children[0]);
+
+            foreach (var panelChild in stackPanel.Children)
+            {
+                if (panelChild is Button button)
+                {
+                    if ((string)(button.Content) == CurrentTaskList.Name)
+                    {
+                        var box = ((TextBox)sender);
+                        CurrentTaskList.Name = box.Text;
+                        button.Content = box.Text;
+                    }
+                }
+            }
+        }
+
+        public void UpdateTaskName(object sender, RoutedEventArgs e)
+        {
+            var box = (TextBox)sender;
+            CurrentTaskList.Tasks.Find(x => x.Name == _oldText).Name = box.Text;
+            _oldText = box.Text;
+
+            foreach (var child in _userControl.TaskListGrid.Children)
+            {
+                if (child is CheckBox check)
+                {
+                    check.Tag = box.Text;
+                }
+            }
+        }
+
+        public void UpdateTaskCompletion(object sender, RoutedEventArgs e)
+        {
+            var box = (CheckBox)sender;
+            var name = (string)(box.Tag);
+            CurrentTaskList.Tasks.Find(x => x.Name == name).IsCompleted = (bool)(box.IsChecked);
+        }
+
+        private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
+        {
+            var dialogResult = MessageBox.Show("Are you sure you want to delete this TaskList?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                var button = (Button)sender;
+                var index = _taskLists.FindIndex(x => x == CurrentTaskList);
+
+                _taskLists.RemoveAt(index);
+                taskListButtons.Children.RemoveAt(index);
+            }
+        }
+
+        #endregion
     }
 }
