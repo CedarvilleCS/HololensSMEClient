@@ -48,7 +48,7 @@ namespace ARTAPclient
             EraseMarker = 6,
 	        TaskList = 7
         }
-
+      
         /// <summary>
         /// Handles timing for checking if the connection is alive
         /// </summary>
