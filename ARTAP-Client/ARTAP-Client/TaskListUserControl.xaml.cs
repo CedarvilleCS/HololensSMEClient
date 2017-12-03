@@ -33,7 +33,6 @@ namespace WpfApplication1
         {
             var list = _ui.CurrentTaskList;
             var currentId = list.Tasks.Last().Id;
-            _ui.CurrentTaskList.Tasks.Add(new Task(currentId + 1));
 
             _ui.MakeNewTask(null, null);
         }

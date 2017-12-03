@@ -1046,7 +1046,7 @@ namespace ARTAPclient
         public void MakeNewTask(object sender, RoutedEventArgs e)
         {
             var id = CurrentTaskList.Tasks.Count;
-            var task = new Task(id - 1);
+            var task = new Task(id);
             CurrentTaskList.Tasks.Add(task);
             var count = CurrentTaskList.Tasks.Count;
             var taskArg = new List<Task>
@@ -1054,7 +1054,7 @@ namespace ARTAPclient
                 task
             };
 
-            AddTaskListTasks(_userControl, taskArg, 60 + (30 * count));
+            AddTaskListTasks(_userControl, taskArg, 60 + (30 * (count - 1)));
         }
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
@@ -1125,7 +1125,10 @@ namespace ARTAPclient
             if (dialogResult == MessageBoxResult.Yes)
             {
                 var button = (Button)sender;
-                _taskLists.Remove(CurrentTaskList);
+                var index = _taskLists.FindIndex(x => x == CurrentTaskList);
+
+                _taskLists.RemoveAt(index);
+                taskListButtons.Children.RemoveAt(index);
             }
         }
 
