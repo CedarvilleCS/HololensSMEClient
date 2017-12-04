@@ -37,7 +37,7 @@
 
 
             <Border x:Name="imageThumbBorder" BorderBrush="White" Height="72" Margin="29,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
-                <Image x:Name="imageThumb"  MouseUp="imageThumb_MouseUp" />
+                <Image x:Name="imageThumb0"  MouseUp="imageThumb_MouseUp" />
             </Border>
             <Border x:Name="imageThumb1Border" BorderBrush="White" Height="72" Margin="168,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
                 <Image x:Name="imageThumb1"  MouseUp="imageThumb_MouseUp" />

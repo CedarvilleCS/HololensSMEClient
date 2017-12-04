@@ -125,7 +125,7 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb0, false));
             _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
             _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
             _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
@@ -500,8 +500,10 @@ namespace ARTAPclient
                     thumbnail.IsSelected = false;
                 }
             }
+            var thumbName = ((Image)sender).Name;
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length-1]);
 
-            SelectThumbnail(0 + _thumbIndex);
+            SelectThumbnail(thumbNailNum + _thumbIndex);
 
             UpdateThumbnailBorders();
         }
