@@ -549,8 +549,8 @@ namespace ARTAPclient
         {
             if (_activeImage != null)
             {
-                _listener.SendBitmap(_activeImage.LatestImage);
-                if (_selectedImages.Any())
+                //_listener.SendBitmap(_activeImage.LatestImage);
+                if (_selectedImages.Any()  && _isSelectMultiple)
                 {
                     var document = new PDFDocument();
                     foreach (var image in _selectedImages)
@@ -770,6 +770,7 @@ namespace ARTAPclient
             }
         }
 
+        //To do deslect all selected pdf's upon sending them in _isSelectMultiple mode
         private void buttonSelectMultiple_Click(object sender, EventArgs e)
         {
             //If in placingMarker mode get out and reset everything
@@ -789,7 +790,7 @@ namespace ARTAPclient
                 buttonChangeColor.IsEnabled = !_isSelectMultiple;
                 buttonUploadImage.IsEnabled = !_isSelectMultiple;
                 buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
-                buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
+                //buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
                 buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
             }
 
