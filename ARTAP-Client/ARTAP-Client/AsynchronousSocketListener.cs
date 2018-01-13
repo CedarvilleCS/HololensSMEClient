@@ -46,7 +46,8 @@ namespace ARTAPclient
             EraseMarkers = 4,
 	        Pdf = 5,
             EraseMarker = 6,
-	        TaskList = 7
+	        TaskList = 7,
+            TaskListRequest = 8
         }
       
         /// <summary>
@@ -218,6 +219,12 @@ namespace ARTAPclient
             ReceivePositionID(image);
         }
 
+        public void RequestTaskList(TaskList taskList)
+        {
+            Send(MessageType.TaskListRequest, new Byte[0]);
+            ReceiveTasklist(taskList);
+        }
+
         #endregion
 
         #region Private Methods
@@ -292,6 +299,21 @@ namespace ARTAPclient
             catch (Exception)
             {
                 MessageBox.Show("An error occurred receiving the position ID from the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void ReceiveTasklist(TaskList taskList)
+        {
+            try
+            {
+                var taskListObject = new TaskListObject();
+                taskListObject.TaskList = taskList;
+                _client.BeginReceive(taskListObject.Buffer, 0, TaskListObject.BUFFSIZE, 0, new AsyncCallback(ReceiveTaskListCallback), taskList);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the Task List from the HoloLens.",
                     "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -422,6 +444,14 @@ namespace ARTAPclient
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
         }
 
+        public void ReceiveTaskListCallback(IAsyncResult ar)
+        {
+            var taskList = (TaskListObject)ar.AsyncState;
+
+            _client.EndReceive(ar);
+            taskList.TaskList = TaskList.FromByteArray(taskList.Buffer);
+        }
+
         #endregion
 
     }
@@ -445,5 +475,17 @@ namespace ARTAPclient
         /// Image the location ID corresponds with
         /// </summary>
         public LocatableImage locatableImage;
+    }
+
+    public class TaskListObject
+    {
+        public const int BUFFSIZE = 1000;
+        public TaskList TaskList { get; set; }
+        public byte[] Buffer { get; set; }
+
+        public TaskListObject()
+        {
+            Buffer = new byte[BUFFSIZE];
+        }
     }
 }
