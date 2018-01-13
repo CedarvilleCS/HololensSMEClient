@@ -962,6 +962,7 @@ namespace ARTAPclient
             var lastChar = button.Name.Last();
 
             var buttons = taskListButtons.Children;
+            //Find current tasklist
             var index = 0;
             for (var i = 1; i < buttons.Count; i++)
             {

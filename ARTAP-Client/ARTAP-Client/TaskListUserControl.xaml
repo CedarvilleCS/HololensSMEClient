@@ -6,9 +6,18 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Background="White" Name="TaskListGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+        <!--Add Grid.RowSpan=2 if want the border around the buttons too-->
         <Border BorderBrush="#1065ed" BorderThickness="1,1,1,1" CornerRadius="8,8,8,8">
-            <Button Content="Add Task" HorizontalAlignment="Left" Margin="10,265,0,0" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White" Click="AddTaskClick"/>
+            <!-- Need to figure out how to add the tasks to here-->
+            <ScrollViewer Grid.Row="0">
+
+            </ScrollViewer>
         </Border>
-        <Button Content="Send Task List" HorizontalAlignment="Left" Margin="100,265,0,0" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White" Click="SendTaskClick"/>
+        <Button Content="Add Task" Grid.Row="1" HorizontalAlignment="Center" Margin="0,5,100,5" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White" Click="AddTaskClick"/>
+        <Button Content="Send Task List" Grid.Row="1" HorizontalAlignment="Center" Margin="100,5,0,5" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White" Click="SendTaskClick"/>
     </Grid>
 </UserControl>
