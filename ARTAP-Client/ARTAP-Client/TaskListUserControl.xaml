@@ -14,7 +14,8 @@
         <Border BorderBrush="#1065ed" BorderThickness="1,1,1,1" CornerRadius="8,8,8,8">
             <!-- Need to figure out how to add the tasks to here-->
             <ScrollViewer Grid.Row="0">
-
+                <Grid Background="White" Name="IndividualTasks" Width="291" Height="258" ScrollViewer.CanContentScroll="True">
+                </Grid>
             </ScrollViewer>
         </Border>
         <Button Content="Add Task" Grid.Row="1" HorizontalAlignment="Center" Margin="0,5,100,5" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White" Click="AddTaskClick"/>

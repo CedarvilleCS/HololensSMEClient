@@ -45,23 +45,26 @@ namespace ARTAPclient
             {
                 Id = 0,
                 Name = "Example",
-                Tasks = new List<Task>()
+                Tasks = new List<Task>
                 {
                     new Task
                     {
                         Id = 0,
+                        IsNew = false,
                         Name = "task 1",
-                        IsCompleted = false
+                        IsCompleted = false,
                     },
                     new Task
                     {
                         Id = 1,
+                        IsNew = false,
                         Name = "task 2",
                         IsCompleted = true
                     },
                     new Task
                     {
                         Id = 2,
+                        IsNew = false,
                         Name = "task 3",
                         IsCompleted = true
                     },
@@ -76,18 +79,21 @@ namespace ARTAPclient
                     new Task
                     {
                         Id = 0,
+                        IsNew = false,
                         Name = "task 1",
                         IsCompleted = false
                     },
                     new Task
                     {
                         Id = 1,
+                        IsNew = false,
                         Name = "task 2",
                         IsCompleted = true
                     },
                     new Task
                     {
                         Id = 2,
+                        IsNew = false,
                         Name = "task 3",
                         IsCompleted = true
                     },
@@ -102,18 +108,21 @@ namespace ARTAPclient
                     new Task
                     {
                         Id = 0,
+                        IsNew = false,
                         Name = "task 1",
                         IsCompleted = false
                     },
                     new Task
                     {
                         Id = 1,
+                        IsNew = false,
                         Name = "task 2",
                         IsCompleted = true
                     },
                     new Task
                     {
                         Id = 2,
+                        IsNew = false,
                         Name = "task 3",
                         IsCompleted = true
                     },
@@ -223,6 +232,8 @@ namespace ARTAPclient
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
             _taskLists.ForEach(x => AddTaskButton(x));
+
+            list_Click(taskListButtons.Children[0], null);
         }
 
         #endregion
@@ -957,13 +968,11 @@ namespace ARTAPclient
 
         private void list_Click(object sender, RoutedEventArgs e)
         {
-            _taskLists.Add(new TaskList());
-
             var button = (Button)sender;
             var lastChar = button.Name.Last();
 
             var buttons = taskListButtons.Children;
-            //Find current tasklist
+
             var index = 0;
             for (var i = 1; i < buttons.Count; i++)
             {
@@ -982,7 +991,8 @@ namespace ARTAPclient
             CurrentTaskList = taskList;
 
             AddTaskListName(_userControl, taskList.Name);
-            AddTaskListTasks(_userControl, taskList.Tasks);
+
+            AddTaskListTasks(_userControl, taskList.Tasks, 60);
             TaskListGrid.Children.Add(_userControl);
 
             Grid.SetColumn(_userControl, 1);
@@ -1002,13 +1012,11 @@ namespace ARTAPclient
             };
 
             nameText.TextChanged += UpdateTaskList;
-            userControl.TaskListGrid.Children.Add(nameText);
+            userControl.IndividualTasks.Children.Add(nameText);
         }
 
         private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
         {
-            //Trying to create regex string to see if the word Task# because if it is we 
-            String regex = "/^Task([0-9]|[1-9][0-9]|[1-9][0-9][0-9])$/";
             foreach (var task in tasks)
             {
                 var taskName = new TextBox()
@@ -1016,11 +1024,11 @@ namespace ARTAPclient
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, startingMargin, 150, 0),
                     MaxWidth = 200, 
-                    Text = task.Name,
                     VerticalAlignment = VerticalAlignment.Top,
                 };
-                //Should only be set the first time
-                //taskName.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
+
+                if (!task.IsNew) taskName.Text = task.Name;
+                else taskName.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
 
                 var checkBox = new CheckBox()
                 {
@@ -1030,16 +1038,15 @@ namespace ARTAPclient
                     VerticalAlignment = VerticalAlignment.Top,
                 };
 
-                //If the watermark is set, this should be set differently (because .Text will be null)
-                _oldText = taskName.Text;
+                _oldText = task.Name;
                 checkBox.Tag = taskName.Text;
 
                 taskName.TextChanged += UpdateTaskName;
                 checkBox.Checked += UpdateTaskCompletion;
                 checkBox.Unchecked += UpdateTaskCompletion;
 
-                userControl.TaskListGrid.Children.Add(taskName);
-                userControl.TaskListGrid.Children.Add(checkBox);
+                userControl.IndividualTasks.Children.Add(taskName);
+                userControl.IndividualTasks.Children.Add(checkBox);
 
                 startingMargin += 30;
             }
@@ -1066,22 +1073,24 @@ namespace ARTAPclient
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
-            if (_taskLists.Count < 14)
+            var count = _taskLists.Count;
+            _taskLists.Add(new TaskList(count + 1));
+
+            if (count < 14)
             {
                 var list = new Button
                 {
-                    Name = $"list{_taskLists.Count + 1}",
-                    Content = $"list{_taskLists.Count + 1}",
+                    Name = $"list{count + 1}",
+                    Content = $"list{count + 1}",
                     Width = 150,
                     Height = 30,
                     VerticalAlignment = VerticalAlignment.Top
                 };
 
-                _taskLists.Add(new TaskList(_taskLists.Count));
-
                 list.Click += list_Click;
 
                 taskListButtons.Children.Add(list);
+                list_Click(list, null);
             }
         }
 
@@ -1106,10 +1115,14 @@ namespace ARTAPclient
         public void UpdateTaskName(object sender, RoutedEventArgs e)
         {
             var box = (TextBox)sender;
-            CurrentTaskList.Tasks.Find(x => x.Name == _oldText).Name = box.Text;
+
+            var task = CurrentTaskList.Tasks.Find(x => x.Name == _oldText);
+            task.Name = box.Text;
+            task.IsNew = false;
+
             _oldText = box.Text;
 
-            foreach (var child in _userControl.TaskListGrid.Children)
+            foreach (var child in _userControl.IndividualTasks.Children)
             {
                 if (child is CheckBox check)
                 {
@@ -1122,7 +1135,9 @@ namespace ARTAPclient
         {
             var box = (CheckBox)sender;
             var name = (string)(box.Tag);
-            CurrentTaskList.Tasks.Find(x => x.Name == name).IsCompleted = (bool)(box.IsChecked);
+            var task = CurrentTaskList.Tasks.Find(x => x.Name == name);
+
+            task.IsCompleted = (bool)(box.IsChecked);
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
@@ -1135,7 +1150,18 @@ namespace ARTAPclient
                 var index = _taskLists.FindIndex(x => x == CurrentTaskList);
 
                 _taskLists.RemoveAt(index);
-                taskListButtons.Children.RemoveAt(index);
+
+                var buttons = taskListButtons.Children;
+                buttons.RemoveAt(index);
+
+                if (buttons.Count > 0)
+                {
+                    list_Click(buttons[buttons.Count - 1], null);
+                }
+                else
+                {
+                    buttonAddList_Click(null, null);
+                }
             }
         }
 

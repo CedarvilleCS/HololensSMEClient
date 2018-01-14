@@ -177,7 +177,7 @@
                     </Grid>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Task List" Controls:ControlsHelper.HeaderFontSize="20">
+            <TabItem Header="Task List" Controls:ControlsHelper.HeaderFontSize="20" Height="31" VerticalAlignment="Bottom" >
                 <Grid Name="TaskListGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150" />

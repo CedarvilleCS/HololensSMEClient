@@ -8,15 +8,19 @@ namespace WpfApplication1
     public class Task
     {
         public int Id { get; set; }
+        public bool IsNew { get; set; }
         public string Name { get; set; }
         public bool IsCompleted { get; set; }
         public Image Attachment { get; set; }
 
-        public Task() { }
+        public Task()
+        {
+        }
 
         public Task(int id)
         {
             Id = id;
+            IsNew = true;
             Name = $"Task{Id + 1}";
             IsCompleted = false;
         }
