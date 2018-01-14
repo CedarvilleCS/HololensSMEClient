@@ -11,6 +11,7 @@ using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
 using System.IO;
+using MahApps.Metro.Controls;
 
 namespace ARTAPclient
 {
@@ -1006,16 +1007,20 @@ namespace ARTAPclient
 
         private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
         {
+            //Trying to create regex string to see if the word Task# because if it is we 
+            String regex = "/^Task([0-9]|[1-9][0-9]|[1-9][0-9][0-9])$/";
             foreach (var task in tasks)
             {
                 var taskName = new TextBox()
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, startingMargin, 150, 0),
-                    MaxWidth = 200,
+                    MaxWidth = 200, 
                     Text = task.Name,
                     VerticalAlignment = VerticalAlignment.Top,
                 };
+                //Should only be set the first time
+                //taskName.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
 
                 var checkBox = new CheckBox()
                 {
@@ -1025,6 +1030,7 @@ namespace ARTAPclient
                     VerticalAlignment = VerticalAlignment.Top,
                 };
 
+                //If the watermark is set, this should be set differently (because .Text will be null)
                 _oldText = taskName.Text;
                 checkBox.Tag = taskName.Text;
 
