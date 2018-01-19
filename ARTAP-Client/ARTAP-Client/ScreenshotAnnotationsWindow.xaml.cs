@@ -1017,8 +1017,10 @@ namespace ARTAPclient
 
         private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
         {
-            foreach (var task in tasks)
+            for (int i = 0; i < tasks.Count; i++)
             {
+                var task = tasks[i];
+
                 var taskName = new TextBox()
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -1038,6 +1040,8 @@ namespace ARTAPclient
                     VerticalAlignment = VerticalAlignment.Top,
                 };
 
+                //var label = new Label(); label.Content = i.ToString() + ")";
+
                 _oldText = task.Name;
                 checkBox.Tag = taskName.Text;
 
@@ -1045,7 +1049,7 @@ namespace ARTAPclient
                 checkBox.Checked += UpdateTaskCompletion;
                 checkBox.Unchecked += UpdateTaskCompletion;
 
-
+               // userControl.IndividualTasks.Children.Add(label);
                 userControl.IndividualTasks.Children.Add(taskName);
                 userControl.IndividualTasks.Children.Add(checkBox);
 
