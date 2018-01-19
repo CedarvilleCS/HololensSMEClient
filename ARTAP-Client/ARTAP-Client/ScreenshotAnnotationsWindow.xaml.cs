@@ -1045,6 +1045,7 @@ namespace ARTAPclient
                 checkBox.Checked += UpdateTaskCompletion;
                 checkBox.Unchecked += UpdateTaskCompletion;
 
+
                 userControl.IndividualTasks.Children.Add(taskName);
                 userControl.IndividualTasks.Children.Add(checkBox);
 
@@ -1121,7 +1122,7 @@ namespace ARTAPclient
             task.IsNew = false;
 
             _oldText = box.Text;
-
+            
             foreach (var child in _userControl.IndividualTasks.Children)
             {
                 if (child is CheckBox check)

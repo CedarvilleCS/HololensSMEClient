@@ -33,9 +33,9 @@ namespace WpfApplication1
         {
             var list = _ui.CurrentTaskList;
             var currentId = list.Tasks.Last().Id;
-            //if(this)
 
             _ui.MakeNewTask(null, null);
+            ScrollView.ScrollToEnd();
         }
 
         private void SendTaskClick(object sender, RoutedEventArgs e)

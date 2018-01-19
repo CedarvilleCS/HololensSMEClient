@@ -239,8 +239,8 @@
                     </Button>
 
                     <!--<Border Grid.Column="0" Grid.RowSpan="2" BorderBrush="Black"
-                    BorderThickness="1,1,1,1" Background="{x:Null}" />
-                    <Border Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black"
+                    BorderThickness="1,1,1,1" Padding="10,15,10,10" Background="{x:Null}" />-->
+                    <!--<Border Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black"
                     BorderThickness="0,1,1,1" Background="{x:Null}" />-->
                 </Grid>
             </TabItem>

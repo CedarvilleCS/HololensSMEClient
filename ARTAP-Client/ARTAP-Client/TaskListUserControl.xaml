@@ -11,10 +11,10 @@
             <RowDefinition Height="35"/>
         </Grid.RowDefinitions>
         <!--Add Grid.RowSpan=2 if want the border around the buttons too-->
-        <Border BorderBrush="#1065ed" BorderThickness="1,1,1,1" CornerRadius="8,8,8,8">
+        <Border Grid.Row="0" BorderBrush="#1065ed" BorderThickness="1,1,1,1" CornerRadius="8,8,8,8" Margin="3,0,0,35" Grid.RowSpan="2">
             <!-- Need to figure out how to add the tasks to here-->
-            <ScrollViewer Grid.Row="0">
-                <Grid Background="White" Name="IndividualTasks" Width="291" Height="258" ScrollViewer.CanContentScroll="True">
+            <ScrollViewer x:Name="ScrollView" Grid.Row="0" Margin="0,15,0,10">
+                <Grid Background="White" Margin="5.5,0,0,0" x:Name="IndividualTasks" ScrollViewer.CanContentScroll="True">
                 </Grid>
             </ScrollViewer>
         </Border>
