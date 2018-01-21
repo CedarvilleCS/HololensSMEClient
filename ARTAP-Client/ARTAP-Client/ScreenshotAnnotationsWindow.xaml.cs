@@ -1024,8 +1024,8 @@ namespace ARTAPclient
                 var taskName = new TextBox()
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, startingMargin, 150, 0),
-                    MaxWidth = 200, 
+                    Margin = new Thickness(0, startingMargin, 100, 0),
+                    MinWidth = 450, 
                     VerticalAlignment = VerticalAlignment.Top,
                 };
 
@@ -1036,20 +1036,36 @@ namespace ARTAPclient
                 {
                     IsChecked = task.IsCompleted,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(150, startingMargin, 0, 0),
+                    Margin = new Thickness(400, startingMargin, 0, 0),
                     VerticalAlignment = VerticalAlignment.Top,
                 };
 
-                //var label = new Label(); label.Content = i.ToString() + ")";
+                var taskRemove = new Button()
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, startingMargin, 180, 0),
+                    VerticalAlignment = VerticalAlignment.Top,
+                };
+
+
+                //var label = new Label()
+                //{
+                //    HorizontalAlignment = HorizontalAlignment.Center,
+                //    Margin = new Thickness(0, startingMargin, 180, 0),
+                //    VerticalAlignment = VerticalAlignment.Top,
+
+                //};
+
+                //label.Content = (task.Id + 1).ToString() + ")";
 
                 _oldText = task.Name;
-                checkBox.Tag = taskName.Text;
+                checkBox.Tag = task.Name;
 
                 taskName.TextChanged += UpdateTaskName;
                 checkBox.Checked += UpdateTaskCompletion;
                 checkBox.Unchecked += UpdateTaskCompletion;
 
-               // userControl.IndividualTasks.Children.Add(label);
+                //userControl.IndividualTasks.Children.Add(label);
                 userControl.IndividualTasks.Children.Add(taskName);
                 userControl.IndividualTasks.Children.Add(checkBox);
 
