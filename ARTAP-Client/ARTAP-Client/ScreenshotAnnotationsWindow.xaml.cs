@@ -1017,14 +1017,12 @@ namespace ARTAPclient
 
         private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
         {
-            for (int i = 0; i < tasks.Count; i++)
-            {
-                var task = tasks[i];
-
+            foreach (Task task in tasks)
+            {                
                 var taskName = new TextBox()
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, startingMargin, 100, 0),
+                    Margin = new Thickness(50, startingMargin, 70, 0),
                     MinWidth = 450, 
                     VerticalAlignment = VerticalAlignment.Top,
                 };
@@ -1036,27 +1034,24 @@ namespace ARTAPclient
                 {
                     IsChecked = task.IsCompleted,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(400, startingMargin, 0, 0),
+                    Margin = new Thickness(500, startingMargin+4, 0, 0),
                     VerticalAlignment = VerticalAlignment.Top,
                 };
 
+                Style style = this.FindResource("RoundX") as Style;
                 var taskRemove = new Button()
                 {
+                    Height=20,
+                    Width=20,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, startingMargin, 180, 0),
+                    Margin = new Thickness(0, startingMargin+3, 530, 0),
                     VerticalAlignment = VerticalAlignment.Top,
+                    Name = "remove" + task.Id.ToString(),
+                    Style = style,
+                    
                 };
 
-
-                //var label = new Label()
-                //{
-                //    HorizontalAlignment = HorizontalAlignment.Center,
-                //    Margin = new Thickness(0, startingMargin, 180, 0),
-                //    VerticalAlignment = VerticalAlignment.Top,
-
-                //};
-
-                //label.Content = (task.Id + 1).ToString() + ")";
+                taskRemove.Click += removeTask_Click;
 
                 _oldText = task.Name;
                 checkBox.Tag = task.Name;
@@ -1065,12 +1060,43 @@ namespace ARTAPclient
                 checkBox.Checked += UpdateTaskCompletion;
                 checkBox.Unchecked += UpdateTaskCompletion;
 
-                //userControl.IndividualTasks.Children.Add(label);
+                userControl.IndividualTasks.Children.Add(taskRemove);
                 userControl.IndividualTasks.Children.Add(taskName);
                 userControl.IndividualTasks.Children.Add(checkBox);
 
                 startingMargin += 30;
             }
+        }
+
+        public void removeTask_Click(object sender, RoutedEventArgs e)
+        {
+            //Get which task to remove
+            var name = ((Button)sender).Name;
+            int taskNum = 0;
+
+            //Figure out if the task is 1,2 or 3 digits
+            if(name.Length == 7)
+            {
+                taskNum = (int)Char.GetNumericValue(name[name.Length - 1]);
+            }
+            else if(name.Length == 8)
+            {
+                taskNum = Int32.Parse(name.Substring(name.Length - 2));
+            }
+            else
+            {
+                taskNum = Int32.Parse(name.Substring(name.Length - 3));
+            }
+
+            //var taskName = "Task" + taskNum.ToString();
+
+            var task = CurrentTaskList.Tasks.Find(x => x.Id == taskNum);
+
+            CurrentTaskList.Tasks.Remove(task);
+
+            //Need to update the UI somehow
+            AddTaskListTasks(_userControl, CurrentTaskList.Tasks);
+
         }
 
         public void SendTaskList()
