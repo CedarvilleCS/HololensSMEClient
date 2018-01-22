@@ -31,9 +31,6 @@ namespace WpfApplication1
 
         private void AddTaskClick(object sender, RoutedEventArgs e)
         {
-            var list = _ui.CurrentTaskList;
-            var currentId = list.Tasks.Last().Id;
-
             _ui.MakeNewTask(null, null);
             ScrollView.ScrollToEnd();
         }

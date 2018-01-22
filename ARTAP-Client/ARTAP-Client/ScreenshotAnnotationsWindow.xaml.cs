@@ -142,8 +142,6 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-
-            list_Click(taskListButtons.Children[0], null);
         }
 
         #endregion
@@ -912,7 +910,13 @@ namespace ARTAPclient
 
         private void AddTaskListTasks(TaskListUserControl userControl, List<TaskUI> tasks)
         {
-            foreach (var task in tasks)
+            var kids = userControl.IndividualTasks.Children;
+            for (var i = kids.Count - 1; i > 0; i--)
+            {
+                kids.RemoveAt(i);
+            }
+
+            foreach (var uiTask in tasks)
             {
                 //var taskName = new TextBox()
                 //{
@@ -922,8 +926,6 @@ namespace ARTAPclient
                 //    VerticalAlignment = VerticalAlignment.Top,
                 //};
 
-                //if (!task.IsNew) taskName.Text = task.Name;
-                //else taskName.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
 
                 //var checkBox = new CheckBox()
                 //{
@@ -946,10 +948,13 @@ namespace ARTAPclient
 
                 //taskRemove.Click += removeTask_Click;
 
-                var name = task.Task.Name;
-                var checkbox = task.IsCompletedUI;
-                var remove = task.Remove;
-                var nameBox = task.NameUI;
+                var name = uiTask.Task.Name;
+                var checkbox = uiTask.IsCompletedUI;
+                var remove = uiTask.Remove;
+                var nameBox = uiTask.NameUI;
+
+                if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
+                else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
 
                 _oldText = name;
                 checkbox.Tag = name;
@@ -959,7 +964,7 @@ namespace ARTAPclient
                 //checkBox.Unchecked += UpdateTaskCompletion;
 
                 remove.Click += removeTask_Click;
-                task.NameUI.TextChanged += UpdateTaskName;
+                uiTask.NameUI.TextChanged += UpdateTaskName;
                 checkbox.Checked += UpdateTaskCompletion;
                 checkbox.Unchecked += UpdateTaskCompletion;
 
@@ -994,12 +999,13 @@ namespace ARTAPclient
             //var taskName = "Task" + taskNum.ToString();
 
             var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskNum);
+            var uiTask = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
 
             CurrentTaskList.TaskList.Tasks.Remove(task);
+            CurrentTaskList.RemoveTaskUI(uiTask, _userControl.IndividualTasks);
 
             //Need to update the UI somehow
             AddTaskListTasks(_userControl, CurrentTaskList.TaskUIs);
-
         }
 
         public void SendTaskList()
@@ -1012,13 +1018,11 @@ namespace ARTAPclient
             var id = CurrentTaskList.TaskList.Tasks.Count;
             var task = new Task(id);
             CurrentTaskList.TaskList.Tasks.Add(task);
-            var count = CurrentTaskList.TaskList.Tasks.Count;
-            var taskArg = new List<Task>
-            {
-                task
-            };
+            var style = FindResource("RoundX") as Style;
 
-            AddTaskListTasks(_userControl, taskArg, 60 + (30 * (count - 1)));
+            var taskUIs = CurrentTaskList.TaskUIs;
+            taskUIs.Add(new TaskUI(task, 60 + (30 * id), style));
+            AddTaskListTasks(_userControl, taskUIs);
         }
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
@@ -1047,10 +1051,11 @@ namespace ARTAPclient
             {
                 if (panelChild is Button button)
                 {
-                    if ((string)(button.Content) == CurrentTaskList.Name)
+                    var name = CurrentTaskList.TaskList.Name;
+                    if (button.Content.ToString() == name)
                     {
                         var box = ((TextBox)sender);
-                        CurrentTaskList.Name = box.Text;
+                        name = box.Text;
                         button.Content = box.Text;
                     }
                 }

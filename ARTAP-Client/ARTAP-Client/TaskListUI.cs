@@ -19,11 +19,13 @@ namespace WpfApplication1
         {
             TaskList = taskList;
 
+            TaskUIs = new List<TaskUI>();
+
             Button = new Button
             {
-                Content = $"list{TaskList.Id + 1}",
+                Content = $"list{TaskList.Id}",
                 Height = 30,
-                Name = $"List{TaskList.Id + 1}",
+                Name = $"List{TaskList.Id}",
                 VerticalAlignment = VerticalAlignment.Top,
                 Width = 150
             };
@@ -51,6 +53,26 @@ namespace WpfApplication1
         public void AddTaskUI(Style style, int margin)
         {
             TaskUIs.Add(new TaskUI(new Task(), margin, style));
+        }
+
+        public void RemoveTaskUI(TaskUI uiTask, Grid taskGrid)
+        {
+            taskGrid.Children.Remove(uiTask.IsCompletedUI);
+            taskGrid.Children.Remove(uiTask.NameUI);
+            taskGrid.Children.Remove(uiTask.Remove);
+
+            TaskUIs.Remove(uiTask);
+            TaskList.Tasks.Remove(uiTask.Task);
+
+            var tasks = TaskList.Tasks;
+            for (var i = 0; i < tasks.Count; i++)
+            {
+                tasks[i].Id = i;
+
+                var taskUI = TaskUIs[i];
+                taskUI.Id = i;
+                taskUI.Remove.N
+            }
         }
     }
 }

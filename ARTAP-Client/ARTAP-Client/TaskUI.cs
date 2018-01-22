@@ -10,6 +10,7 @@ namespace WpfApplication1
 {
     public class TaskUI
     {
+        public int Id { get; set; }
         public Task Task { get; set; }
         public TextBox NameUI { get; set; }
         public CheckBox IsCompletedUI { get; set; }
@@ -18,11 +19,13 @@ namespace WpfApplication1
         public TaskUI(Task task, int margin, Style style)
         {
             Task = task;
+            Id = Task.Id;
 
             NameUI = new TextBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(50, margin, 70, 0),
+                Name = Task.Name,
                 MinWidth = 450,
                 VerticalAlignment = VerticalAlignment.Top,
             };

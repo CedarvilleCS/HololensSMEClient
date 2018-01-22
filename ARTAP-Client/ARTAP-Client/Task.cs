@@ -15,6 +15,10 @@ namespace WpfApplication1
 
         public Task()
         {
+            Id = 0;
+            IsNew = true;
+            Name = $"Task{Id + 1}";
+            IsCompleted = false;
         }
 
         public Task(int id)
