@@ -104,9 +104,11 @@
     <Compile Include="Task.cs" />
     <Compile Include="TaskList.cs" />
     <Compile Include="PDFDocument.cs" />
+    <Compile Include="TaskListUI.cs" />
     <Compile Include="TaskListUserControl.xaml.cs">
       <DependentUpon>TaskListUserControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TaskUI.cs" />
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
       <DependentUpon>thumbnailWindow.xaml</DependentUpon>

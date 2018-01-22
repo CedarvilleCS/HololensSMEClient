@@ -39,98 +39,7 @@ namespace ARTAPclient
         /// </summary>
         private AnnotatedImage _activeImage;
 
-        private List<TaskList> _taskLists = new List<TaskList>
-        {
-            new TaskList
-            {
-                Id = 0,
-                Name = "Example",
-                Tasks = new List<Task>
-                {
-                    new Task
-                    {
-                        Id = 0,
-                        IsNew = false,
-                        Name = "task 1",
-                        IsCompleted = false,
-                    },
-                    new Task
-                    {
-                        Id = 1,
-                        IsNew = false,
-                        Name = "task 2",
-                        IsCompleted = true
-                    },
-                    new Task
-                    {
-                        Id = 2,
-                        IsNew = false,
-                        Name = "task 3",
-                        IsCompleted = true
-                    },
-                }
-            },
-            new TaskList
-            {
-                Id = 1,
-                Name = "Directions",
-                Tasks = new List<Task>()
-                {
-                    new Task
-                    {
-                        Id = 0,
-                        IsNew = false,
-                        Name = "task 1",
-                        IsCompleted = false
-                    },
-                    new Task
-                    {
-                        Id = 1,
-                        IsNew = false,
-                        Name = "task 2",
-                        IsCompleted = true
-                    },
-                    new Task
-                    {
-                        Id = 2,
-                        IsNew = false,
-                        Name = "task 3",
-                        IsCompleted = true
-                    },
-                }
-            },
-            new TaskList
-            {
-                Id = 2,
-                Name = "Example2",
-                Tasks = new List<Task>()
-                {
-                    new Task
-                    {
-                        Id = 0,
-                        IsNew = false,
-                        Name = "task 1",
-                        IsCompleted = false
-                    },
-                    new Task
-                    {
-                        Id = 1,
-                        IsNew = false,
-                        Name = "task 2",
-                        IsCompleted = true
-                    },
-                    new Task
-                    {
-                        Id = 2,
-                        IsNew = false,
-                        Name = "task 3",
-                        IsCompleted = true
-                    },
-                }
-            }
-        };
-
-        public TaskList CurrentTaskList { get; set; }
+        public TaskListUI CurrentTaskList;
 
         /// <summary>
         /// History of images snapped or uploaded
@@ -215,6 +124,8 @@ namespace ARTAPclient
         private bool _isSelectMultiple = false;
 
         private System.Windows.Shapes.Path placeArrowPath;
+
+        private List<TaskListUI> _taskLists = new List<TaskListUI>();
         #endregion
 
         #region Constructor
@@ -231,7 +142,6 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-            _taskLists.ForEach(x => AddTaskButton(x));
 
             list_Click(taskListButtons.Children[0], null);
         }
@@ -239,22 +149,6 @@ namespace ARTAPclient
         #endregion
 
         #region PrivateMethods
-
-        private void AddTaskButton(TaskList taskList)
-        {
-            var list = new Button
-            {
-                Name = $"List{taskList.Id + 1}",
-                Content = taskList.Name.ToString(),
-                Width = 150,
-                Height = 30,
-                VerticalAlignment = VerticalAlignment.Top
-            };
-
-            list.Click += list_Click;
-
-            taskListButtons.Children.Add(list);
-        }
 
         /// <summary>
         /// Updates the thumbnails with the latest images captured
@@ -969,8 +863,6 @@ namespace ARTAPclient
         private void list_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
-            var lastChar = button.Name.Last();
-
             var buttons = taskListButtons.Children;
 
             var index = 0;
@@ -986,85 +878,96 @@ namespace ARTAPclient
 
             var taskList = _taskLists[index];
             _userControl = new TaskListUserControl(this);
-            _taskLists.Last().Id = index + 1;
+            _taskLists.Last().TaskList.Id = index + 1;
 
             CurrentTaskList = taskList;
 
-            AddTaskListName(_userControl, taskList.Name);
+            AddTaskListName(_userControl, taskList);
 
-            AddTaskListTasks(_userControl, taskList.Tasks, 60);
+            AddTaskListTasks(_userControl, taskList.TaskUIs);
             TaskListGrid.Children.Add(_userControl);
 
             Grid.SetColumn(_userControl, 1);
             Grid.SetRow(_userControl, 0);
         }
 
-        private void AddTaskListName(TaskListUserControl userControl, string name)
+        private void AddTaskListName(TaskListUserControl userControl, TaskListUI taskList)
         {
-            var nameText = new TextBox()
-            {
-                FontSize = 24,
-                FontWeight = FontWeights.Bold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Name = name,
-                Text = name,
-                VerticalAlignment = VerticalAlignment.Top,
-            };
+            //var nameText = new TextBox()
+            //{
+            //    FontSize = 24,
+            //    FontWeight = FontWeights.Bold,
+            //    HorizontalAlignment = HorizontalAlignment.Center,
+            //    Name = name,
+            //    Text = name,
+            //    VerticalAlignment = VerticalAlignment.Top,
+            //};
 
-            nameText.TextChanged += UpdateTaskList;
-            userControl.IndividualTasks.Children.Add(nameText);
+            //nameText.TextChanged += UpdateTaskList;
+            var nameBox = taskList.NameTextBox;
+            nameBox.TextChanged += UpdateTaskList;
+
+            userControl.IndividualTasks.Children.Add(nameBox);
         }
 
-        private void AddTaskListTasks(TaskListUserControl userControl, List<Task> tasks, int startingMargin = 60)
+        private void AddTaskListTasks(TaskListUserControl userControl, List<TaskUI> tasks)
         {
-            foreach (Task task in tasks)
-            {                
-                var taskName = new TextBox()
-                {
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(50, startingMargin, 70, 0),
-                    MinWidth = 450, 
-                    VerticalAlignment = VerticalAlignment.Top,
-                };
+            foreach (var task in tasks)
+            {
+                //var taskName = new TextBox()
+                //{
+                //    HorizontalAlignment = HorizontalAlignment.Center,
+                //    Margin = new Thickness(50, startingMargin, 70, 0),
+                //    MinWidth = 450, 
+                //    VerticalAlignment = VerticalAlignment.Top,
+                //};
 
-                if (!task.IsNew) taskName.Text = task.Name;
-                else taskName.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
+                //if (!task.IsNew) taskName.Text = task.Name;
+                //else taskName.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
 
-                var checkBox = new CheckBox()
-                {
-                    IsChecked = task.IsCompleted,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(500, startingMargin+4, 0, 0),
-                    VerticalAlignment = VerticalAlignment.Top,
-                };
+                //var checkBox = new CheckBox()
+                //{
+                //    IsChecked = task.IsCompleted,
+                //    HorizontalAlignment = HorizontalAlignment.Center,
+                //    Margin = new Thickness(500, startingMargin+4, 0, 0),
+                //    VerticalAlignment = VerticalAlignment.Top,
+                //};
 
-                Style style = this.FindResource("RoundX") as Style;
-                var taskRemove = new Button()
-                {
-                    Height=20,
-                    Width=20,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, startingMargin+3, 530, 0),
-                    VerticalAlignment = VerticalAlignment.Top,
-                    Name = "remove" + task.Id.ToString(),
-                    Style = style,
-                    
-                };
+                //var taskRemove = new Button()
+                //{
+                //    Height=20,
+                //    Width=20,
+                //    HorizontalAlignment = HorizontalAlignment.Center,
+                //    Margin = new Thickness(0, startingMargin+3, 530, 0),
+                //    VerticalAlignment = VerticalAlignment.Top,
+                //    Name = "remove" + task.Id.ToString(),
+                //    Style = style,
+                //};
 
-                taskRemove.Click += removeTask_Click;
+                //taskRemove.Click += removeTask_Click;
 
-                _oldText = task.Name;
-                checkBox.Tag = task.Name;
+                var name = task.Task.Name;
+                var checkbox = task.IsCompletedUI;
+                var remove = task.Remove;
+                var nameBox = task.NameUI;
 
-                taskName.TextChanged += UpdateTaskName;
-                checkBox.Checked += UpdateTaskCompletion;
-                checkBox.Unchecked += UpdateTaskCompletion;
+                _oldText = name;
+                checkbox.Tag = name;
 
-                userControl.IndividualTasks.Children.Add(taskRemove);
-                userControl.IndividualTasks.Children.Add(taskName);
-                userControl.IndividualTasks.Children.Add(checkBox);
+                //taskName.TextChanged += UpdateTaskName;
+                //checkBox.Checked += UpdateTaskCompletion;
+                //checkBox.Unchecked += UpdateTaskCompletion;
 
-                startingMargin += 30;
+                remove.Click += removeTask_Click;
+                task.NameUI.TextChanged += UpdateTaskName;
+                checkbox.Checked += UpdateTaskCompletion;
+                checkbox.Unchecked += UpdateTaskCompletion;
+
+                userControl.IndividualTasks.Children.Add(remove);
+                userControl.IndividualTasks.Children.Add(nameBox);
+                userControl.IndividualTasks.Children.Add(checkbox);
+
+                //startingMargin += 30;
             }
         }
 
@@ -1090,26 +993,26 @@ namespace ARTAPclient
 
             //var taskName = "Task" + taskNum.ToString();
 
-            var task = CurrentTaskList.Tasks.Find(x => x.Id == taskNum);
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskNum);
 
-            CurrentTaskList.Tasks.Remove(task);
+            CurrentTaskList.TaskList.Tasks.Remove(task);
 
             //Need to update the UI somehow
-            AddTaskListTasks(_userControl, CurrentTaskList.Tasks);
+            AddTaskListTasks(_userControl, CurrentTaskList.TaskUIs);
 
         }
 
         public void SendTaskList()
         {
-            _listener.SendTaskList(CurrentTaskList);
+            _listener.SendTaskList(CurrentTaskList.TaskList);
         }
 
         public void MakeNewTask(object sender, RoutedEventArgs e)
         {
-            var id = CurrentTaskList.Tasks.Count;
+            var id = CurrentTaskList.TaskList.Tasks.Count;
             var task = new Task(id);
-            CurrentTaskList.Tasks.Add(task);
-            var count = CurrentTaskList.Tasks.Count;
+            CurrentTaskList.TaskList.Tasks.Add(task);
+            var count = CurrentTaskList.TaskList.Tasks.Count;
             var taskArg = new List<Task>
             {
                 task
@@ -1121,23 +1024,18 @@ namespace ARTAPclient
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
             var count = _taskLists.Count;
-            _taskLists.Add(new TaskList(count + 1));
 
             if (count < 14)
             {
-                var list = new Button
-                {
-                    Name = $"list{count + 1}",
-                    Content = $"list{count + 1}",
-                    Width = 150,
-                    Height = 30,
-                    VerticalAlignment = VerticalAlignment.Top
-                };
+                var style = FindResource("RoundX") as Style;
+                var taskListUI = new TaskListUI(new TaskList(count + 1), style);
+                var button = taskListUI.Button;
+                _taskLists.Add(taskListUI);
 
-                list.Click += list_Click;
+                button.Click += list_Click;
 
-                taskListButtons.Children.Add(list);
-                list_Click(list, null);
+                taskListButtons.Children.Add(button);
+                list_Click(button, null);
             }
         }
 
@@ -1163,7 +1061,7 @@ namespace ARTAPclient
         {
             var box = (TextBox)sender;
 
-            var task = CurrentTaskList.Tasks.Find(x => x.Name == _oldText);
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == _oldText);
             task.Name = box.Text;
             task.IsNew = false;
 
@@ -1182,7 +1080,7 @@ namespace ARTAPclient
         {
             var box = (CheckBox)sender;
             var name = (string)(box.Tag);
-            var task = CurrentTaskList.Tasks.Find(x => x.Name == name);
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == name);
 
             task.IsCompleted = (bool)(box.IsChecked);
         }
