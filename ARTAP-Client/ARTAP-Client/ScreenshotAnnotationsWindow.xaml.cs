@@ -55,16 +55,6 @@ namespace ARTAPclient
 
         private Direction _markerDirection = Direction.MiddleMiddle;
 
-        ///// <summary>
-        ///// History of images snapped from the stream
-        ///// </summary>
-        //private List<ImageSource> _imageHistory = new List<ImageSource>();
-
-        ///// <summary>
-        ///// History of orignal images snapped from the stream
-        ///// </summary>
-        //private List<ImageSource> _imageOriginals = new List<ImageSource>();
-
         /// <summary>
         /// List containing all of the thumbnail pictureboxes to make updating easy
         /// </summary>
@@ -74,11 +64,6 @@ namespace ARTAPclient
         /// List of all of the buttons we want to enable/disable during arrow placement
         /// </summary>
         private List<Button> _editButtons = new List<Button>();
-
-        ///// <summary>
-        ///// List containing all of the thumbnail pictureboxes to make updating easy
-        ///// </summary>
-        //private List<Polyline[]>_annotations = new List<Polyline[]>();
 
         /// <summary>
         /// Number of thumbnail images
@@ -875,137 +860,73 @@ namespace ARTAPclient
             }
 
             var taskList = _taskLists[index];
-            _userControl = new TaskListUserControl(this);
-            _taskLists.Last().TaskList.Id = index + 1;
+            if (CurrentTaskList != taskList)
+            {
+                _userControl = new TaskListUserControl(this);
+                //_taskLists.Last().TaskList.Id = index + 1;
+                CurrentTaskList = taskList;
 
-            CurrentTaskList = taskList;
+                AddTaskListName(_userControl, taskList);
+                AddTaskListTasks(_userControl, taskList.TaskUIs);
 
-            AddTaskListName(_userControl, taskList);
+                TaskListGrid.Children.Add(_userControl);
 
-            AddTaskListTasks(_userControl, taskList.TaskUIs);
-            TaskListGrid.Children.Add(_userControl);
-
-            Grid.SetColumn(_userControl, 1);
-            Grid.SetRow(_userControl, 0);
+                Grid.SetColumn(_userControl, 1);
+                Grid.SetRow(_userControl, 0);
+            }
         }
 
         private void AddTaskListName(TaskListUserControl userControl, TaskListUI taskList)
         {
-            //var nameText = new TextBox()
-            //{
-            //    FontSize = 24,
-            //    FontWeight = FontWeights.Bold,
-            //    HorizontalAlignment = HorizontalAlignment.Center,
-            //    Name = name,
-            //    Text = name,
-            //    VerticalAlignment = VerticalAlignment.Top,
-            //};
-
-            //nameText.TextChanged += UpdateTaskList;
             var nameBox = taskList.NameTextBox;
-            nameBox.TextChanged += UpdateTaskList;
-
+            taskList.NameTextBox.TextChanged += UpdateTaskList;
             userControl.IndividualTasks.Children.Add(nameBox);
         }
 
-        private void AddTaskListTasks(TaskListUserControl userControl, List<TaskUI> tasks)
+        private void AddTaskListTasks(TaskListUserControl userControl, List<TaskUI> uiTasks)
         {
-            var kids = userControl.IndividualTasks.Children;
-            for (var i = kids.Count - 1; i > 0; i--)
+            foreach (var uiTask in uiTasks)
             {
-                kids.RemoveAt(i);
+                AddUITask(userControl, uiTask);
             }
+        }
 
-            foreach (var uiTask in tasks)
-            {
-                //var taskName = new TextBox()
-                //{
-                //    HorizontalAlignment = HorizontalAlignment.Center,
-                //    Margin = new Thickness(50, startingMargin, 70, 0),
-                //    MinWidth = 450, 
-                //    VerticalAlignment = VerticalAlignment.Top,
-                //};
+        private void AddUITask(TaskListUserControl userControl, TaskUI uiTask)
+        {
+            var name = uiTask.Task.Name;
+            var checkbox = uiTask.IsCompletedUI;
+            var remove = uiTask.Remove;
+            var nameBox = uiTask.NameUI;
 
+            if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
+            else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
 
-                //var checkBox = new CheckBox()
-                //{
-                //    IsChecked = task.IsCompleted,
-                //    HorizontalAlignment = HorizontalAlignment.Center,
-                //    Margin = new Thickness(500, startingMargin+4, 0, 0),
-                //    VerticalAlignment = VerticalAlignment.Top,
-                //};
+            _oldText = name;
+            checkbox.Tag = name;
 
-                //var taskRemove = new Button()
-                //{
-                //    Height=20,
-                //    Width=20,
-                //    HorizontalAlignment = HorizontalAlignment.Center,
-                //    Margin = new Thickness(0, startingMargin+3, 530, 0),
-                //    VerticalAlignment = VerticalAlignment.Top,
-                //    Name = "remove" + task.Id.ToString(),
-                //    Style = style,
-                //};
+            remove.Click += removeTask_Click;
+            uiTask.NameUI.TextChanged += UpdateTaskName;
+            checkbox.Checked += UpdateTaskCompletion;
+            checkbox.Unchecked += UpdateTaskCompletion;
 
-                //taskRemove.Click += removeTask_Click;
-
-                var name = uiTask.Task.Name;
-                var checkbox = uiTask.IsCompletedUI;
-                var remove = uiTask.Remove;
-                var nameBox = uiTask.NameUI;
-
-                if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
-                else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
-
-                _oldText = name;
-                checkbox.Tag = name;
-
-                //taskName.TextChanged += UpdateTaskName;
-                //checkBox.Checked += UpdateTaskCompletion;
-                //checkBox.Unchecked += UpdateTaskCompletion;
-
-                remove.Click += removeTask_Click;
-                uiTask.NameUI.TextChanged += UpdateTaskName;
-                checkbox.Checked += UpdateTaskCompletion;
-                checkbox.Unchecked += UpdateTaskCompletion;
-
-                userControl.IndividualTasks.Children.Add(remove);
-                userControl.IndividualTasks.Children.Add(nameBox);
-                userControl.IndividualTasks.Children.Add(checkbox);
-
-                //startingMargin += 30;
-            }
+            userControl.IndividualTasks.Children.Add(remove);
+            userControl.IndividualTasks.Children.Add(nameBox);
+            userControl.IndividualTasks.Children.Add(checkbox);
         }
 
         public void removeTask_Click(object sender, RoutedEventArgs e)
         {
-            //Get which task to remove
-            var name = ((Button)sender).Name;
-            int taskNum = 0;
+            var button = ((Button)sender);
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Remove == button);
 
-            //Figure out if the task is 1,2 or 3 digits
-            if(name.Length == 7)
-            {
-                taskNum = (int)Char.GetNumericValue(name[name.Length - 1]);
-            }
-            else if(name.Length == 8)
-            {
-                taskNum = Int32.Parse(name.Substring(name.Length - 2));
-            }
-            else
-            {
-                taskNum = Int32.Parse(name.Substring(name.Length - 3));
-            }
+            if (taskUI == null) return;
 
-            //var taskName = "Task" + taskNum.ToString();
-
-            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskNum);
-            var uiTask = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.Task.Id);
 
             CurrentTaskList.TaskList.Tasks.Remove(task);
-            CurrentTaskList.RemoveTaskUI(uiTask, _userControl.IndividualTasks);
+            CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);
 
-            //Need to update the UI somehow
-            AddTaskListTasks(_userControl, CurrentTaskList.TaskUIs);
+            CurrentTaskList.SetTaskUIMargins(60);
         }
 
         public void SendTaskList()
@@ -1020,9 +941,9 @@ namespace ARTAPclient
             CurrentTaskList.TaskList.Tasks.Add(task);
             var style = FindResource("RoundX") as Style;
 
-            var taskUIs = CurrentTaskList.TaskUIs;
-            taskUIs.Add(new TaskUI(task, 60 + (30 * id), style));
-            AddTaskListTasks(_userControl, taskUIs);
+            var uiTask = new TaskUI(task, 60 + (30 * id), style);
+            CurrentTaskList.TaskUIs.Add(uiTask);
+            AddUITask(_userControl, uiTask);
         }
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)

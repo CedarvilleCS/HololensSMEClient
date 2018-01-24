@@ -63,15 +63,15 @@ namespace WpfApplication1
 
             TaskUIs.Remove(uiTask);
             TaskList.Tasks.Remove(uiTask.Task);
+        }
 
-            var tasks = TaskList.Tasks;
-            for (var i = 0; i < tasks.Count; i++)
+        public void SetTaskUIMargins(int margin)
+        {
+            var offset = 0;
+            foreach (var taskUI in TaskUIs)
             {
-                tasks[i].Id = i;
-
-                var taskUI = TaskUIs[i];
-                taskUI.Id = i;
-                taskUI.Remove.N
+                taskUI.SetMargins(margin + offset);
+                offset += 30;
             }
         }
     }

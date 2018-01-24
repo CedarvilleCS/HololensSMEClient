@@ -45,9 +45,15 @@ namespace WpfApplication1
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, margin + 3, 530, 0),
                 VerticalAlignment = VerticalAlignment.Top,
-                Name = "remove" + task.Id.ToString(),
                 Style = style
             };
+        }
+
+        public void SetMargins(int margin)
+        {
+            NameUI.Margin = new Thickness(50, margin, 70, 0);
+            IsCompletedUI.Margin = new Thickness(500, margin + 4, 0, 0);
+            Remove.Margin = new Thickness(0, margin + 3, 530, 0);
         }
     }
 }
