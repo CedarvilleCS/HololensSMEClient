@@ -248,6 +248,61 @@
         </TabControl>
     </DockPanel>
     <Window.Resources>
+        <!--New Style for Headers-->
+        <Style x:Key="Title" TargetType="TextBox">
+            <Style.Resources>
+                <SolidColorBrush x:Key="ThemeBlue" Color="#FF1065ED" />
+                <SolidColorBrush x:Key="ThemeBlueDarker" Color="#FF0C4CB1" />
+                <SolidColorBrush x:Key="opacGrey" Color="#FF434343" Opacity="0.8" />
+                <SolidColorBrush x:Key="Charcoal" Color="#FF3A3A3A" />
+                <SolidColorBrush x:Key="Shaded" Color="#FF111111" Opacity="0.2" />
+                <SolidColorBrush x:Key="Light" Color="#FFF1F1F1"/>
+            </Style.Resources>
+            
+            <Setter Property="TextBox.BorderThickness" Value="0" />
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Foreground" Value="{StaticResource ThemeBlue}" />
+            <!--<Setter Property="FontFamily" Value="Times New Romans Bold" />-->
+            
+            
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!--<Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" TargetName="border" Value="0.56"/>
+                            </Trigger>-->
+                            <!-- Original triggers -->
+                            <!--<Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF7EB4EA"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF569DE5"/>
+                        </Trigger>-->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource ThemeBlueDarker}" />
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <!--<Setter Property="Background" Value="{StaticResource Shaded}" />-->
+                                <Setter Property="BorderBrush" Value="{StaticResource opacGrey}"/>
+                                <Setter Property="TextBox.BorderBrush" Value="{StaticResource opacGrey}"/>
+                                <Setter Property="TextBox.BorderThickness" Value="0, 0, 0 , 2" />
+                                <Setter Property="FontStyle" Value="Italic" />
+                                <Setter Property="Foreground" Value="{StaticResource Charcoal}" />
+                                <!--<Setter Property="Foreground" Value="{StaticResource Light}"/>-->
+                            </Trigger>
+                            
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+                
+            </Setter>
+            
+        </Style>
+        
         
         <!--Begin Rounded X Style-->
         <Style x:Key="RoundX" TargetType="Button">
