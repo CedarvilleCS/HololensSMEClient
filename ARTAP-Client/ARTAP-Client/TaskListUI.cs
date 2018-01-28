@@ -21,17 +21,18 @@ namespace WpfApplication1
 
             TaskUIs = new List<TaskUI>();
 
+            var name = $"List{TaskList.Id}";
             Button = new Button
             {
                 Content = $"list{TaskList.Id}",
                 Height = 30,
-                Name = $"List{TaskList.Id}",
+                Name = name,
+                Tag = name,
                 VerticalAlignment = VerticalAlignment.Top,
                 Width = 150
             };
 
-            var name = TaskList.Name;
-
+            name = TaskList.Name;
             NameTextBox = new TextBox
             {
                 FontSize = 24,
@@ -43,11 +44,6 @@ namespace WpfApplication1
             };
 
             AddTaskUI(style, 60);
-        }
-
-        public void Remove(List<TaskListUI> buttons)
-        {
-            buttons.Remove(this);
         }
 
         public void AddTaskUI(Style style, int margin)
@@ -72,6 +68,27 @@ namespace WpfApplication1
             {
                 taskUI.SetMargins(margin + offset);
                 offset += 30;
+            }
+        }
+
+        public void RecreateUIElements(Style style)
+        {
+            var name = TaskList.Name;
+            NameTextBox = new TextBox
+            {
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Name = name,
+                Text = name,
+                VerticalAlignment = VerticalAlignment.Top,
+            };
+
+            var margin = 60;
+            foreach (var taskUI in TaskUIs)
+            {
+                taskUI.RecreateUIElements(margin, style);
+                margin += 30;
             }
         }
     }

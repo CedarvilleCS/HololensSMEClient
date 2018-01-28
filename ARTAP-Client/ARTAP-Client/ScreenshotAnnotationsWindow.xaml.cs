@@ -109,6 +109,7 @@ namespace ARTAPclient
         private bool _isSelectMultiple = false;
 
         private System.Windows.Shapes.Path placeArrowPath;
+        private Style _style; 
 
         private List<TaskListUI> _taskLists = new List<TaskListUI>();
         #endregion
@@ -127,6 +128,9 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
+
+            _userControl = new TaskListUserControl(this);
+            _style = FindResource("RoundX") as Style;
         }
 
         #endregion
@@ -314,11 +318,6 @@ namespace ARTAPclient
 
         #region EventHandlers
 
-        private void _listener_ConnectionClosed(object sender, EventArgs e)
-        {
-            MessageBox.Show("Connection to HoloLens lost.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (_activeImage != null && !_isSelectMultiple)
@@ -432,13 +431,6 @@ namespace ARTAPclient
                     SaveCanvasToActiveImage();
                 }
             }
-        }
-
-        //Function implemented but not used, values used elsewhere
-        private void buttonDirection_Click(object sender, RoutedEventArgs e)
-        {
-            var name = ((Button)sender).Name;
-            _markerDirection = (Direction)name[name.Length - 1];
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
@@ -682,10 +674,6 @@ namespace ARTAPclient
             }
         }
 
-        private void buttonPlaceArrow_Click(object sender, RoutedEventArgs e)
-        {
-            SetPlacingMarkers(!_placingMarker);
-        }
         private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
         {
             MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
@@ -863,11 +851,11 @@ namespace ARTAPclient
             if (CurrentTaskList != taskList)
             {
                 _userControl = new TaskListUserControl(this);
-                //_taskLists.Last().TaskList.Id = index + 1;
                 CurrentTaskList = taskList;
+                CurrentTaskList.RecreateUIElements(_style);
 
-                AddTaskListName(_userControl, taskList);
-                AddTaskListTasks(_userControl, taskList.TaskUIs);
+                AddTaskListName(taskList);
+                AddTaskListTasks(taskList.TaskUIs);
 
                 TaskListGrid.Children.Add(_userControl);
 
@@ -876,22 +864,22 @@ namespace ARTAPclient
             }
         }
 
-        private void AddTaskListName(TaskListUserControl userControl, TaskListUI taskList)
+        private void AddTaskListName(TaskListUI taskList)
         {
             var nameBox = taskList.NameTextBox;
             taskList.NameTextBox.TextChanged += UpdateTaskList;
-            userControl.IndividualTasks.Children.Add(nameBox);
+            _userControl.IndividualTasks.Children.Add(nameBox);
         }
 
-        private void AddTaskListTasks(TaskListUserControl userControl, List<TaskUI> uiTasks)
+        private void AddTaskListTasks(List<TaskUI> uiTasks)
         {
             foreach (var uiTask in uiTasks)
             {
-                AddUITask(userControl, uiTask);
+                AddUITask(uiTask);
             }
         }
 
-        private void AddUITask(TaskListUserControl userControl, TaskUI uiTask)
+        private void AddUITask(TaskUI uiTask)
         {
             var name = uiTask.Task.Name;
             var checkbox = uiTask.IsCompletedUI;
@@ -901,7 +889,7 @@ namespace ARTAPclient
             if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
             else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
 
-            _oldText = name;
+            nameBox.Tag = name;
             checkbox.Tag = name;
 
             remove.Click += removeTask_Click;
@@ -909,9 +897,10 @@ namespace ARTAPclient
             checkbox.Checked += UpdateTaskCompletion;
             checkbox.Unchecked += UpdateTaskCompletion;
 
-            userControl.IndividualTasks.Children.Add(remove);
-            userControl.IndividualTasks.Children.Add(nameBox);
-            userControl.IndividualTasks.Children.Add(checkbox);
+
+            _userControl.IndividualTasks.Children.Add(remove);
+            _userControl.IndividualTasks.Children.Add(nameBox);
+            _userControl.IndividualTasks.Children.Add(checkbox);
         }
 
         public void removeTask_Click(object sender, RoutedEventArgs e)
@@ -939,11 +928,10 @@ namespace ARTAPclient
             var id = CurrentTaskList.TaskList.Tasks.Count;
             var task = new Task(id);
             CurrentTaskList.TaskList.Tasks.Add(task);
-            var style = FindResource("RoundX") as Style;
 
-            var uiTask = new TaskUI(task, 60 + (30 * id), style);
+            var uiTask = new TaskUI(task, 60 + (30 * id), _style);
             CurrentTaskList.TaskUIs.Add(uiTask);
-            AddUITask(_userControl, uiTask);
+            AddUITask(uiTask);
         }
 
         private void buttonAddList_Click(object sender, RoutedEventArgs e)
@@ -952,8 +940,7 @@ namespace ARTAPclient
 
             if (count < 14)
             {
-                var style = FindResource("RoundX") as Style;
-                var taskListUI = new TaskListUI(new TaskList(count + 1), style);
+                var taskListUI = new TaskListUI(new TaskList(count + 1), _style);
                 var button = taskListUI.Button;
                 _taskLists.Add(taskListUI);
 
@@ -967,17 +954,18 @@ namespace ARTAPclient
         public void UpdateTaskList(object sender, RoutedEventArgs e)
         {
             var stackPanel = (StackPanel)(TaskListGrid.Children[0]);
+            var box = (TextBox)sender;
 
             foreach (var panelChild in stackPanel.Children)
             {
                 if (panelChild is Button button)
                 {
-                    var name = CurrentTaskList.TaskList.Name;
-                    if (button.Content.ToString() == name)
+                    if (button.Tag.ToString() == CurrentTaskList.TaskList.Name)
                     {
-                        var box = ((TextBox)sender);
-                        name = box.Text;
+                        CurrentTaskList.TaskList.Name = box.Text;
                         button.Content = box.Text;
+                        button.Tag = box.Text;
+                        box.Tag = box.Text;
                     }
                 }
             }
@@ -987,19 +975,16 @@ namespace ARTAPclient
         {
             var box = (TextBox)sender;
 
-            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == _oldText);
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == box.Tag.ToString());
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Task.Name == box.Tag.ToString());
             task.Name = box.Text;
             task.IsNew = false;
 
-            _oldText = box.Text;
-            
-            foreach (var child in _userControl.IndividualTasks.Children)
-            {
-                if (child is CheckBox check)
-                {
-                    check.Tag = box.Text;
-                }
-            }
+            box.Tag = box.Text;
+
+            taskUI.Task.IsNew = false;
+            taskUI.Task.Name = box.Text;
+            taskUI.IsCompletedUI.Tag = box.Text;
         }
 
         public void UpdateTaskCompletion(object sender, RoutedEventArgs e)

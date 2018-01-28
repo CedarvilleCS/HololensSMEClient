@@ -29,13 +29,6 @@ namespace WpfApplication1
             IsCompleted = false;
         }
 
-        public Task(int id, string name)
-        {
-            Id = id;
-            Name = Name;
-            IsCompleted = false;
-        }
-
         public static Task FromByteArray(byte[] bytes)
         {
             var id = BitConverter.ToInt32(SubArray(bytes, 0, 4), 0);
