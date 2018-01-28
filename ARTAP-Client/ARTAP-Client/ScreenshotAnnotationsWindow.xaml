@@ -6,7 +6,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:ARTAPclient"
         mc:Ignorable="d"
-        Title="Annotations" Height="568.24" Width="650.765" WindowStartupLocation="CenterScreen" MinWidth="780" MinHeight="540">
+        Title="Annotations" Height="568.24" Width="780.765" WindowStartupLocation="CenterScreen" MinWidth="780" MinHeight="578.24">
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
