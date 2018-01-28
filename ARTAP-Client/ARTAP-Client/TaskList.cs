@@ -24,7 +24,7 @@ namespace WpfApplication1
         public int Id { get; set; }
         public string Name { get; set; }
         public List<Task> Tasks { get; set; }
-        public bool IsCompleted => Tasks.AsParallel().All(task => task.IsCompleted);
+        public bool IsCompleted { get; private set; }
 
         public static TaskList FromByteArray(byte[] bytes)
         {

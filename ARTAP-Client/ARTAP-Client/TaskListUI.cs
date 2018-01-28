@@ -80,7 +80,6 @@ namespace WpfApplication1
                 FontSize = 24,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Name = name,
                 Text = name,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = title

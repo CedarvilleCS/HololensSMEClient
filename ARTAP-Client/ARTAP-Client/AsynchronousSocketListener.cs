@@ -183,7 +183,7 @@ namespace ARTAPclient
 
         public void SendTaskList(TaskList list)
         {
-            Send(MessageType.TaskList, new byte[0]);
+            Send(MessageType.TaskList, list.ToByteArray());
         }
 
         /// <summary>
