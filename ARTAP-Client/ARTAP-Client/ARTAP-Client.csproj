@@ -104,6 +104,7 @@
     <Compile Include="Task.cs" />
     <Compile Include="TaskList.cs" />
     <Compile Include="PDFDocument.cs" />
+    <Compile Include="TaskListNotification.cs" />
     <Compile Include="TaskListUI.cs" />
     <Compile Include="TaskListUserControl.xaml.cs">
       <DependentUpon>TaskListUserControl.xaml</DependentUpon>

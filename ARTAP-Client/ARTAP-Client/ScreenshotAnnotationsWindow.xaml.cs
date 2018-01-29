@@ -98,6 +98,7 @@ namespace ARTAPclient
         /// Connection to the HoloLens
         /// </summary>
         private AsynchronousSocketListener _listener;
+        private System.Timers.Timer _checkTaskListTimer;
 
         /// <summary>
         /// Are we currently in "Arrow place mode?"
@@ -109,6 +110,7 @@ namespace ARTAPclient
         private bool _isSelectMultiple = false;
 
         private System.Windows.Shapes.Path placeArrowPath;
+
         private Style _removeButtonStyle;
         private Style _taskTitleStyle;
         private Style _taskStyle;
@@ -135,11 +137,29 @@ namespace ARTAPclient
             _removeButtonStyle = FindResource("RoundX") as Style;
             _taskTitleStyle = FindResource("Title") as Style;
             _taskStyle = FindResource("Task") as Style;
+
+            _checkTaskListTimer = new System.Timers.Timer(2000);
+            _checkTaskListTimer.Elapsed += SendTaskListRequest;
         }
 
         #endregion
 
         #region PrivateMethods
+
+        private void SendTaskListRequest(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                var state = new StateObject();
+                _listener.ClientReceive(state.buffer, 0, 10, 0,
+                    new AsyncCallback(ReceiveTaskListCallback), state);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the Task List from the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
         /// <summary>
         /// Updates the thumbnails with the latest images captured
@@ -1033,6 +1053,12 @@ namespace ARTAPclient
                     buttonAddList_Click(null, null);
                 }
             }
+        }
+
+        public void ReceiveTaskListCallback(IAsyncResult ar)
+        {
+            var notification = new TaskListNotification((byte[])ar.AsyncState);
+            _listener.ClientEndReceive(ar);
         }
 
         #endregion
