@@ -110,7 +110,9 @@ namespace ARTAPclient
         private bool _isSelectMultiple = false;
 
         private System.Windows.Shapes.Path placeArrowPath;
-        private Style _style; 
+
+        private Style _removeButtonStyle;
+        private Style _taskTitleStyle;
 
         private List<TaskListUI> _taskLists = new List<TaskListUI>();
         #endregion
@@ -131,7 +133,8 @@ namespace ARTAPclient
             _listener = listener;
 
             _userControl = new TaskListUserControl(this);
-            _style = FindResource("RoundX") as Style;
+            _removeButtonStyle = FindResource("RoundX") as Style;
+            _taskTitleStyle = FindResource("Title") as Style;
 
             _checkTaskListTimer = new System.Timers.Timer(2000);
             _checkTaskListTimer.Elapsed += SendTaskListRequest;
@@ -871,7 +874,7 @@ namespace ARTAPclient
             {
                 _userControl = new TaskListUserControl(this);
                 CurrentTaskList = taskList;
-                CurrentTaskList.RecreateUIElements(_style);
+                CurrentTaskList.RecreateUIElements(_removeButtonStyle, _taskTitleStyle);
 
                 AddTaskListName(taskList);
                 AddTaskListTasks(taskList.TaskUIs);
@@ -948,7 +951,8 @@ namespace ARTAPclient
             var task = new Task(id);
             CurrentTaskList.TaskList.Tasks.Add(task);
 
-            var uiTask = new TaskUI(task, 60 + (30 * id), _style);
+
+            var uiTask = new TaskUI(task, 60 + (30 * id), _removeButtonStyle);
             CurrentTaskList.TaskUIs.Add(uiTask);
             AddUITask(uiTask);
         }
@@ -959,7 +963,8 @@ namespace ARTAPclient
 
             if (count < 14)
             {
-                var taskListUI = new TaskListUI(new TaskList(count + 1), _style);
+
+                var taskListUI = new TaskListUI(new TaskList(count + 1), _removeButtonStyle, _taskTitleStyle);
                 var button = taskListUI.Button;
                 _taskLists.Add(taskListUI);
 
