@@ -218,13 +218,6 @@ namespace ARTAPclient
             Send(MessageType.PositionIDRequest, new Byte[0]);
             ReceivePositionID(image);
         }
-
-        public void RequestTaskList(TaskList taskList)
-        {
-            Send(MessageType.TaskListRequest, new Byte[0]);
-            ReceiveTasklist(taskList);
-        }
-
         #endregion
 
         #region Private Methods
@@ -293,7 +286,7 @@ namespace ARTAPclient
             {
                 var state = new StateObject();
                 state.locatableImage = image;
-                _client.BeginReceive(state.buffer, 0, StateObject.BUFFSIZE, 0,
+                ClientReceive(state.buffer, 0, StateObject.BUFFSIZE, 0,
                     new AsyncCallback(ReceiveCallback), state);
             }
             catch (Exception)
@@ -303,19 +296,9 @@ namespace ARTAPclient
             }
         }
 
-        public void ReceiveTasklist(TaskList taskList)
+        public void ClientReceive(byte[] data, int offset, int size, SocketFlags flag, AsyncCallback callback, object state)
         {
-            try
-            {
-                var taskListObject = new TaskListObject();
-                taskListObject.TaskList = taskList;
-                _client.BeginReceive(taskListObject.Buffer, 0, TaskListObject.BUFFSIZE, 0, new AsyncCallback(ReceiveTaskListCallback), taskList);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("An error occurred receiving the Task List from the HoloLens.",
-                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            _client.BeginReceive(data, offset, size, flag, callback, state);
         }
 
         /// <summary>
@@ -438,18 +421,15 @@ namespace ARTAPclient
             // TODO: Handle socket exception on HoloLens disconnect
             // Using rev 4606b2 on the HoloLens
             //
-            _client.EndReceive(ar);
+            ClientEndReceive(ar);
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
         }
 
-        public void ReceiveTaskListCallback(IAsyncResult ar)
+        public void ClientEndReceive(IAsyncResult ar)
         {
-            var taskList = (TaskListObject)ar.AsyncState;
-
             _client.EndReceive(ar);
-            taskList.TaskList = TaskList.FromByteArray(taskList.Buffer);
         }
 
         #endregion
