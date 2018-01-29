@@ -12,7 +12,7 @@ namespace WpfApplication1
         public CheckBox IsCompletedUI { get; set; }
         public Button Remove { get; set; }
 
-        public TaskUI(Task task, int margin, Style style)
+        public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle)
         {
             Task = task;
             Id = Task.Id;
@@ -24,6 +24,7 @@ namespace WpfApplication1
                 Name = Task.Name,
                 MinWidth = 450,
                 VerticalAlignment = VerticalAlignment.Top,
+                Style = taskTextStyle
             };
 
             IsCompletedUI = new CheckBox
@@ -41,7 +42,7 @@ namespace WpfApplication1
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, margin + 3, 530, 0),
                 VerticalAlignment = VerticalAlignment.Top,
-                Style = style
+                Style = buttonStyle
             };
         }
 
@@ -52,15 +53,17 @@ namespace WpfApplication1
             Remove.Margin = new Thickness(0, margin + 3, 530, 0);
         }
 
-        public void RecreateUIElements(int margin, Style style)
+        public void RecreateUIElements(int margin, Style buttonStyle, Style taskTextStyle)
         {
             NameUI = new TextBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(50, margin, 70, 0),
                 MinWidth = 450,
+                MaxWidth = 450,
                 Tag = Task.Name,
                 VerticalAlignment = VerticalAlignment.Top,
+                Style = taskTextStyle
             };
 
             if (!Task.IsNew) NameUI.Text = Task.Name;
@@ -81,7 +84,7 @@ namespace WpfApplication1
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, margin + 3, 530, 0),
                 VerticalAlignment = VerticalAlignment.Top,
-                Style = style
+                Style = buttonStyle
             };
         }
     }

@@ -111,6 +111,7 @@ namespace ARTAPclient
         private System.Windows.Shapes.Path placeArrowPath;
         private Style _removeButtonStyle;
         private Style _taskTitleStyle;
+        private Style _taskStyle;
 
         private List<TaskListUI> _taskLists = new List<TaskListUI>();
         #endregion
@@ -133,6 +134,7 @@ namespace ARTAPclient
             _userControl = new TaskListUserControl(this);
             _removeButtonStyle = FindResource("RoundX") as Style;
             _taskTitleStyle = FindResource("Title") as Style;
+            _taskStyle = FindResource("Task") as Style;
         }
 
         #endregion
@@ -854,7 +856,7 @@ namespace ARTAPclient
             {
                 _userControl = new TaskListUserControl(this);
                 CurrentTaskList = taskList;
-                CurrentTaskList.RecreateUIElements(_removeButtonStyle, _taskTitleStyle);
+                CurrentTaskList.RecreateUIElements(_removeButtonStyle, _taskTitleStyle, _taskStyle);
 
                 AddTaskListName(taskList);
                 AddTaskListTasks(taskList.TaskUIs);
@@ -931,7 +933,7 @@ namespace ARTAPclient
             var task = new Task(id);
             CurrentTaskList.TaskList.Tasks.Add(task);
 
-            var uiTask = new TaskUI(task, 60 + (30 * id), _removeButtonStyle);
+            var uiTask = new TaskUI(task, 60 + (30 * id), _removeButtonStyle, _taskStyle);
             CurrentTaskList.TaskUIs.Add(uiTask);
             AddUITask(uiTask);
         }
@@ -942,7 +944,7 @@ namespace ARTAPclient
 
             if (count < 14)
             {
-                var taskListUI = new TaskListUI(new TaskList(count + 1), _removeButtonStyle, _taskTitleStyle);
+                var taskListUI = new TaskListUI(new TaskList(count + 1), _removeButtonStyle, _taskTitleStyle, _taskStyle);
                 var button = taskListUI.Button;
                 _taskLists.Add(taskListUI);
 
@@ -996,6 +998,16 @@ namespace ARTAPclient
             var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == name);
 
             task.IsCompleted = (bool)(box.IsChecked);
+
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
+            if (task.IsCompleted == true)
+            { 
+                taskUI.NameUI.IsEnabled = false;
+            }
+            else
+            {
+                taskUI.NameUI.IsEnabled = true;
+            }
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)

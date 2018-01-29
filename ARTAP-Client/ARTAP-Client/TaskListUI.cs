@@ -15,7 +15,7 @@ namespace WpfApplication1
         public Button Button { get; set; }
         public TextBox NameTextBox { get; set; }
 
-        public TaskListUI(TaskList taskList, Style buttonStyle, Style title)
+        public TaskListUI(TaskList taskList, Style buttonStyle, Style title, Style tStyle)
         {
             TaskList = taskList;
 
@@ -44,12 +44,12 @@ namespace WpfApplication1
                 Style = title
             };
 
-            AddTaskUI(buttonStyle, 60);
+            AddTaskUI(buttonStyle, tStyle, 60);
         }
 
-        public void AddTaskUI(Style buttonStyle, int margin)
+        public void AddTaskUI(Style buttonStyle, Style taskStyle, int margin)
         {
-            TaskUIs.Add(new TaskUI(new Task(), margin, buttonStyle));
+            TaskUIs.Add(new TaskUI(new Task(), margin, buttonStyle, taskStyle));
         }
 
         public void RemoveTaskUI(TaskUI uiTask, Grid taskGrid)
@@ -72,7 +72,7 @@ namespace WpfApplication1
             }
         }
 
-        public void RecreateUIElements(Style buttonStyle, Style title)
+        public void RecreateUIElements(Style buttonStyle, Style title, Style taskStyle)
         {
             var name = TaskList.Name;
             NameTextBox = new TextBox
@@ -88,7 +88,7 @@ namespace WpfApplication1
             var margin = 60;
             foreach (var taskUI in TaskUIs)
             {
-                taskUI.RecreateUIElements(margin, buttonStyle);
+                taskUI.RecreateUIElements(margin, buttonStyle, taskStyle);
                 margin += 30;
             }
         }

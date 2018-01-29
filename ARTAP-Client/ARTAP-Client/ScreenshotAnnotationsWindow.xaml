@@ -272,16 +272,6 @@
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <!--<Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" TargetName="border" Value="0.56"/>
-                            </Trigger>-->
-                            <!-- Original triggers -->
-                            <!--<Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderBrush" TargetName="border" Value="#FF7EB4EA"/>
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter Property="BorderBrush" TargetName="border" Value="#FF569DE5"/>
-                        </Trigger>-->
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Foreground" Value="{StaticResource ThemeBlueDarker}" />
                             </Trigger>
@@ -302,8 +292,62 @@
             </Setter>
             
         </Style>
+        <!-- End Style for Headers -->
         
-        
+        <!-- Begin Style for Textboxes-->
+        <Style x:Key="Task" TargetType="TextBox">
+            <Style.Resources>
+                <SolidColorBrush x:Key="ThemeBlue" Color="#FF1065ED" />
+                <SolidColorBrush x:Key="ThemeBlueDarker" Color="#FF0C4CB1" />
+                <SolidColorBrush x:Key="Charcoal" Color="#FF545454" />
+                <SolidColorBrush x:Key="Disabled" Color="#FF9D9D9D" Opacity="0.5"/>
+            </Style.Resources>
+
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="BorderBrush" Value="{StaticResource ThemeBlue}" />
+            <Setter Property="TextBox.BorderThickness" Value="0, 0, 0, 1" />
+            <Setter Property="Foreground" Value="{StaticResource Charcoal}" />
+
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsFocused" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource ThemeBlueDarker}" />
+                                    <Setter Property="BorderThickness" Value="0, 0, 0, 2" />
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="TextBox.BorderBrush" Value="Black"/>
+                                <Setter Property="FontStyle" Value="Italic" />
+                                <Setter Property="Foreground" Value="Black" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource Disabled}" />
+                                <Setter Property="TextBlock.TextDecorations" Value="StrikeThrough" />
+                                <Setter Property="BorderBrush" Value="{StaticResource Disabled}" />
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+
+            </Setter>
+
+        </Style>
+
+
         <!--Begin Rounded X Style-->
         <Style x:Key="RoundX" TargetType="Button">
             <!-- Brushes we use for the control. -->
