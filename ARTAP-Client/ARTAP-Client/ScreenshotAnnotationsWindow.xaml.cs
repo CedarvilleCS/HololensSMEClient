@@ -922,7 +922,21 @@ namespace ARTAPclient
 
         private void AddImageClick(object sender, RoutedEventArgs e)
         {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "Image Files (*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG)|*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG";
 
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Button btn = (Button)sender;
+                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                ImageSource img = new BitmapImage(imageUri);
+                //Make image that can be set to btn.Content
+                //btn.Content = image;
+
+                //Set the image source of Task?
+                //CurrentTaskList.TaskList.Tasks.Find
+                //AddNewImage(new AnnotatedImage(img));
+            }
         }
 
         public void removeTask_Click(object sender, RoutedEventArgs e)

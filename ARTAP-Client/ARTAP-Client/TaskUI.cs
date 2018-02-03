@@ -17,12 +17,15 @@ namespace WpfApplication1
         {
             Task = task;
             Id = Task.Id;
+            //margin += 20;
 
-            NameUI = new TextBox
+           NameUI = new TextBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(50, margin, 70, 0),
+                Margin = new Thickness(40, margin, 100, 0),
                 MinWidth = 450,
+                MaxWidth = 450,
+                Tag = Task.Name,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = taskTextStyle
             };
@@ -31,7 +34,7 @@ namespace WpfApplication1
             {
                 IsChecked = Task.IsCompleted,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(500, margin + 4, 0, 0),
+                Margin = new Thickness(530, margin + 4, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
             };
 
@@ -40,7 +43,7 @@ namespace WpfApplication1
                 Height = 20,
                 Width = 20,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, margin + 3, 530, 0),
+                Margin = new Thickness(0, margin + 3, 570, 0),
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = buttonStyle
             };
@@ -48,16 +51,20 @@ namespace WpfApplication1
             AddImage = new Button
             {
                 Content = "Add Image",
-                Height = 20,
-                Width = 50
+                Height = 30,
+                Width = 30,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(450, margin, 0, 0),
+                VerticalAlignment = VerticalAlignment.Top,
             };
         }
 
         public void SetMargins(int margin)
         {
-            NameUI.Margin = new Thickness(50, margin, 70, 0);
-            IsCompletedUI.Margin = new Thickness(500, margin + 4, 0, 0);
-            Remove.Margin = new Thickness(0, margin + 3, 530, 0);
+            NameUI.Margin = new Thickness(40, margin, 100, 0);
+            IsCompletedUI.Margin = new Thickness(530, margin + 4, 0, 0);
+            Remove.Margin = new Thickness(0, margin + 3, 570, 0);
+            AddImage.Margin = new Thickness(450, margin, 0, 0);
         }
 
         public void RecreateUIElements(int margin, Style buttonStyle, Style taskTextStyle)
@@ -65,7 +72,7 @@ namespace WpfApplication1
             NameUI = new TextBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(50, margin, 70, 0),
+                Margin = new Thickness(40, margin, 100, 0),
                 MinWidth = 450,
                 MaxWidth = 450,
                 Tag = Task.Name,
@@ -80,7 +87,7 @@ namespace WpfApplication1
             {
                 IsChecked = Task.IsCompleted,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(500, margin + 4, 0, 0),
+                Margin = new Thickness(530, margin + 4, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
             };
 
@@ -89,7 +96,7 @@ namespace WpfApplication1
                 Height = 20,
                 Width = 20,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, margin + 3, 530, 0),
+                Margin = new Thickness(0, margin + 3, 570, 0),
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = buttonStyle
             };
@@ -97,8 +104,11 @@ namespace WpfApplication1
             AddImage = new Button
             {
                 Content = "Add Image",
-                Height = 20,
-                Width = 50
+                Height = 30,
+                Width = 30,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(450, margin, 0, 0),
+                VerticalAlignment = VerticalAlignment.Top,
             };
         }
     }
