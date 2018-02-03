@@ -71,5 +71,13 @@ namespace WpfApplication1
             Array.Copy(data, start, toReturn, 0, length);
             return toReturn;
         }
+
+        public void ReorderIds()
+        {
+            for (var i = 0; i < Tasks.Count; i++)
+            {
+                Tasks[i].Id = i;
+            }
+        }
     }
 }

@@ -40,6 +40,7 @@ namespace WpfApplication1
 
             var imageLength = BitConverter.ToInt32(SubArray(bytes, currentPosition, 4), 0);
             var imageBytes = SubArray(bytes, currentPosition + 4, imageLength);
+
             Bitmap image = null;
             if (imageBytes.Length > 0)
             {
