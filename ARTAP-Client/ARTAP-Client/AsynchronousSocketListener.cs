@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;

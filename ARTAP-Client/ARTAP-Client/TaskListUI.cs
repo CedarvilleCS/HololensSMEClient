@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -21,24 +17,22 @@ namespace WpfApplication1
 
             TaskUIs = new List<TaskUI>();
 
-            var name = $"List{TaskList.Id}";
+            var name = $"List{TaskList.Id + 1}";
             Button = new Button
             {
-                Content = $"list{TaskList.Id}",
+                Content = $"list{TaskList.Id + 1}",
                 Height = 30,
-                Name = name,
                 Tag = name,
                 VerticalAlignment = VerticalAlignment.Top,
                 Width = 150
             };
 
-            name = TaskList.Name;
             NameTextBox = new TextBox
             {
                 FontSize = 24,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Name = name,
+                Tag = name,
                 Text = name,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = title
@@ -57,6 +51,7 @@ namespace WpfApplication1
             taskGrid.Children.Remove(uiTask.IsCompletedUI);
             taskGrid.Children.Remove(uiTask.NameUI);
             taskGrid.Children.Remove(uiTask.Remove);
+            taskGrid.Children.Remove(uiTask.AddImage);
 
             TaskUIs.Remove(uiTask);
             TaskList.Tasks.Remove(uiTask.Task);
@@ -90,6 +85,15 @@ namespace WpfApplication1
             {
                 taskUI.RecreateUIElements(margin, buttonStyle, taskStyle);
                 margin += 30;
+            }
+        }
+
+        public void ReorderIds()
+        {
+            TaskList.ReorderIds();
+            for (var i = 0; i < TaskUIs.Count; i++)
+            {
+                TaskUIs[i].Id = i;
             }
         }
     }

@@ -860,18 +860,8 @@ namespace ARTAPclient
             var button = (Button)sender;
             var buttons = taskListButtons.Children;
 
-            var index = 0;
-            for (var i = 1; i < buttons.Count; i++)
-            {
-                var child = (Button)buttons[i];
-                if (child.Name == button.Name)
-                {
-                    index = i;
-                    break;
-                }
-            }
-
-            var taskList = _taskLists[index];
+            // crashing here right now
+            var taskList = _taskLists.Find(x => x.NameTextBox.Tag.ToString() == button.Tag.ToString());
             if (CurrentTaskList != taskList)
             {
                 _userControl = new TaskListUserControl(this);
@@ -909,6 +899,7 @@ namespace ARTAPclient
             var checkbox = uiTask.IsCompletedUI;
             var remove = uiTask.Remove;
             var nameBox = uiTask.NameUI;
+            var addImage = uiTask.AddImage;
 
             if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
             else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
@@ -920,11 +911,18 @@ namespace ARTAPclient
             uiTask.NameUI.TextChanged += UpdateTaskName;
             checkbox.Checked += UpdateTaskCompletion;
             checkbox.Unchecked += UpdateTaskCompletion;
+            addImage.Click += AddImageClick;
 
 
             _userControl.IndividualTasks.Children.Add(remove);
             _userControl.IndividualTasks.Children.Add(nameBox);
             _userControl.IndividualTasks.Children.Add(checkbox);
+            _userControl.IndividualTasks.Children.Add(addImage);
+        }
+
+        private void AddImageClick(object sender, RoutedEventArgs e)
+        {
+
         }
 
         public void removeTask_Click(object sender, RoutedEventArgs e)
@@ -932,14 +930,16 @@ namespace ARTAPclient
             var button = ((Button)sender);
             var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Remove == button);
 
-            if (taskUI == null) return;
+            if (taskUI != null)
+            {
+                var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.Task.Id);
 
-            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.Task.Id);
+                CurrentTaskList.TaskList.Tasks.Remove(task);
+                CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);
+                CurrentTaskList.ReorderIds();
 
-            CurrentTaskList.TaskList.Tasks.Remove(task);
-            CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);
-
-            CurrentTaskList.SetTaskUIMargins(60);
+                CurrentTaskList.SetTaskUIMargins(60);
+            }
         }
 
         public void SendTaskList()
@@ -964,7 +964,7 @@ namespace ARTAPclient
 
             if (count < 14)
             {
-                var taskListUI = new TaskListUI(new TaskList(count + 1), _removeButtonStyle, _taskTitleStyle, _taskStyle);
+                var taskListUI = new TaskListUI(new TaskList(count), _removeButtonStyle, _taskTitleStyle, _taskStyle);
                 var button = taskListUI.Button;
                 _taskLists.Add(taskListUI);
 
@@ -1020,14 +1020,7 @@ namespace ARTAPclient
             task.IsCompleted = (bool)(box.IsChecked);
 
             var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
-            if (task.IsCompleted == true)
-            { 
-                taskUI.NameUI.IsEnabled = false;
-            }
-            else
-            {
-                taskUI.NameUI.IsEnabled = true;
-            }
+            taskUI.NameUI.IsEnabled = !task.IsCompleted;
         }
 
         private void buttonRemoveList_Click(object sender, RoutedEventArgs e)

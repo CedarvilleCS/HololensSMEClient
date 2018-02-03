@@ -10,6 +10,7 @@ namespace WpfApplication1
         public Task Task { get; set; }
         public TextBox NameUI { get; set; }
         public CheckBox IsCompletedUI { get; set; }
+        public Button AddImage { get; set; }
         public Button Remove { get; set; }
 
         public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle)
@@ -21,7 +22,6 @@ namespace WpfApplication1
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(50, margin, 70, 0),
-                Name = Task.Name,
                 MinWidth = 450,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = taskTextStyle
@@ -43,6 +43,13 @@ namespace WpfApplication1
                 Margin = new Thickness(0, margin + 3, 530, 0),
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = buttonStyle
+            };
+
+            AddImage = new Button
+            {
+                Content = "Add Image",
+                Height = 20,
+                Width = 50
             };
         }
 
@@ -85,6 +92,13 @@ namespace WpfApplication1
                 Margin = new Thickness(0, margin + 3, 530, 0),
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = buttonStyle
+            };
+
+            AddImage = new Button
+            {
+                Content = "Add Image",
+                Height = 20,
+                Width = 50
             };
         }
     }
