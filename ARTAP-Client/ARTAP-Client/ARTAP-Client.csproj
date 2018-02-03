@@ -101,7 +101,6 @@
       <DependentUpon>AppSettings.settings</DependentUpon>
     </Compile>
     <Compile Include="Marker.cs" />
-    <Compile Include="PanoramaImage.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="TaskList.cs" />
     <Compile Include="PDFDocument.cs" />

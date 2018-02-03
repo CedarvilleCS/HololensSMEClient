@@ -19,21 +19,10 @@ namespace ARTAPclient
     {
         #region Fields
 
-        /// <summary>
-        /// IPEndPoint describing the host we are connecting to
-        /// </summary>
+        private Socket _client;
+        private System.Timers.Timer _connectionAliveTimer;
         private readonly IPEndPoint _remoteEndPoint;
 
-        /// <summary>
-        /// The socket for the connection to take place on
-        /// </summary>
-        private Socket _client = new Socket(AddressFamily.InterNetwork,
-                SocketType.Stream, ProtocolType.Tcp);
-
-        /// <summary>
-        /// Types of messages that can be sent and their
-        /// coresponding message  integer codes
-        /// </summary>
         private enum MessageType
         {
             Bitmap = 1,
@@ -46,11 +35,6 @@ namespace ARTAPclient
             TaskListRequest = 8
         }
       
-        /// <summary>
-        /// Handles timing for checking if the connection is alive
-        /// </summary>
-        private System.Timers.Timer _connectionAliveTimer;
-
         #endregion
 
         #region Constructor
@@ -61,18 +45,25 @@ namespace ARTAPclient
         /// <param name="remoteEndPoint">Remote end point to connect to</param>
         public AsynchronousSocketListener(IPEndPoint remoteEndPoint)
         {
-            _remoteEndPoint = remoteEndPoint;
+            _client = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp); ;
+
             _connectionAliveTimer = new System.Timers.Timer(5000);
             _connectionAliveTimer.Elapsed += ConnectionAliveTimerElapsed;
+
+            _remoteEndPoint = remoteEndPoint;
         }
 
         #endregion
 
         #region Public Methods
+        
+        public void CloseConnection()
+        {
+            _connectionAliveTimer.Stop();
+            _client.Close();
+        }
 
-        /// <summary>
-        /// Connect to the server (HoloLens)
-        /// </summary>
         public void Connect()
         {
             // Connect to a remote device.
@@ -89,19 +80,46 @@ namespace ARTAPclient
             }
         }
 
-        /// <summary>
-        /// Close socket connection gracefully
-        /// </summary>
-        public void CloseConnection()
+        public void EraseAllMarkers()
+
         {
-            _connectionAliveTimer.Stop();
-            _client.Close();
+            Send(MessageType.EraseMarkers, new byte[0]);
         }
 
-        /// <summary>
-        /// Send bitmap to the server (HoloLens)
-        /// </summary>
-        /// <param name="bm">Bitmap object to send</param>
+        public void EraseMarkersOnImage(LocatableImage image)
+        {
+            Send(MessageType.EraseMarkers, image.PositionID);
+        }
+
+        public void EraseOneMarker(LocatableImage image)
+        {
+            Send(MessageType.EraseMarker, image.PositionID);
+        }
+
+        private byte[] GetShortBytesFromDouble(double d)
+        {
+            var s = (short)d;
+            byte[] bytes = BitConverter.GetBytes(s);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
+            return bytes;
+        }
+
+        private byte[] GetShortBytesFromInt(int i)
+        {
+            return GetShortBytesFromDouble(i);
+        }
+        
+        public void RequestLocationID(LocatableImage image)
+        {
+            Send(MessageType.PositionIDRequest, new Byte[0]);
+            ReceivePositionID(image);
+        }
+
         public void SendBitmap(ImageSource image)
         {
             var bmpSrc = image as BitmapSource;
@@ -121,16 +139,6 @@ namespace ARTAPclient
             Send(MessageType.Bitmap, imgData);
         }
 
-        public void SendPDF(PDFDocument document)
-        {
-            var imgData = document.ToByteArray();
-            Send(MessageType.Pdf, imgData);
-        }
-
-        /// <summary>
-        /// Sends information to place an arrow for the HoloLens viewer
-        /// </summary>
-        /// <param name="image">LocatableImage with placement data</param>
         public void SendArrowLocation(LocatableImage image)
         {
             if (image.Markers.Length > 0)
@@ -155,26 +163,10 @@ namespace ARTAPclient
             }
         }
 
-        public void EraseOneMarker(LocatableImage image)
+        public void SendPDF(PDFDocument document)
         {
-            Send(MessageType.EraseMarker, image.PositionID);
-        }
-
-        /// <summary>
-        /// Erases all markers for a given image
-        /// </summary>
-        /// <param name="image">Image to erase relative to</param>
-        public void SendEraseMarkers(LocatableImage image)
-        {
-            Send(MessageType.EraseMarkers, image.PositionID);
-        }
-
-        /// <summary>
-        /// Erases all markers
-        /// </summary>
-        public void SendEraseMarkers()
-        {
-            Send(MessageType.EraseMarkers, new byte[0]);
+            var imgData = document.ToByteArray();
+            Send(MessageType.Pdf, imgData);
         }
 
         public void SendTaskList(TaskList list)
@@ -182,41 +174,14 @@ namespace ARTAPclient
             Send(MessageType.TaskList, list.ToByteArray());
         }
 
-        /// <summary>
-        /// Converts a double into short byte form
-        /// </summary>
-        /// <param name="d">Double to convert</param>
-        /// <returns>Byte array of 16bit representation</returns>
-        private byte[] GetShortBytesFromDouble(double d)
-        {
-            var s = (short)d;
-            byte[] bytes = BitConverter.GetBytes(s);
-
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
-            return bytes;
-        }
-
-        private byte[] GetShortBytesFromInt(int i)
-        {
-            return GetShortBytesFromDouble(i);
-        }
-
-        /// <summary>
-        /// Gets a location ID from the HoloLens for a locatable image
-        /// </summary>
-        /// <param name="image">Image to get ID for</param>
-        public void RequestLocationID(LocatableImage image)
-        {
-            Send(MessageType.PositionIDRequest, new Byte[0]);
-            ReceivePositionID(image);
-        }
         #endregion
 
         #region Private Methods
+
+        public void ClientReceive(byte[] data, int offset, int size, SocketFlags flag, AsyncCallback callback, object state)
+        {
+            _client.BeginReceive(data, offset, size, flag, callback, state);
+        }
 
         /// <summary>
         /// Combines byte arrays passed in, code borrowed from:
@@ -236,12 +201,30 @@ namespace ARTAPclient
 
             return rv;
         }
+        
+        private void NotifyConnectionLost()
+        {
+            Connected = false;
+            _connectionAliveTimer.Stop();
+            ConnectionClosed?.Invoke(this, new EventArgs());
+        }
 
-        /// <summary>
-        /// Sends message to the server (HoloLens)
-        /// </summary>
-        /// <param name="messageType">Type of message being sent</param>
-        /// <param name="data">Message data to be sent</param>
+        private void ReceivePositionID(LocatableImage image)
+        {
+            try
+            {
+                var state = new StateObject();
+                state.locatableImage = image;
+                ClientReceive(state.buffer, 0, StateObject.BUFFSIZE, 0,
+                    new AsyncCallback(ReceiveCallback), state);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the position ID from the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void Send(MessageType messageType, byte[] data)
         {
             if (Connected)
@@ -270,42 +253,6 @@ namespace ARTAPclient
                     NotifyConnectionLost();
                 }
             }
-        }
-
-        /// <summary>
-        /// Begins async receive for a position ID from the HoloLens 
-        /// </summary>
-        /// <param name="image">Image to set the ID to when the receive is finished</param>
-        private void ReceivePositionID(LocatableImage image)
-        {
-            try
-            {
-                var state = new StateObject();
-                state.locatableImage = image;
-                ClientReceive(state.buffer, 0, StateObject.BUFFSIZE, 0,
-                    new AsyncCallback(ReceiveCallback), state);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("An error occurred receiving the position ID from the HoloLens.",
-                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        public void ClientReceive(byte[] data, int offset, int size, SocketFlags flag, AsyncCallback callback, object state)
-        {
-            _client.BeginReceive(data, offset, size, flag, callback, state);
-        }
-
-        /// <summary>
-        /// Change connection status, stop checking if alive, and
-        /// fire connection closed event
-        /// </summary>
-        private void NotifyConnectionLost()
-        {
-            Connected = false;
-            _connectionAliveTimer.Stop();
-            ConnectionClosed?.Invoke(this, new EventArgs());
         }
 
         #endregion
@@ -340,11 +287,29 @@ namespace ARTAPclient
 
         #region Event Handlers & Callbacks
 
-        /// <summary>
-        /// Fires every time the connection alive poll timer fires
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        public void ClientEndReceive(IAsyncResult ar)
+        {
+            _client.EndReceive(ar);
+        }
+        
+        private void ConnectCallback(IAsyncResult ar)
+        {
+            try
+            {
+                _client.EndConnect(ar);
+                Connected = true;
+                ConnectionEstablished?.Invoke(this, new EventArgs());
+            }
+            catch (SocketException)
+            {
+                ConnectionTimedOut?.Invoke(this, new EventArgs());
+            }
+            ///
+            /// Start polling to know the connection is alive
+            ///
+            _connectionAliveTimer.Start();
+        }
+
         private void ConnectionAliveTimerElapsed(object sender,
             System.Timers.ElapsedEventArgs e)
         {
@@ -370,45 +335,6 @@ namespace ARTAPclient
             }
         }
 
-        /// <summary>
-        /// Callback method for the connection taking place
-        /// </summary>
-        /// <param name="ar">IAsyncResult parameter</param>
-        private void ConnectCallback(IAsyncResult ar)
-        {
-            try
-            {
-                _client.EndConnect(ar);
-                Connected = true;
-                ConnectionEstablished?.Invoke(this, new EventArgs());
-            }
-            catch (SocketException)
-            {
-                ConnectionTimedOut?.Invoke(this, new EventArgs());
-            }
-            ///
-            /// Start polling to know the connection is alive
-            ///
-            _connectionAliveTimer.Start();
-        }
-
-        /// <summary>
-        /// Callback for async send completed
-        /// </summary>
-        /// <param name="ar">IAsyncResult parameter</param>
-        private void SendCallback(IAsyncResult ar)
-        {
-            int bytesSent = _client.EndSend(ar);
-            ///
-            /// For testing purposes
-            ///
-            Debug.WriteLine($"Sent {bytesSent} bytes to server.");
-        }
-
-        /// <summary>
-        /// Callback for async receive completed
-        /// </summary>
-        /// <param name="ar">IAsyncResult with state object</param>
         public void ReceiveCallback(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
@@ -422,14 +348,17 @@ namespace ARTAPclient
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
         }
-
-        public void ClientEndReceive(IAsyncResult ar)
+        
+        private void SendCallback(IAsyncResult ar)
         {
-            _client.EndReceive(ar);
+            int bytesSent = _client.EndSend(ar);
+            ///
+            /// For testing purposes
+            ///
+            Debug.WriteLine($"Sent {bytesSent} bytes to server.");
         }
-
+        
         #endregion
-
     }
 
     /// <summary>
@@ -451,17 +380,5 @@ namespace ARTAPclient
         /// Image the location ID corresponds with
         /// </summary>
         public LocatableImage locatableImage;
-    }
-
-    public class TaskListObject
-    {
-        public const int BUFFSIZE = 1000;
-        public TaskList TaskList { get; set; }
-        public byte[] Buffer { get; set; }
-
-        public TaskListObject()
-        {
-            Buffer = new byte[BUFFSIZE];
-        }
     }
 }
