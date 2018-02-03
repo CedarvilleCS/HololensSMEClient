@@ -19,7 +19,7 @@ namespace WpfApplication1
 
         private void AddTaskClick(object sender, RoutedEventArgs e)
         {
-            _ui.MakeNewTask(null, null);
+            _ui.AddNewTask(null, null);
             ScrollView.ScrollToEnd();
         }
 

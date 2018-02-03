@@ -89,9 +89,13 @@ namespace ARTAPclient
         #endregion
 
         #region PrivateMethods
-        private void AddImageClick(object sender, RoutedEventArgs e)
-        {
 
+        private void AddAllTaskUIs(List<TaskUI> uiTasks)
+        {
+            foreach (var uiTask in uiTasks)
+            {
+                AddUITask(uiTask);
+            }
         }
 
         private void AddNewImage(AnnotatedImage source)
@@ -120,7 +124,7 @@ namespace ARTAPclient
 
             var uiTask = new TaskUI(task, 60 + (30 * id), _removeButtonStyle, _taskStyle);
             CurrentTaskList.TaskUIs.Add(uiTask);
-            AddTaskUI(uiTask);
+            AddUITask(uiTask);
         }
 
         private void AddTaskListName(TaskListUI taskList)
@@ -130,15 +134,7 @@ namespace ARTAPclient
             _userControl.IndividualTasks.Children.Add(nameBox);
         }
 
-        private void AddAllTaskUIs(List<TaskUI> uiTasks)
-        {
-            foreach (var uiTask in uiTasks)
-            {
-                AddTaskUI(uiTask);
-            }
-        }
-
-        private void AddTaskUI(TaskUI uiTask)
+        private void AddUITask(TaskUI uiTask)
         {
             var name = uiTask.Task.Name;
             var checkbox = uiTask.IsCompletedUI;
@@ -163,6 +159,25 @@ namespace ARTAPclient
             _userControl.IndividualTasks.Children.Add(nameBox);
             _userControl.IndividualTasks.Children.Add(checkbox);
             _userControl.IndividualTasks.Children.Add(addImage);
+        }
+
+        private void AddImageClick(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "Image Files (*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG)|*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Button btn = (Button)sender;
+                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                ImageSource img = new BitmapImage(imageUri);
+                //Make image that can be set to btn.Content
+                //btn.Content = image;
+
+                //Set the image source of Task?
+                //CurrentTaskList.TaskList.Tasks.Find
+                //AddNewImage(new AnnotatedImage(img));
+            }
         }
 
         private void CheckMarkerPlacementAllowed()
@@ -802,7 +817,7 @@ namespace ARTAPclient
 
             if (_listener != null && _listener.Connected)
             {
-                _listener.SendEraseMarkers();
+                _listener.EraseAllMarkers();
                 foreach (LocatableImage image in _imageHistory.OfType<LocatableImage>())
                 {
                     image.ClearMarkers();
@@ -922,51 +937,6 @@ namespace ARTAPclient
             }
         }
 
-        private void AddUITask(TaskUI uiTask)
-        {
-            var name = uiTask.Task.Name;
-            var checkbox = uiTask.IsCompletedUI;
-            var remove = uiTask.Remove;
-            var nameBox = uiTask.NameUI;
-            var addImage = uiTask.AddImage;
-
-            if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
-            else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
-
-            nameBox.Tag = name;
-            checkbox.Tag = name;
-
-            remove.Click += removeTask_Click;
-            uiTask.NameUI.TextChanged += UpdateTaskName;
-            checkbox.Checked += UpdateTaskCompletion;
-            checkbox.Unchecked += UpdateTaskCompletion;
-            addImage.Click += AddImageClick;
-
-
-            _userControl.IndividualTasks.Children.Add(remove);
-            _userControl.IndividualTasks.Children.Add(nameBox);
-            _userControl.IndividualTasks.Children.Add(checkbox);
-            _userControl.IndividualTasks.Children.Add(addImage);
-        }
-
-        private void AddImageClick(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            openFileDialog.Filter = "Image Files (*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG)|*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG";
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                Button btn = (Button)sender;
-                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
-                ImageSource img = new BitmapImage(imageUri);
-                //Make image that can be set to btn.Content
-                //btn.Content = image;
-
-                //Set the image source of Task?
-                //CurrentTaskList.TaskList.Tasks.Find
-                //AddNewImage(new AnnotatedImage(img));
-            }
-        }
 
         public void removeTask_Click(object sender, RoutedEventArgs e)
         {
