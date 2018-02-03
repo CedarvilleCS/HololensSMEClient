@@ -146,7 +146,7 @@
                                 </Grid>
                             </Controls:Flyout>
                         </Controls:FlyoutsControl>
-                        <!--Previously called function "buttonPlaceArrow_Click"-->
+
                         <Button x:Name="buttonPlaceArrow" ToolTip="Place Arrow" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,330,5,0" Grid.Row="0" VerticalAlignment="Top" Click="buttonShowFlyout_Click" Grid.Column="1" IsEnabled="False" Background="#FFDDDDDD">
                             <Path Fill="#FF030104"  Stretch="Uniform" Height="39.088" Width="35">
                                 <Path.Data>
@@ -225,7 +225,7 @@
                             <Style TargetType="Button">
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Foreground" Value="#ff4732" />
+                                        <Setter Property="Foreground" Value="#FFFF6C5B" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="False">
                                         <Setter Property="Foreground" Value="#f91d04" />
