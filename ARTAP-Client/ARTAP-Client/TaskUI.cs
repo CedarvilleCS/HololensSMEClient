@@ -13,7 +13,7 @@ namespace WpfApplication1
         public Button AddImage { get; set; }
         public Button Remove { get; set; }
 
-        public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle)
+        public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle, Style imageStyle)
         {
             Task = task;
             Id = Task.Id;
@@ -50,12 +50,14 @@ namespace WpfApplication1
 
             AddImage = new Button
             {
-                Content = "Add Image",
+                //Content = "Add Image",
                 Height = 30,
                 Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(450, margin, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
+                ToolTip= "Add Image",
+                Style = imageStyle
             };
         }
 
@@ -67,7 +69,7 @@ namespace WpfApplication1
             AddImage.Margin = new Thickness(450, margin, 0, 0);
         }
 
-        public void RecreateUIElements(int margin, Style buttonStyle, Style taskTextStyle)
+        public void RecreateUIElements(int margin, Style buttonStyle, Style taskTextStyle, Style imageStyle)
         {
             NameUI = new TextBox
             {
@@ -103,12 +105,14 @@ namespace WpfApplication1
 
             AddImage = new Button
             {
-                Content = "Add Image",
+                //Content = "Add Image",
                 Height = 30,
                 Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(450, margin, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
+                ToolTip = "Add Image",
+                Style = imageStyle
             };
         }
     }

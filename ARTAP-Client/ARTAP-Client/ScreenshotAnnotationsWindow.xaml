@@ -243,9 +243,18 @@
         </TabControl>
     </DockPanel>
     <Window.Resources>
+        <Path x:Key="circleplus" x:Shared="False" Fill="#030104" Stretch="Fill">
+            <Path.Data>
+                <PathGeometry Figures="M64,0a64,64,0,1,0,64,64A64.07,64.07,0,0,0,64,0Zm0,122a58,58,0,1,1,58-58A58.07,58.07,0,0,1,64,122Z
+                                          M90,61H67V38a3,3,0,0,0-6,0V61H38a3,3,0,0,0,0,6H61V90a3,3,0,0,0,6,0V67H90a3,3,0,0,0,0-6Z" />
+            </Path.Data>
+        </Path>
+        <!--Might add two different styles for when an image is added and when it is not-->
         <!-- New style for add image button-->
         <Style x:Key="imageButton" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="Transparent"/>
+
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Content" Value="{StaticResource circleplus}" />
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -255,9 +264,14 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Grid x:Name="Chrome" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                            <Ellipse x:Name="backgroundEllipse" />
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Grid>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="Coral" />
+                                <Setter TargetName="backgroundEllipse" Property="Fill" Value="LawnGreen" />
+                            </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
                                 <Setter Property="Foreground" Value="#ADADAD"/>
                                 <Setter Property="Opacity" TargetName="Chrome" Value="0.5"/>
@@ -268,6 +282,7 @@
             </Setter>
         </Style>
         <!-- End Style for add image button-->
+        
         <!--New Style for Headers-->
         <Style x:Key="Title" TargetType="TextBox">
             <Style.Resources>

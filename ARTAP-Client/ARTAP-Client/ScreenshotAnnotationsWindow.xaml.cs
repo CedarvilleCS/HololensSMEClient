@@ -42,6 +42,7 @@ namespace ARTAPclient
         private List<TaskListUI> _taskLists;
         private Style _taskStyle;
         private Style _taskTitleStyle;
+        private Style _addImageStyle;
         private TaskListUserControl _userControl;
         private VideoStreamWindow _videoStreamWindow;
 
@@ -83,6 +84,7 @@ namespace ARTAPclient
             _taskLists = new List<TaskListUI>();
             _taskStyle = FindResource("Task") as Style;
             _taskTitleStyle = FindResource("Title") as Style;
+            _addImageStyle = FindResource("imageButton") as Style;
             _userControl = new TaskListUserControl(this);
             _videoStreamWindow = videoStreamWindow;
         }
@@ -122,7 +124,7 @@ namespace ARTAPclient
             var task = new Task(id);
             CurrentTaskList.TaskList.Tasks.Add(task);
 
-            var uiTask = new TaskUI(task, 60 + (30 * id), _removeButtonStyle, _taskStyle);
+            var uiTask = new TaskUI(task, 60 + (30 * id), _removeButtonStyle, _taskStyle, _addImageStyle);
             CurrentTaskList.TaskUIs.Add(uiTask);
             AddUITask(uiTask);
         }
@@ -169,10 +171,19 @@ namespace ARTAPclient
             if (openFileDialog.ShowDialog() == true)
             {
                 Button btn = (Button)sender;
-                Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
-                ImageSource img = new BitmapImage(imageUri);
+                Image img = new Image();
+                ImageBrush brush = new ImageBrush();
+
+                var bitmap = new BitmapImage(new Uri(openFileDialog.FileName, UriKind.Absolute));
+                brush.ImageSource = bitmap;
+                img.Source = bitmap;
+                //var img = new BitmapImage(imageUri);
+                //img.Width = 25;
+                //img.Height = 25;
+
+                btn.Content = img;
+                //btn.Background = brush;
                 //Make image that can be set to btn.Content
-                //btn.Content = image;
 
                 //Set the image source of Task?
                 //CurrentTaskList.TaskList.Tasks.Find
@@ -450,6 +461,7 @@ namespace ARTAPclient
 
             var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
             taskUI.NameUI.IsEnabled = !task.IsCompleted;
+            taskUI.AddImage.IsEnabled = !task.IsCompleted;
         }
 
         public void UpdateTaskListName(object sender, RoutedEventArgs e)
@@ -555,7 +567,7 @@ namespace ARTAPclient
 
             if (count < 14)
             {
-                var taskListUI = new TaskListUI(new TaskList(count), _removeButtonStyle, _taskTitleStyle, _taskStyle);
+                var taskListUI = new TaskListUI(new TaskList(count), _removeButtonStyle, _taskTitleStyle, _taskStyle, _addImageStyle);
                 var button = taskListUI.Button;
                 _taskLists.Add(taskListUI);
 
@@ -906,7 +918,7 @@ namespace ARTAPclient
             {
                 _userControl = new TaskListUserControl(this);
                 CurrentTaskList = taskList;
-                CurrentTaskList.RecreateUIElements(_removeButtonStyle, _taskTitleStyle, _taskStyle);
+                CurrentTaskList.RecreateUIElements(_removeButtonStyle, _taskTitleStyle, _taskStyle, _addImageStyle);
 
                 AddTaskListName(taskList);
                 AddAllTaskUIs(taskList.TaskUIs);
