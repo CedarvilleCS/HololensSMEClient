@@ -12,12 +12,17 @@ namespace WpfApplication1
         public CheckBox IsCompletedUI { get; set; }
         public Button AddImage { get; set; }
         public Button Remove { get; set; }
+        public Style RemoveStyle { get; set; }
+        public Style TextStyle { get; set; }
+        public Style ImageStyle { get; set; }
 
         public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle, Style imageStyle)
         {
             Task = task;
             Id = Task.Id;
-            //margin += 20;
+            RemoveStyle = buttonStyle;
+            TextStyle = taskTextStyle;
+            ImageStyle = imageStyle;
 
            NameUI = new TextBox
             {
@@ -27,7 +32,7 @@ namespace WpfApplication1
                 MaxWidth = 450,
                 Tag = Task.Name,
                 VerticalAlignment = VerticalAlignment.Top,
-                Style = taskTextStyle
+                Style = TextStyle
             };
 
             IsCompletedUI = new CheckBox
@@ -45,19 +50,19 @@ namespace WpfApplication1
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, margin + 3, 570, 0),
                 VerticalAlignment = VerticalAlignment.Top,
-                Style = buttonStyle
+                Style = RemoveStyle
             };
 
             AddImage = new Button
             {
-                //Content = "Add Image",
                 Height = 30,
                 Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(450, margin, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
+                Tag = Task.Name,
                 ToolTip= "Add Image",
-                Style = imageStyle
+                Style = ImageStyle
             };
         }
 
@@ -69,7 +74,7 @@ namespace WpfApplication1
             AddImage.Margin = new Thickness(450, margin, 0, 0);
         }
 
-        public void RecreateUIElements(int margin, Style buttonStyle, Style taskTextStyle, Style imageStyle)
+        public void RecreateUIElements(int margin)
         {
             NameUI = new TextBox
             {
@@ -79,7 +84,7 @@ namespace WpfApplication1
                 MaxWidth = 450,
                 Tag = Task.Name,
                 VerticalAlignment = VerticalAlignment.Top,
-                Style = taskTextStyle
+                Style = TextStyle
             };
 
             if (!Task.IsNew) NameUI.Text = Task.Name;
@@ -100,19 +105,19 @@ namespace WpfApplication1
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, margin + 3, 570, 0),
                 VerticalAlignment = VerticalAlignment.Top,
-                Style = buttonStyle
+                Style = RemoveStyle
             };
 
             AddImage = new Button
             {
-                //Content = "Add Image",
                 Height = 30,
                 Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(450, margin, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
+                Tag = Task.Name,
                 ToolTip = "Add Image",
-                Style = imageStyle
+                Style = ImageStyle
             };
         }
     }

@@ -67,7 +67,7 @@ namespace WpfApplication1
             }
         }
 
-        public void RecreateUIElements(Style buttonStyle, Style title, Style taskStyle, Style imageStyle)
+        public void RecreateUIElements(Style title)
         {
             var name = TaskList.Name;
             NameTextBox = new TextBox
@@ -83,7 +83,7 @@ namespace WpfApplication1
             var margin = 60;
             foreach (var taskUI in TaskUIs)
             {
-                taskUI.RecreateUIElements(margin, buttonStyle, taskStyle, imageStyle);
+                taskUI.RecreateUIElements(margin);
                 margin += 30;
             }
         }

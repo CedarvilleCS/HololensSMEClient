@@ -249,10 +249,44 @@
                                           M90,61H67V38a3,3,0,0,0-6,0V61H38a3,3,0,0,0,0,6H61V90a3,3,0,0,0,6,0V67H90a3,3,0,0,0,0-6Z" />
             </Path.Data>
         </Path>
-        <!--Might add two different styles for when an image is added and when it is not-->
+        <!-- image style for after image is chosen -->
+        <Style x:Key="imageAdded" TargetType="{x:Type Button}">
+            <Style.Resources>
+                <SolidColorBrush x:Key="highlight" Color="LawnGreen" Opacity="0.75" />
+            </Style.Resources>
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid x:Name="Chrome" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                            <Ellipse x:Name="backgroundEllipse" />
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="Coral" />
+                                <Setter Property="Background" Value="{StaticResource highlight}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#ADADAD"/>
+                                <Setter Property="Opacity" TargetName="Chrome" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <!-- New style for add image button-->
         <Style x:Key="imageButton" TargetType="{x:Type Button}">
-
+            <Style.Resources>
+                <SolidColorBrush x:Key="highlight" Color="LawnGreen" Opacity="0.75" />
+            </Style.Resources>
+            
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Content" Value="{StaticResource circleplus}" />
             <Setter Property="BorderThickness" Value="1"/>
@@ -269,8 +303,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="Coral" />
-                                <Setter TargetName="backgroundEllipse" Property="Fill" Value="LawnGreen" />
+                                <Setter TargetName="backgroundEllipse" Property="Fill" Value="{StaticResource highlight}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
                                 <Setter Property="Foreground" Value="#ADADAD"/>

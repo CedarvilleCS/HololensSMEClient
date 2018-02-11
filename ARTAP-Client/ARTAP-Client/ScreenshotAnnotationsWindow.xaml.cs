@@ -43,6 +43,7 @@ namespace ARTAPclient
         private Style _taskStyle;
         private Style _taskTitleStyle;
         private Style _addImageStyle;
+        private Style _afterImageStyle;
         private TaskListUserControl _userControl;
         private VideoStreamWindow _videoStreamWindow;
 
@@ -85,6 +86,7 @@ namespace ARTAPclient
             _taskStyle = FindResource("Task") as Style;
             _taskTitleStyle = FindResource("Title") as Style;
             _addImageStyle = FindResource("imageButton") as Style;
+            _afterImageStyle = FindResource("imageAdded") as Style;
             _userControl = new TaskListUserControl(this);
             _videoStreamWindow = videoStreamWindow;
         }
@@ -172,22 +174,28 @@ namespace ARTAPclient
             {
                 Button btn = (Button)sender;
                 Image img = new Image();
-                ImageBrush brush = new ImageBrush();
+                Image toolTipImg = new Image();
 
                 var bitmap = new BitmapImage(new Uri(openFileDialog.FileName, UriKind.Absolute));
-                brush.ImageSource = bitmap;
                 img.Source = bitmap;
-                //var img = new BitmapImage(imageUri);
-                //img.Width = 25;
-                //img.Height = 25;
+                toolTipImg.Source = bitmap;
 
+                var name = (string)(btn.Tag);
+                var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == name);
+                //Think we have a problem with ID's so not sure this is the right one to find stuff
+                var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
+                ToolTip tt = new ToolTip
+                {
+                    Content = toolTipImg,
+                    Width = toolTipImg.Width,
+                    Height = toolTipImg.Height,
+                };
+
+                //taskUI.ImageStyle = _afterImageStyle;
+                //task.Attachment = img;
+
+                btn.ToolTip = tt;
                 btn.Content = img;
-                //btn.Background = brush;
-                //Make image that can be set to btn.Content
-
-                //Set the image source of Task?
-                //CurrentTaskList.TaskList.Tasks.Find
-                //AddNewImage(new AnnotatedImage(img));
             }
         }
 
@@ -918,7 +926,7 @@ namespace ARTAPclient
             {
                 _userControl = new TaskListUserControl(this);
                 CurrentTaskList = taskList;
-                CurrentTaskList.RecreateUIElements(_removeButtonStyle, _taskTitleStyle, _taskStyle, _addImageStyle);
+                CurrentTaskList.RecreateUIElements(_taskTitleStyle);
 
                 AddTaskListName(taskList);
                 AddAllTaskUIs(taskList.TaskUIs);
