@@ -184,18 +184,21 @@ namespace ARTAPclient
                 var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == name);
                 //Think we have a problem with ID's so not sure this is the right one to find stuff
                 var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
+
+                //Ask if should do actual size or scaling height or flat (currently what I am doing)
                 ToolTip tt = new ToolTip
                 {
                     Content = toolTipImg,
-                    Width = toolTipImg.Width,
-                    Height = toolTipImg.Height,
+                    Width = 500,
+                    Height = 500,
                 };
 
-                //taskUI.ImageStyle = _afterImageStyle;
+                taskUI.ImageStyle = _afterImageStyle;
                 //task.Attachment = img;
 
                 btn.ToolTip = tt;
                 btn.Content = img;
+                CurrentTaskList.RecreateUIElements(_taskTitleStyle);
             }
         }
 

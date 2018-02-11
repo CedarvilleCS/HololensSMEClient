@@ -252,7 +252,7 @@
         <!-- image style for after image is chosen -->
         <Style x:Key="imageAdded" TargetType="{x:Type Button}">
             <Style.Resources>
-                <SolidColorBrush x:Key="highlight" Color="LawnGreen" Opacity="0.75" />
+                <SolidColorBrush x:Key="highlight" Color="#FFFC2200" Opacity="0.75" />
             </Style.Resources>
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="1"/>
@@ -264,12 +264,10 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Grid x:Name="Chrome" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
-                            <Ellipse x:Name="backgroundEllipse" />
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="Coral" />
                                 <Setter Property="Background" Value="{StaticResource highlight}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
