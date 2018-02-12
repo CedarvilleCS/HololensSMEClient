@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Media.Imaging;
 
 namespace WpfApplication1
 {
@@ -11,7 +13,7 @@ namespace WpfApplication1
         public bool IsNew { get; set; }
         public string Name { get; set; }
         public bool IsCompleted { get; set; }
-        public Image Attachment { get; set; }
+        public BitmapImage Attachment { get; set; }
 
         public Task()
         {
@@ -41,10 +43,15 @@ namespace WpfApplication1
             var imageLength = BitConverter.ToInt32(SubArray(bytes, currentPosition, 4), 0);
             var imageBytes = SubArray(bytes, currentPosition + 4, imageLength);
 
-            Bitmap image = null;
-            if (imageBytes.Length > 0)
+            BitmapImage bitmap = null;
+            using (var ms = new System.IO.MemoryStream(bytes))
             {
-                image = (Bitmap)((new ImageConverter()).ConvertFrom(imageBytes));
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad; // here
+                image.StreamSource = ms;
+                image.EndInit();
+                bitmap = image;
             }
 
             return new Task
@@ -52,7 +59,7 @@ namespace WpfApplication1
                 Id = id,
                 Name = name,
                 IsCompleted = isCompleted,
-                Attachment = image
+                Attachment = bitmap
             };
         }
 
@@ -66,7 +73,14 @@ namespace WpfApplication1
             var completedBytes = BitConverter.GetBytes(IsCompleted);
 
             var converter = new ImageConverter();
-            var imageBytes = (byte[])converter.ConvertTo(Attachment, typeof(byte[]));
+            byte[] imageBytes;
+            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(Attachment));
+            using (MemoryStream ms = new MemoryStream())
+            {
+                encoder.Save(ms);
+                imageBytes = ms.ToArray();
+            }
             var imageBytesLength = BitConverter.GetBytes(imageBytes.Length);
 
             var allBytes = idBytes.Concat(completedBytes)

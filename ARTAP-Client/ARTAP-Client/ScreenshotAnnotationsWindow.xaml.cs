@@ -186,6 +186,7 @@ namespace ARTAPclient
                 var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
 
                 //Ask if should do actual size or scaling height or flat (currently what I am doing)
+                //scaling
                 ToolTip tt = new ToolTip
                 {
                     Content = toolTipImg,
@@ -193,12 +194,11 @@ namespace ARTAPclient
                     Height = 500,
                 };
 
-                taskUI.ImageStyle = _afterImageStyle;
-                //task.Attachment = img;
+                task.Attachment = bitmap;
 
                 btn.ToolTip = tt;
                 btn.Content = img;
-                CurrentTaskList.RecreateUIElements(_taskTitleStyle);
+                //CurrentTaskList.RecreateUIElements(_taskTitleStyle);
             }
         }
 

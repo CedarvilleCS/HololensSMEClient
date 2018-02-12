@@ -14,7 +14,7 @@ namespace WpfApplication1
         public TaskList(int id)
         {
             Id = id;
-            Name = $"List{id}";
+            Name = $"List{id+1}";
             Tasks = new List<Task>
             {
                 new Task(0)

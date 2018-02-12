@@ -76,6 +76,7 @@ namespace WpfApplication1
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Text = name,
+                Tag = name,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = title
             };
