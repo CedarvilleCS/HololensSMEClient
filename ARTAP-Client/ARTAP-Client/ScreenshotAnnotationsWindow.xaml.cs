@@ -11,6 +11,7 @@ using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
 using System.IO;
+using System.Timers;
 
 namespace ARTAPclient
 {
@@ -33,6 +34,8 @@ namespace ARTAPclient
         /// Current bitmap active for drawing
         /// </summary>
         private AnnotatedImage _activeImage;
+
+        private Timer _getPanoramaTimer;
 
         /// <summary>
         /// History of images snapped or uploaded
@@ -134,11 +137,20 @@ namespace ARTAPclient
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
             //_listener.ConnectionClosed += _listener_ConnectionClosed;
+
+            _getPanoramaTimer = new Timer(1000);
+            _getPanoramaTimer.Elapsed += GetPanorama;
         }
 
         #endregion
 
         #region PrivateMethods
+
+        private void GetPanorama(object sender, ElapsedEventArgs e)
+        {
+            var panoImageList = new List<PanoImage>();
+            _listener.RequestPanorama(panoImageList);
+        }
 
         /// <summary>
         /// Updates the thumbnails with the latest images captured
@@ -418,7 +430,7 @@ namespace ARTAPclient
                     //
                     buttonUndo.IsEnabled = locatableImage.NumMarkers > 0;
                 }
-                
+
                 if (_activeImage.NumAnnotations > 0)
                 {
                     canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
@@ -501,7 +513,7 @@ namespace ARTAPclient
                 }
             }
             var thumbName = ((Image)sender).Name;
-            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length-1]);
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
 
             SelectThumbnail(thumbNailNum + _thumbIndex);
 
@@ -550,7 +562,7 @@ namespace ARTAPclient
             if (_activeImage != null)
             {
                 //_listener.SendBitmap(_activeImage.LatestImage);
-                if (_selectedImages.Any()  && _isSelectMultiple)
+                if (_selectedImages.Any() && _isSelectMultiple)
                 {
                     var document = new PDFDocument();
                     foreach (var image in _selectedImages)
@@ -689,7 +701,7 @@ namespace ARTAPclient
 
             Button btn = (Button)sender;
             string btnName = btn.Name;
-            
+
             //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
             var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
 

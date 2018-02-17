@@ -109,6 +109,7 @@
       <DependentUpon>AppSettings.settings</DependentUpon>
     </Compile>
     <Compile Include="Marker.cs" />
+    <Compile Include="PanoImage.cs" />
     <Compile Include="Panorama.cs" />
     <Compile Include="PDFDocument.cs" />
     <Compile Include="ThumbnailImage.cs" />

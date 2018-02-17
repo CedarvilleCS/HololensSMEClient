@@ -19,7 +19,9 @@ namespace WpfApplication1
         public Point Location { private get; set; }
         public Bitmap Image { get; set; }
 
-        public Panorama(List<byte[]> images)
+        public Panorama() { }
+
+        public Panorama(List<PanoImage> images)
         {
             StitchImages(images);
             AddViewRectangle();
@@ -39,12 +41,12 @@ namespace WpfApplication1
             };
         }
 
-        public Image<Bgr, byte>[] ConvertImages(List<byte[]> images)
+        public Image<Bgr, byte>[] ConvertImages(List<PanoImage> images)
         {
             var convertedImages = new List<Bitmap>();
             foreach (var image in images)
             {
-                using (var ms = new MemoryStream(image))
+                using (var ms = new MemoryStream(image.image))
                 {
                     convertedImages.Add(new Bitmap(ms));
                 }
@@ -60,7 +62,7 @@ namespace WpfApplication1
             return finalImages;
         }
 
-        public void StitchImages(List<byte[]> images)
+        public void StitchImages(List<PanoImage> images)
         {
             var convertedImages = ConvertImages(images);
             using (var stitcher = new Stitcher(false))

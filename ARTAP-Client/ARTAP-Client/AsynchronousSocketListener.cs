@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -11,6 +12,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WpfApplication1;
 
 namespace ARTAPclient
 {
@@ -44,7 +46,8 @@ namespace ARTAPclient
             ArrowPlacement = 3,
             EraseMarkers = 4,
 	    Pdf = 5,
-            EraseMarker = 6
+            EraseMarker = 6,
+            PanoRequest = 10
         }
       
         /// <summary>
@@ -97,6 +100,38 @@ namespace ARTAPclient
         {
             _connectionAliveTimer.Stop();
             _client.Close();
+        }
+
+        public void RequestPanorama(List<PanoImage> images)
+        {
+            byte[] ipAddress = null;
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ipAddress = Encoding.UTF8.GetBytes(ip.ToString());
+                }
+            }
+
+            Send(MessageType.PanoRequest, ipAddress);
+            ReceivePanorama(images);
+        }
+
+        public void ReceivePanorama(List<PanoImage> images)
+        {
+            try
+            {
+                var receivedPanorama = new PanoramaStateObject();
+                receivedPanorama.Panoramas = images;
+                _client.BeginReceive(receivedPanorama.buffer, 0, StateObject.BUFFSIZE, 0,
+                    new AsyncCallback(ReceivePanoramaCallback), receivedPanorama);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the Panoramafrom the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         /// <summary>
@@ -416,8 +451,30 @@ namespace ARTAPclient
 
         }
 
-        #endregion
+        public void ReceivePanoramaCallback(IAsyncResult ar)
+        {
+            var panoramaState = (PanoramaStateObject)ar.AsyncState;
+            _client.EndReceive(ar);
+            panoramaState.Panoramas = ParsePanoData(panoramaState.buffer);
+        }
 
+        private List<PanoImage> ParsePanoData(byte[] data)
+        {
+            var panoImages = new List<PanoImage>();
+            var dataPosition = 4;
+            var id = 0;
+
+            for (var i = 0; i < 5; i++)
+            {
+                var panoLength = BitConverter.ToInt32(data, dataPosition);
+                var panoImageBytes = new ArraySegment<byte>(data, dataPosition, panoLength).Array;
+                panoImages.Add(PanoImage.FromByteArray(panoImageBytes));
+            }
+
+            return panoImages;
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -439,5 +496,12 @@ namespace ARTAPclient
         /// Image the location ID corresponds with
         /// </summary>
         public LocatableImage locatableImage;
+    }
+
+    public class PanoramaStateObject
+    {
+        public const int BUFFSIZE = 1000000000;
+        public byte[] buffer = new byte[BUFFSIZE];
+        public List<PanoImage> Panoramas;
     }
 }
