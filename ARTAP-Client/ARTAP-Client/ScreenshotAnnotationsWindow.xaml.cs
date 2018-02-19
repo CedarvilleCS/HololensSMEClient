@@ -22,7 +22,7 @@ namespace ARTAPclient
     public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
-        
+
         private const int DPIX = 96;
         private const int DPIY = 96;
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
@@ -122,11 +122,11 @@ namespace ARTAPclient
 
         public void AddNewTask(object sender, RoutedEventArgs e)
         {
-            var id = CurrentTaskList.TaskList.Tasks.Count;
-            var task = new Task(id);
+            var order = CurrentTaskList.TaskList.Tasks.Count;
+            var task = new Task(order);
             CurrentTaskList.TaskList.Tasks.Add(task);
 
-            var uiTask = new TaskUI(task, 60 + (30 * id), _removeButtonStyle, _taskStyle, _addImageStyle);
+            var uiTask = new TaskUI(task, 60 + (30 * order), _removeButtonStyle, _taskStyle, _addImageStyle, order);
             CurrentTaskList.TaskUIs.Add(uiTask);
             AddUITask(uiTask);
         }
@@ -140,7 +140,6 @@ namespace ARTAPclient
 
         private void AddUITask(TaskUI uiTask)
         {
-            var name = uiTask.Task.Name;
             var checkbox = uiTask.IsCompletedUI;
             var remove = uiTask.Remove;
             var nameBox = uiTask.NameUI;
@@ -149,15 +148,13 @@ namespace ARTAPclient
             if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
             else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
 
-            nameBox.Tag = name;
-            checkbox.Tag = name;
+            //Make it so images are set
 
             remove.Click += removeTask_Click;
             uiTask.NameUI.TextChanged += UpdateTaskName;
             checkbox.Checked += UpdateTaskCompletion;
             checkbox.Unchecked += UpdateTaskCompletion;
             addImage.Click += AddImageClick;
-
 
             _userControl.IndividualTasks.Children.Add(remove);
             _userControl.IndividualTasks.Children.Add(nameBox);
@@ -172,18 +169,17 @@ namespace ARTAPclient
 
             if (openFileDialog.ShowDialog() == true)
             {
-                Button btn = (Button)sender;
-                Image img = new Image();
-                Image toolTipImg = new Image();
+                var btn = (Button)sender;
+                var img = new Image();
+                var toolTipImg = new Image();
 
                 var bitmap = new BitmapImage(new Uri(openFileDialog.FileName, UriKind.Absolute));
                 img.Source = bitmap;
                 toolTipImg.Source = bitmap;
 
-                var name = (string)(btn.Tag);
-                var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == name);
                 //Think we have a problem with ID's so not sure this is the right one to find stuff
-                var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
+                var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == btn.Tag.ToString());
+                var task = taskUI.Task;
 
                 //Ask if should do actual size or scaling height or flat (currently what I am doing)
                 //scaling
@@ -461,16 +457,14 @@ namespace ARTAPclient
                 buttonPlaceArrow.Background = Brushes.LightGray;
             }
         }
-        
+
         public void UpdateTaskCompletion(object sender, RoutedEventArgs e)
         {
             var box = (CheckBox)sender;
-            var name = (string)(box.Tag);
-            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == name);
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == box.Tag.ToString());
+            var task = taskUI.Task;
 
             task.IsCompleted = (bool)(box.IsChecked);
-
-            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id == task.Id);
             taskUI.NameUI.IsEnabled = !task.IsCompleted;
             taskUI.AddImage.IsEnabled = !task.IsCompleted;
         }
@@ -488,8 +482,6 @@ namespace ARTAPclient
                     {
                         CurrentTaskList.TaskList.Name = box.Text;
                         button.Content = box.Text;
-                        button.Tag = box.Text;
-                        box.Tag = box.Text;
                     }
                 }
             }
@@ -499,16 +491,14 @@ namespace ARTAPclient
         {
             var box = (TextBox)sender;
 
-            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Name == box.Tag.ToString());
-            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Task.Name == box.Tag.ToString());
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == box.Tag.ToString());
+            var task = taskUI.Task;
+
             task.Name = box.Text;
             task.IsNew = false;
 
-            box.Tag = box.Text;
-
             taskUI.Task.IsNew = false;
             taskUI.Task.Name = box.Text;
-            taskUI.IsCompletedUI.Tag = box.Text;
         }
 
         private void UpdateThumbnailBorders()
@@ -568,7 +558,7 @@ namespace ARTAPclient
                 buttonPrev.IsEnabled = false;
             }
         }
-        
+
         #endregion
 
         #region EventHandlers
@@ -964,18 +954,13 @@ namespace ARTAPclient
         public void removeTask_Click(object sender, RoutedEventArgs e)
         {
             var button = ((Button)sender);
-            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Remove == button);
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == button.Tag.ToString());
+            var task = taskUI.Task;
 
-            if (taskUI != null)
-            {
-                var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.Task.Id);
-
-                CurrentTaskList.TaskList.Tasks.Remove(task);
-                CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);
-                CurrentTaskList.ReorderIds();
-
-                CurrentTaskList.SetTaskUIMargins(60);
-            }
+            CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);
+            CurrentTaskList.ReorderTasks();
+            CurrentTaskList.SetTaskUIMargins(60);
+            //CurrentTaskList.RecreateUIElements(_taskTitleStyle);
         }
 
         private void undoButton_Click(object sender, RoutedEventArgs e)

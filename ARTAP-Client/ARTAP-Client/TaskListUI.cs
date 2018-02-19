@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -38,12 +39,12 @@ namespace WpfApplication1
                 Style = title
             };
 
-            AddTaskUI(buttonStyle, tStyle, imageStyle, 60);
+            AddTaskUI(buttonStyle, tStyle, imageStyle, 60, TaskUIs.Count);
         }
 
-        public void AddTaskUI(Style buttonStyle, Style taskStyle, Style imageStyle, int margin)
+        public void AddTaskUI(Style buttonStyle, Style taskStyle, Style imageStyle, int margin, int count)
         {
-            TaskUIs.Add(new TaskUI(new Task(), margin, buttonStyle, taskStyle, imageStyle));
+            TaskUIs.Add(new TaskUI(new Task(), margin, buttonStyle, taskStyle, imageStyle, count));
         }
 
         public void RemoveTaskUI(TaskUI uiTask, Grid taskGrid)
@@ -53,8 +54,8 @@ namespace WpfApplication1
             taskGrid.Children.Remove(uiTask.Remove);
             taskGrid.Children.Remove(uiTask.AddImage);
 
-            TaskUIs.Remove(uiTask);
             TaskList.Tasks.Remove(uiTask.Task);
+            TaskUIs.Remove(uiTask);
         }
 
         public void SetTaskUIMargins(int margin)
@@ -69,7 +70,7 @@ namespace WpfApplication1
 
         public void RecreateUIElements(Style title)
         {
-            var name = TaskList.Name;
+            var name = $"List{TaskList.Id + 1}";
             NameTextBox = new TextBox
             {
                 FontSize = 24,
@@ -89,12 +90,11 @@ namespace WpfApplication1
             }
         }
 
-        public void ReorderIds()
+        public void ReorderTasks()
         {
-            TaskList.ReorderIds();
             for (var i = 0; i < TaskUIs.Count; i++)
             {
-                TaskUIs[i].Id = i;
+                TaskUIs[i].Order = i;
             }
         }
     }

@@ -1,12 +1,14 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using MahApps.Metro.Controls;
+using System;
 
 namespace WpfApplication1
 {
     public class TaskUI
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
+        public int Order { get; set; }
         public Task Task { get; set; }
         public TextBox NameUI { get; set; }
         public CheckBox IsCompletedUI { get; set; }
@@ -16,13 +18,14 @@ namespace WpfApplication1
         public Style TextStyle { get; set; }
         public Style ImageStyle { get; set; }
 
-        public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle, Style imageStyle)
+        public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle, Style imageStyle, int order)
         {
             Task = task;
-            Id = Task.Id;
+            Id = Guid.NewGuid();
             RemoveStyle = buttonStyle;
             TextStyle = taskTextStyle;
             ImageStyle = imageStyle;
+            Order = order;
 
            NameUI = new TextBox
             {
@@ -30,7 +33,7 @@ namespace WpfApplication1
                 Margin = new Thickness(40, margin, 100, 0),
                 MinWidth = 450,
                 MaxWidth = 450,
-                Tag = Task.Name,
+                Tag = Id,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = TextStyle
             };
@@ -40,6 +43,7 @@ namespace WpfApplication1
                 IsChecked = Task.IsCompleted,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(530, margin + 4, 0, 0),
+                Tag = Id,
                 VerticalAlignment = VerticalAlignment.Top,
             };
 
@@ -49,8 +53,9 @@ namespace WpfApplication1
                 Width = 20,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, margin + 3, 570, 0),
-                VerticalAlignment = VerticalAlignment.Top,
-                Style = RemoveStyle
+                Style = RemoveStyle,
+                Tag = Id,
+                VerticalAlignment = VerticalAlignment.Top
             };
 
             AddImage = new Button
@@ -59,10 +64,10 @@ namespace WpfApplication1
                 Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(450, margin, 0, 0),
-                VerticalAlignment = VerticalAlignment.Top,
-                Tag = Task.Name,
+                Style = ImageStyle,
+                Tag = Id,
                 ToolTip= "Add Image",
-                Style = ImageStyle
+                VerticalAlignment = VerticalAlignment.Top
             };
         }
 
@@ -82,7 +87,7 @@ namespace WpfApplication1
                 Margin = new Thickness(40, margin, 100, 0),
                 MinWidth = 450,
                 MaxWidth = 450,
-                Tag = Task.Name,
+                Tag = Id,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = TextStyle
             };
@@ -92,20 +97,22 @@ namespace WpfApplication1
 
             IsCompletedUI = new CheckBox
             {
-                IsChecked = Task.IsCompleted,
                 HorizontalAlignment = HorizontalAlignment.Center,
+                IsChecked = Task.IsCompleted,
                 Margin = new Thickness(530, margin + 4, 0, 0),
+                Tag = Id,
                 VerticalAlignment = VerticalAlignment.Top,
             };
 
             Remove = new Button
             {
                 Height = 20,
-                Width = 20,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, margin + 3, 570, 0),
+                Style = RemoveStyle,
+                Tag = Id,
+                Width = 20,
                 VerticalAlignment = VerticalAlignment.Top,
-                Style = RemoveStyle
             };
 
             AddImage = new Button
@@ -115,9 +122,9 @@ namespace WpfApplication1
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(450, margin, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
-                Tag = Task.Name,
-                ToolTip = "Add Image",
-                Style = ImageStyle
+                Style = ImageStyle,
+                Tag = Id,
+                ToolTip = "Add Image"
             };
         }
     }

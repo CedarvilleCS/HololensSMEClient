@@ -14,7 +14,7 @@ namespace WpfApplication1
         public TaskList(int id)
         {
             Id = id;
-            Name = $"List{id+1}";
+            Name = $"List{id + 1}";
             Tasks = new List<Task>
             {
                 new Task(0)
@@ -70,14 +70,6 @@ namespace WpfApplication1
             byte[] toReturn = new byte[length];
             Array.Copy(data, start, toReturn, 0, length);
             return toReturn;
-        }
-
-        public void ReorderIds()
-        {
-            for (var i = 0; i < Tasks.Count; i++)
-            {
-                Tasks[i].Id = i;
-            }
         }
     }
 }
