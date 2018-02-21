@@ -17,13 +17,13 @@ namespace WpfApplication1
             TaskList = taskList;
 
             TaskUIs = new List<TaskUI>();
-
+            
             var name = $"List{TaskList.Id + 1}";
             Button = new Button
             {
                 Content = $"list{TaskList.Id + 1}",
                 Height = 30,
-                Tag = name,
+                Tag = TaskList.Id,
                 VerticalAlignment = VerticalAlignment.Top,
                 Width = 150
             };
@@ -33,7 +33,7 @@ namespace WpfApplication1
                 FontSize = 24,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Tag = name,
+                Tag = TaskList.Id,
                 Text = name,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = title
@@ -54,7 +54,8 @@ namespace WpfApplication1
             taskGrid.Children.Remove(uiTask.Remove);
             taskGrid.Children.Remove(uiTask.AddImage);
 
-            TaskList.Tasks.Remove(uiTask.Task);
+            var task = TaskList.Tasks.Find(x => x.Id == uiTask.Task.Id);
+            TaskList.Tasks.Remove(task);
             TaskUIs.Remove(uiTask);
         }
 
@@ -70,14 +71,13 @@ namespace WpfApplication1
 
         public void RecreateUIElements(Style title)
         {
-            var name = $"List{TaskList.Id + 1}";
             NameTextBox = new TextBox
             {
                 FontSize = 24,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Text = name,
-                Tag = name,
+                Text = TaskList.Name,
+                Tag = TaskList.Id,
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = title
             };

@@ -148,6 +148,23 @@ namespace ARTAPclient
             if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
             else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
 
+            if(uiTask.Task.Attachment != null)
+            {
+                Image content = new Image();
+                Image toolTip = new Image();
+                content.Source = uiTask.Task.Attachment;
+                toolTip.Source = uiTask.Task.Attachment;
+
+                addImage.Content = content;
+                ToolTip tt = new ToolTip
+                {
+                    Content = toolTip,
+                    Width = 500,
+                    Height = 500,
+                };
+                addImage.ToolTip = tt;
+            }
+
             //Make it so images are set
 
             remove.Click += removeTask_Click;
@@ -177,10 +194,8 @@ namespace ARTAPclient
                 img.Source = bitmap;
                 toolTipImg.Source = bitmap;
 
-                //Think we have a problem with ID's so not sure this is the right one to find stuff
                 var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == btn.Tag.ToString());
                 var task = taskUI.Task;
-
                 //Ask if should do actual size or scaling height or flat (currently what I am doing)
                 //scaling
                 ToolTip tt = new ToolTip
@@ -478,7 +493,7 @@ namespace ARTAPclient
             {
                 if (panelChild is Button button)
                 {
-                    if (button.Tag.ToString() == CurrentTaskList.TaskList.Name)
+                    if ((int)button.Tag == CurrentTaskList.TaskList.Id)
                     {
                         CurrentTaskList.TaskList.Name = box.Text;
                         button.Content = box.Text;
@@ -496,9 +511,6 @@ namespace ARTAPclient
 
             task.Name = box.Text;
             task.IsNew = false;
-
-            taskUI.Task.IsNew = false;
-            taskUI.Task.Name = box.Text;
         }
 
         private void UpdateThumbnailBorders()
@@ -914,7 +926,7 @@ namespace ARTAPclient
             var buttons = taskListButtons.Children;
 
             // crashing here right now
-            var taskList = _taskLists.Find(x => x.NameTextBox.Tag.ToString() == button.Tag.ToString());
+            var taskList = _taskLists.Find(x => x.TaskList.Id == (int)button.Tag);
             if (CurrentTaskList != taskList)
             {
                 _userControl = new TaskListUserControl(this);
@@ -957,6 +969,7 @@ namespace ARTAPclient
             var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == button.Tag.ToString());
             var task = taskUI.Task;
 
+            //CurrentTaskList.TaskList.Tasks.Remove(task);
             CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);
             CurrentTaskList.ReorderTasks();
             CurrentTaskList.SetTaskUIMargins(60);

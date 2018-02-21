@@ -84,6 +84,7 @@ namespace WpfApplication1
             NameUI = new TextBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
+                IsEnabled = !Task.IsCompleted,
                 Margin = new Thickness(40, margin, 100, 0),
                 MinWidth = 450,
                 MaxWidth = 450,
@@ -120,6 +121,7 @@ namespace WpfApplication1
                 Height = 30,
                 Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
+                IsEnabled = !Task.IsCompleted,
                 Margin = new Thickness(450, margin, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = ImageStyle,
