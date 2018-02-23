@@ -73,7 +73,7 @@ namespace ARTAPclient
 
             _pictureBoxThumbnails = new List<ThumbnailImage>
             {
-                new ThumbnailImage(imageThumb, false),
+                new ThumbnailImage(imageThumb0, false),
                 new ThumbnailImage(imageThumb1, false),
                 new ThumbnailImage(imageThumb2, false),
                 new ThumbnailImage(imageThumb3, false),
@@ -915,7 +915,10 @@ namespace ARTAPclient
                 }
             }
 
-            SelectThumbnail(0 + _thumbIndex);
+            var thumbName = ((Image)sender).Name;
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
+
+            SelectThumbnail(thumbNailNum + _thumbIndex);
 
             UpdateThumbnailBorders();
         }

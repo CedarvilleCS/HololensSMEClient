@@ -36,12 +36,12 @@
                         </Grid.ColumnDefinitions>
                         <Viewbox Grid.RowSpan="1" Margin="0,0,0,0"  >
                             <Canvas x:Name="canvasImageEditor" Height="360" Width="640" MouseDown="canvasImageEditor_MouseDown"
-                        MouseMove="canvasImageEditor_MouseMove" Background="Gray" x:FieldModifier="public" Cursor="Pen" MouseUp="canvasImageEditor_MouseUp" MinWidth="640" MinHeight="360" ClipToBounds="True"/>
+                        MouseMove="canvasImageEditor_MouseMove" Background="Gray" x:FieldModifier="public" Cursor="Pen" MouseUp="canvasImageEditor_MouseUp" MinWidth="640" MinHeight="360" MaxWidth="640" MaxHeight="360" ClipToBounds="True"/>
                         </Viewbox>
 
 
                         <Border x:Name="imageThumbBorder" BorderBrush="White" Height="72" Margin="29,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
-                            <Image x:Name="imageThumb"  MouseUp="imageThumb_MouseUp" />
+                            <Image x:Name="imageThumb0"  MouseUp="imageThumb_MouseUp" />
                         </Border>
                         <Border x:Name="imageThumb1Border" BorderBrush="White" Height="72" Margin="168,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
                             <Image x:Name="imageThumb1"  MouseUp="imageThumb_MouseUp" />
