@@ -45,15 +45,19 @@ namespace ARTAPclient
             PositionIDRequest = 2,
             ArrowPlacement = 3,
             EraseMarkers = 4,
-	    Pdf = 5,
+            Pdf = 5,
             EraseMarker = 6,
             PanoRequest = 10
         }
-      
+
         /// <summary>
         /// Handles timing for checking if the connection is alive
         /// </summary>
         private System.Timers.Timer _connectionAliveTimer;
+
+        private byte[] _lengthBytes;
+
+        private PanoramaStateObject panoramaState;
 
         #endregion
 
@@ -65,9 +69,13 @@ namespace ARTAPclient
         /// <param name="remoteEndPoint">Remote end point to connect to</param>
         public AsynchronousSocketListener(IPEndPoint remoteEndPoint)
         {
+            _client.ReceiveBufferSize = 100000000;
+
             _remoteEndPoint = remoteEndPoint;
             _connectionAliveTimer = new System.Timers.Timer(5000);
             _connectionAliveTimer.Elapsed += ConnectionAliveTimerElapsed;
+
+            _lengthBytes = new byte[4];
         }
 
         #endregion
@@ -122,16 +130,48 @@ namespace ARTAPclient
         {
             try
             {
-                var receivedPanorama = new PanoramaStateObject();
-                receivedPanorama.Panoramas = images;
-                _client.BeginReceive(receivedPanorama.buffer, 0, StateObject.BUFFSIZE, 0,
-                    new AsyncCallback(ReceivePanoramaCallback), receivedPanorama);
+                panoramaState = new PanoramaStateObject();
+                panoramaState.Panoramas = images;
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine(_lengthBytes);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                _client.BeginReceive(_lengthBytes, 0, 4, 0, new AsyncCallback(ReceiveMessageLength), panoramaState);
             }
             catch (Exception)
             {
-                MessageBox.Show("An error occurred receiving the Panoramafrom the HoloLens.",
+                MessageBox.Show("An error occurred receiving the Panorama from the HoloLens.",
                     "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public void ReceiveMessageLength(IAsyncResult ar)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(_lengthBytes);
+            }
+
+            var length = BitConverter.ToInt32(_lengthBytes, 0);
+            panoramaState.buffer = new byte[length];
+
+            var bytesReceived = 0;
+            var bytesRemaining = length;
+            while (bytesReceived < bytesRemaining)
+            {
+                var numBytes = _client.Receive(panoramaState.buffer, bytesReceived, bytesRemaining, SocketFlags.None);
+                if (numBytes == 0)
+                {
+                    panoramaState.buffer = null;
+                    break;
+                }
+
+                bytesReceived += numBytes;
+                bytesRemaining -= numBytes;
+            }
+
+            panoramaState.Panoramas = ParsePanoData(panoramaState.buffer);
         }
 
         /// <summary>
@@ -454,20 +494,29 @@ namespace ARTAPclient
         public void ReceivePanoramaCallback(IAsyncResult ar)
         {
             var panoramaState = (PanoramaStateObject)ar.AsyncState;
+
             _client.EndReceive(ar);
+            var bytes = new byte[4];
             panoramaState.Panoramas = ParsePanoData(panoramaState.buffer);
         }
 
         private List<PanoImage> ParsePanoData(byte[] data)
         {
             var panoImages = new List<PanoImage>();
-            var dataPosition = 4;
-            var id = 0;
+            var lengthWithoutMessageType = data.Length - 4;
+            var dataWithoutMessageType = new byte[lengthWithoutMessageType];
+            Array.Copy(data, 4, dataWithoutMessageType, 0, lengthWithoutMessageType);
+
+            var dataPosition = 0;
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(dataWithoutMessageType);
+            }
 
             for (var i = 0; i < 5; i++)
             {
-                var panoLength = BitConverter.ToInt32(data, dataPosition);
-                var panoImageBytes = new ArraySegment<byte>(data, dataPosition, panoLength).Array;
+                var panoLength = BitConverter.ToInt32(dataWithoutMessageType, dataPosition);
+                var panoImageBytes = new ArraySegment<byte>(dataWithoutMessageType, dataPosition, panoLength).Array;
                 panoImages.Add(PanoImage.FromByteArray(panoImageBytes));
             }
 
@@ -500,8 +549,8 @@ namespace ARTAPclient
 
     public class PanoramaStateObject
     {
-        public const int BUFFSIZE = 1000000000;
-        public byte[] buffer = new byte[BUFFSIZE];
-        public List<PanoImage> Panoramas;
+        public int expectedDataLength { get; set; }
+        public byte[] buffer { get; set; }
+        public List<PanoImage> Panoramas { get; set; }
     }
 }

@@ -138,8 +138,10 @@ namespace ARTAPclient
             _listener = listener;
             //_listener.ConnectionClosed += _listener_ConnectionClosed;
 
-            _getPanoramaTimer = new Timer(1000);
-            _getPanoramaTimer.Elapsed += GetPanorama;
+            //_getPanoramaTimer = new Timer(5000);
+            //_getPanoramaTimer.Elapsed += GetPanorama;
+            //_getPanoramaTimer.Start();
+            GetPanorama(null, null);
         }
 
         #endregion
