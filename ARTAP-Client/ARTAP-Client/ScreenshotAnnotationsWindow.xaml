@@ -40,19 +40,19 @@
                         </Viewbox>
 
 
-                        <Border x:Name="imageThumbBorder" BorderBrush="White" Height="72" Margin="29,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
+                        <Border x:Name="imageThumbBorder" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="72" Margin="29,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
                             <Image x:Name="imageThumb0"  MouseUp="imageThumb_MouseUp" />
                         </Border>
-                        <Border x:Name="imageThumb1Border" BorderBrush="White" Height="72" Margin="168,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
+                        <Border x:Name="imageThumb1Border" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="72" Margin="168,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
                             <Image x:Name="imageThumb1"  MouseUp="imageThumb_MouseUp" />
                         </Border>
-                        <Border x:Name="imageThumb2Border" BorderBrush="White" Height="72" Margin="307,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
+                        <Border x:Name="imageThumb2Border" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="72" Margin="307,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
                             <Image x:Name="imageThumb2"  MouseUp="imageThumb_MouseUp" />
                         </Border>
-                        <Border x:Name="imageThumb3Border" BorderBrush="White" Height="72" Margin="446,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
+                        <Border x:Name="imageThumb3Border" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="72" Margin="446,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
                             <Image x:Name="imageThumb3"  MouseUp="imageThumb_MouseUp" />
                         </Border>
-                        <Border x:Name="imageThumb4Border" BorderBrush="White" Height="72" Margin="585,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="2">
+                        <Border x:Name="imageThumb4Border" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="72" Margin="585,0,0,0" VerticalAlignment="Bottom" Width="128" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
                             <Image x:Name="imageThumb4"  MouseUp="imageThumb_MouseUp" />
                         </Border>
 

@@ -528,7 +528,7 @@ namespace ARTAPclient
                 }
                 else
                 {
-                    thumbnailBorder.BorderBrush = Brushes.White;
+                    thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF5B5B5B"));
                 }
             }
         }
