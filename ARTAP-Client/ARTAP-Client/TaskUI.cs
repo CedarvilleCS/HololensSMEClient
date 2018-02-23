@@ -9,7 +9,7 @@ namespace WpfApplication1
     {
         public Guid Id { get; set; }
         public int Order { get; set; }
-        public Task Task { get; set; }
+        public int TaskId { get; set; }
         public TextBox NameUI { get; set; }
         public CheckBox IsCompletedUI { get; set; }
         public Button AddImage { get; set; }
@@ -20,7 +20,7 @@ namespace WpfApplication1
 
         public TaskUI(Task task, int margin, Style buttonStyle, Style taskTextStyle, Style imageStyle, int order)
         {
-            Task = task;
+            TaskId = task.Id;
             Id = Guid.NewGuid();
             RemoveStyle = buttonStyle;
             TextStyle = taskTextStyle;
@@ -40,7 +40,7 @@ namespace WpfApplication1
 
             IsCompletedUI = new CheckBox
             {
-                IsChecked = Task.IsCompleted,
+                IsChecked = task.IsCompleted,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(530, margin + 4, 0, 0),
                 Tag = Id,
@@ -79,12 +79,12 @@ namespace WpfApplication1
             AddImage.Margin = new Thickness(450, margin, 0, 0);
         }
 
-        public void RecreateUIElements(int margin)
+        public void RecreateUIElements(int margin, Task task)
         {
             NameUI = new TextBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
-                IsEnabled = !Task.IsCompleted,
+                IsEnabled = !task.IsCompleted,
                 Margin = new Thickness(40, margin, 100, 0),
                 MinWidth = 450,
                 MaxWidth = 450,
@@ -93,13 +93,13 @@ namespace WpfApplication1
                 Style = TextStyle
             };
 
-            if (!Task.IsNew) NameUI.Text = Task.Name;
-            else NameUI.SetValue(TextBoxHelper.WatermarkProperty, Task.Name);
+            if (!task.IsNew) NameUI.Text = task.Name;
+            else NameUI.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
 
             IsCompletedUI = new CheckBox
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
-                IsChecked = Task.IsCompleted,
+                IsChecked = task.IsCompleted,
                 Margin = new Thickness(530, margin + 4, 0, 0),
                 Tag = Id,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -121,7 +121,7 @@ namespace WpfApplication1
                 Height = 30,
                 Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                IsEnabled = !Task.IsCompleted,
+                IsEnabled = !task.IsCompleted,
                 Margin = new Thickness(450, margin, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
                 Style = ImageStyle,

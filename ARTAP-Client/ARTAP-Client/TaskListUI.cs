@@ -54,7 +54,7 @@ namespace WpfApplication1
             taskGrid.Children.Remove(uiTask.Remove);
             taskGrid.Children.Remove(uiTask.AddImage);
 
-            var task = TaskList.Tasks.Find(x => x.Id == uiTask.Task.Id);
+            var task = TaskList.Tasks.Find(x => x.Id == uiTask.TaskId);
             TaskList.Tasks.Remove(task);
             TaskUIs.Remove(uiTask);
         }
@@ -85,7 +85,8 @@ namespace WpfApplication1
             var margin = 60;
             foreach (var taskUI in TaskUIs)
             {
-                taskUI.RecreateUIElements(margin);
+                var task = TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
+                taskUI.RecreateUIElements(margin, task);
                 margin += 30;
             }
         }

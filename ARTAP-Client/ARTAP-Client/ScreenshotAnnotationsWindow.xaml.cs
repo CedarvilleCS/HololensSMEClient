@@ -145,15 +145,16 @@ namespace ARTAPclient
             var nameBox = uiTask.NameUI;
             var addImage = uiTask.AddImage;
 
-            if (!uiTask.Task.IsNew) nameBox.Text = uiTask.Task.Name;
-            else nameBox.SetValue(TextBoxHelper.WatermarkProperty, uiTask.Task.Name);
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == uiTask.TaskId);
+            if (!task.IsNew) nameBox.Text = task.Name;
+            else nameBox.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
 
-            if(uiTask.Task.Attachment != null)
+            if (task.Attachment != null)
             {
                 Image content = new Image();
                 Image toolTip = new Image();
-                content.Source = uiTask.Task.Attachment;
-                toolTip.Source = uiTask.Task.Attachment;
+                content.Source = task.Attachment;
+                toolTip.Source = task.Attachment;
 
                 addImage.Content = content;
                 ToolTip tt = new ToolTip
@@ -186,6 +187,7 @@ namespace ARTAPclient
 
             if (openFileDialog.ShowDialog() == true)
             {
+
                 var btn = (Button)sender;
                 var img = new Image();
                 var toolTipImg = new Image();
@@ -195,7 +197,7 @@ namespace ARTAPclient
                 toolTipImg.Source = bitmap;
 
                 var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == btn.Tag.ToString());
-                var task = taskUI.Task;
+                var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
                 //Ask if should do actual size or scaling height or flat (currently what I am doing)
                 //scaling
                 ToolTip tt = new ToolTip
@@ -477,7 +479,7 @@ namespace ARTAPclient
         {
             var box = (CheckBox)sender;
             var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == box.Tag.ToString());
-            var task = taskUI.Task;
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
 
             task.IsCompleted = (bool)(box.IsChecked);
             taskUI.NameUI.IsEnabled = !task.IsCompleted;
@@ -507,7 +509,7 @@ namespace ARTAPclient
             var box = (TextBox)sender;
 
             var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == box.Tag.ToString());
-            var task = taskUI.Task;
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
 
             task.Name = box.Text;
             task.IsNew = false;
@@ -970,7 +972,7 @@ namespace ARTAPclient
         {
             var button = ((Button)sender);
             var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == button.Tag.ToString());
-            var task = taskUI.Task;
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
 
             //CurrentTaskList.TaskList.Tasks.Remove(task);
             CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);

@@ -74,13 +74,22 @@ namespace WpfApplication1
 
             var converter = new ImageConverter();
             byte[] imageBytes;
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(Attachment));
-            using (MemoryStream ms = new MemoryStream())
+
+            if (Attachment != null)
             {
-                encoder.Save(ms);
-                imageBytes = ms.ToArray();
+                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(Attachment));
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    encoder.Save(ms);
+                    imageBytes = ms.ToArray();
+                }
+            } 
+            else
+            {
+                imageBytes = new byte[0];
             }
+
             var imageBytesLength = BitConverter.GetBytes(imageBytes.Length);
 
             var allBytes = idBytes.Concat(completedBytes)
