@@ -29,8 +29,8 @@ namespace WpfApplication1
         {
             byte[] positionBytes = new byte[44];
             byte[] imageBytes = new byte[bytes.Length - 44];
-            Buffer.BlockCopy(bytes, 4, positionBytes, 0, 44);
-            Buffer.BlockCopy(bytes, 48, imageBytes, 0, bytes.Length - 44);
+            Buffer.BlockCopy(bytes, 0, positionBytes, 0, 44);
+            Buffer.BlockCopy(bytes, 44, imageBytes, 0, bytes.Length - 44);
             var imagePosition = positionBytes;
             return new PanoImage(imageBytes, imagePosition);
         }

@@ -503,24 +503,35 @@ namespace ARTAPclient
         private List<PanoImage> ParsePanoData(byte[] data)
         {
             var panoImages = new List<PanoImage>();
-            var lengthWithoutMessageType = data.Length - 4;
+            var lengthWithoutMessageType = data.Length - 2;
             var dataWithoutMessageType = new byte[lengthWithoutMessageType];
-            Array.Copy(data, 4, dataWithoutMessageType, 0, lengthWithoutMessageType);
+            Array.Copy(data, 2, dataWithoutMessageType, 0, lengthWithoutMessageType);
 
             var dataPosition = 0;
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(dataWithoutMessageType);
-            }
-
             for (var i = 0; i < 5; i++)
             {
-                var panoLength = BitConverter.ToInt32(dataWithoutMessageType, dataPosition);
-                var panoImageBytes = new ArraySegment<byte>(dataWithoutMessageType, dataPosition, panoLength).Array;
-                panoImages.Add(PanoImage.FromByteArray(panoImageBytes));
+                var lengthBytes = new byte[4];
+                Array.Copy(dataWithoutMessageType, dataPosition, lengthBytes, 0, 4);
+                dataPosition += 4;
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(lengthBytes);
+                }
+
+                var panoLength = BitConverter.ToInt32(lengthBytes, 0);
+                var imageBytes = SubArray(dataWithoutMessageType, dataPosition, panoLength);
+                panoImages.Add(PanoImage.FromByteArray(imageBytes));
+                dataPosition += panoLength;
             }
 
             return panoImages;
+        }
+
+        public static byte[] SubArray(byte[] data, int index, int length)
+        {
+            var result = new byte[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
         }
 
         #endregion
