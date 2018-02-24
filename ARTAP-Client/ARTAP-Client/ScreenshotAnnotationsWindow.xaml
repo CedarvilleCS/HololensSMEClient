@@ -240,6 +240,9 @@
                     </Button>
                 </Grid>
             </TabItem>
+            <TabItem Header="PDF" Controls:ControlsHelper.HeaderFontSize="20" Height="31" VerticalAlignment="Bottom" >
+                
+            </TabItem>
         </TabControl>
     </DockPanel>
     <Window.Resources>
