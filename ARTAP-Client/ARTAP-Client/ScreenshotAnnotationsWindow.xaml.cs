@@ -150,8 +150,8 @@ namespace ARTAPclient
 
         private void GetPanorama(object sender, ElapsedEventArgs e)
         {
-            var panoImageList = new List<PanoImage>();
-            _listener.RequestPanorama(panoImageList);
+            var panorama = new Panorama();
+            _listener.RequestPanorama(panorama);
         }
 
         /// <summary>

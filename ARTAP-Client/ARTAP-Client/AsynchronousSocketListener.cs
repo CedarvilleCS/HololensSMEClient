@@ -110,7 +110,7 @@ namespace ARTAPclient
             _client.Close();
         }
 
-        public void RequestPanorama(List<PanoImage> images)
+        public void RequestPanorama(Panorama panorama)
         {
             byte[] ipAddress = null;
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -123,20 +123,15 @@ namespace ARTAPclient
             }
 
             Send(MessageType.PanoRequest, ipAddress);
-            ReceivePanorama(images);
+            ReceivePanorama(panorama);
         }
 
-        public void ReceivePanorama(List<PanoImage> images)
+        public void ReceivePanorama(Panorama panorama)
         {
             try
             {
                 panoramaState = new PanoramaStateObject();
-                panoramaState.Panoramas = images;
-
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine(_lengthBytes);
-                Console.ForegroundColor = ConsoleColor.White;
-
+                panoramaState.Panorama = panorama;
                 _client.BeginReceive(_lengthBytes, 0, 4, 0, new AsyncCallback(ReceiveMessageLength), panoramaState);
             }
             catch (Exception)
@@ -171,7 +166,8 @@ namespace ARTAPclient
                 bytesRemaining -= numBytes;
             }
 
-            panoramaState.Panoramas = ParsePanoData(panoramaState.buffer);
+            var panoImages = ParsePanoData(panoramaState.buffer);
+            panoramaState.Panorama = new Panorama(panoImages);
         }
 
         /// <summary>
@@ -491,15 +487,6 @@ namespace ARTAPclient
 
         }
 
-        public void ReceivePanoramaCallback(IAsyncResult ar)
-        {
-            var panoramaState = (PanoramaStateObject)ar.AsyncState;
-
-            _client.EndReceive(ar);
-            var bytes = new byte[4];
-            panoramaState.Panoramas = ParsePanoData(panoramaState.buffer);
-        }
-
         private List<PanoImage> ParsePanoData(byte[] data)
         {
             var panoImages = new List<PanoImage>();
@@ -562,6 +549,6 @@ namespace ARTAPclient
     {
         public int expectedDataLength { get; set; }
         public byte[] buffer { get; set; }
-        public List<PanoImage> Panoramas { get; set; }
+        public Panorama Panorama { get; set; }
     }
 }
