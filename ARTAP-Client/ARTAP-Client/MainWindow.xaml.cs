@@ -85,7 +85,7 @@ namespace ARTAPclient
                 _bandwidthTestListener.ConnectionTimedOut += Listener_ConnectionTimedOut;
                 _bandwidthTestListener.Connect();
 
-                _bandwidthTestListener.SendBitmap(new BitmapImage(new Uri(@"C:\Users\tfroberg\Documents\Visual Studio 2017\HololensSMEClient\ARTAP-Client\ARTAP-Client\Resources\artap.png"))); // System.IO.IOException: 'Cannot locate resource 'resources/background.png'.'
+                //_bandwidthTestListener.SendBitmap(new BitmapImage(new Uri(@"C:\Users\tfroberg\Documents\Visual Studio 2017\HololensSMEClient\ARTAP-Client\ARTAP-Client\Resources\artap.png"))); // System.IO.IOException: 'Cannot locate resource 'resources/background.png'.'
             }
             else
             {

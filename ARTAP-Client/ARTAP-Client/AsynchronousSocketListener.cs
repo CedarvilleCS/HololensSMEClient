@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -286,6 +287,36 @@ namespace ARTAPclient
             ReceivePositionID(image);
         }
 
+        public static byte[] Compress(byte[] data)
+        {
+            using (var ms = new MemoryStream())
+            {
+                using (var gzip = new GZipStream(ms, CompressionMode.Compress))
+                {
+                    gzip.Write(data, 0, data.Length);
+                }
+                data = ms.ToArray();
+            }
+            return data;
+        }
+        public static byte[] Decompress(byte[] data)
+        {
+            // the trick is to read the last 4 bytes to get the length
+            // gzip appends this to the array when compressing
+            var lengthBuffer = new byte[4];
+            Array.Copy(data, data.Length - 4, lengthBuffer, 0, 4);
+            int uncompressedSize = BitConverter.ToInt32(lengthBuffer, 0);
+            var buffer = new byte[uncompressedSize];
+            using (var ms = new MemoryStream(data))
+            {
+                using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
+                {
+                    gzip.Read(buffer, 0, uncompressedSize);
+                }
+            }
+            return buffer;
+        }
+
         #endregion
 
         #region Private Methods
@@ -496,31 +527,30 @@ namespace ARTAPclient
             var panoramaState = (PanoramaStateObject)ar.AsyncState;
 
             _client.EndReceive(ar);
-            var bytes = new byte[4];
-            panoramaState.Panoramas = ParsePanoData(panoramaState.buffer);
+            var messageType = SubArray(panoramaState.buffer, 2, 4);
+            //Do something with message type here if needed
+            panoramaState.Panoramas = ParsePanoData(SubArray(panoramaState.buffer, 2, panoramaState.buffer.Length - 2));
         }
 
         private List<PanoImage> ParsePanoData(byte[] data)
         {
+            var messageType = SubArray(data, 0, 2);
             var panoImages = new List<PanoImage>();
-            var lengthWithoutMessageType = data.Length - 2;
-            var dataWithoutMessageType = new byte[lengthWithoutMessageType];
-            Array.Copy(data, 2, dataWithoutMessageType, 0, lengthWithoutMessageType);
-
+            var decompressedData = SubArray(data, 2, data.Length - 2);
             var dataPosition = 0;
             for (var i = 0; i < 5; i++)
             {
-                var lengthBytes = new byte[4];
-                Array.Copy(dataWithoutMessageType, dataPosition, lengthBytes, 0, 4);
+                var lengthBytes = SubArray(decompressedData, dataPosition, 4);
                 dataPosition += 4;
                 if (BitConverter.IsLittleEndian)
                 {
                     Array.Reverse(lengthBytes);
                 }
-
                 var panoLength = BitConverter.ToInt32(lengthBytes, 0);
-                var imageBytes = SubArray(dataWithoutMessageType, dataPosition, panoLength);
-                panoImages.Add(PanoImage.FromByteArray(imageBytes));
+                var imageBytes = SubArray(decompressedData, dataPosition, panoLength);
+                PanoImage pImg = PanoImage.FromByteArray(imageBytes);
+                panoImages.Add(pImg);
+                
                 dataPosition += panoLength;
             }
 

@@ -46,7 +46,7 @@ namespace WpfApplication1
             var convertedImages = new List<Bitmap>();
             foreach (var image in images)
             {
-                using (var ms = new MemoryStream(image.image))
+                using (var ms = new MemoryStream(image.imageData))
                 {
                     convertedImages.Add(new Bitmap(ms));
                 }

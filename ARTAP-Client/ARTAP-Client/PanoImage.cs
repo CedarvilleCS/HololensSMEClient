@@ -1,27 +1,32 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace WpfApplication1
 {
     public class PanoImage
     {
         public byte[] position;
-        public byte[] image;
+        public byte[] imageData;
+        public Image image;
 
         public PanoImage() { }
 
-        public PanoImage(byte[] image, byte[] position)
+        public PanoImage(byte[] imageData, byte[] position, Image image)
         {
-            this.image = image;
+            this.imageData = imageData;
             this.position = position;
+            this.image = image;
         }
 
         public byte[] toByteArray()
         {
-            var imageBytesLength = BitConverter.GetBytes(image.Length);
-            byte[] finalBytes = new byte[image.Length + 48];
+            var imageBytesLength = BitConverter.GetBytes(imageData.Length);
+            byte[] finalBytes = new byte[imageData.Length + 48];
             Buffer.BlockCopy(imageBytesLength, 0, finalBytes, 0, 4);
             Buffer.BlockCopy(position, 0, finalBytes, 4, 44);
-            Buffer.BlockCopy(image, 0, finalBytes, 52, image.Length);
+            Buffer.BlockCopy(imageData, 0, finalBytes, 52, imageData.Length);
             return finalBytes;
         }
 
@@ -32,7 +37,14 @@ namespace WpfApplication1
             Buffer.BlockCopy(bytes, 0, positionBytes, 0, 44);
             Buffer.BlockCopy(bytes, 44, imageBytes, 0, bytes.Length - 44);
             var imagePosition = positionBytes;
-            return new PanoImage(imageBytes, imagePosition);
+            Image img = null;
+            using (MemoryStream ms = new MemoryStream(imageBytes))
+            {
+                ms.Seek(0, SeekOrigin.Begin);
+                Image bmp = Bitmap.FromStream(ms);
+                img = bmp;
+            }
+            return new PanoImage(imageBytes, imagePosition, img);
         }
     }
 }
