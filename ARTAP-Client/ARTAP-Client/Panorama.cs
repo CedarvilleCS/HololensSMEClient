@@ -1,5 +1,4 @@
-﻿using ARTAPclient;
-using Emgu.CV;
+﻿using Emgu.CV;
 using Emgu.CV.Stitching;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
@@ -7,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Windows.Media;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace WpfApplication1
@@ -16,8 +17,8 @@ namespace WpfApplication1
     {
         public int Id { get; set; }
         public Polyline Drawing { private get; set; }
-        public Point Location { private get; set; }
-        public Bitmap Image { get; set; }
+        public System.Windows.Point Location { private get; set; }
+        public BitmapSource Image { get; set; }
 
         public Panorama() { }
 
@@ -73,7 +74,17 @@ namespace WpfApplication1
                     vectorMat.Push(convertedImages);
                     stitcher.Stitch(vectorMat, result);
 
-                    Image = result.Bitmap;
+                    var bitmap = result.Bitmap;
+                    var handle = bitmap.GetHbitmap();
+                    try
+                    {
+                        Image = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.StackTrace);
+                    }
+
                     result.Dispose();
                 }
             }

@@ -111,6 +111,9 @@
     <Compile Include="Marker.cs" />
     <Compile Include="PanoImage.cs" />
     <Compile Include="Panorama.cs" />
+    <Compile Include="PanoramaWindow.xaml.cs">
+      <DependentUpon>PanoramaWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PDFDocument.cs" />
     <Compile Include="ThumbnailImage.cs" />
     <Compile Include="thumbnailWindow.xaml.cs">
@@ -137,6 +140,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PanoramaWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="thumbnailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
