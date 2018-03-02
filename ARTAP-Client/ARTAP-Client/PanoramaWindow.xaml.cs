@@ -1,9 +1,11 @@
-﻿using System;
+﻿using ARTAPclient;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -42,17 +44,29 @@ namespace WpfApplication1
         private string _streamQuality;
         private Func<string> toString;
 
+        public AsynchronousSocketListener _socketListener;
+
         #endregion
 
         #region Constuctor
 
-        public PanoramaWindow()
+        public PanoramaWindow(AsynchronousSocketListener listener)
         {
+            _socketListener = listener;
             InitializeComponent();
+            pollPanoImage();
         }
         #endregion
 
         #region Public Methods
+
+        public void AddImage(ImageSource image)
+        {
+            //panoImage.Source = image;
+            //ImageBrush img = new ImageBrush();
+            //img.ImageSource = image;
+            //PanoramaGrid.Background = img;
+        }
 
         public BitmapImage CaptureScreen()
         {
@@ -84,6 +98,26 @@ namespace WpfApplication1
             }
 
             Application.Current.Shutdown();
+        }
+
+
+        System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+        private void pollPanoImage()
+        {
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+        }
+
+        
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            if(_socketListener.isPanoDone)
+            {
+                panoImage.Source = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "pano.png"));
+                dispatcherTimer.Stop();
+            }
         }
 
         #endregion

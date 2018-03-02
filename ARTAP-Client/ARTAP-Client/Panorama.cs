@@ -5,6 +5,7 @@ using Emgu.CV.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
 using System.Windows.Interop;
@@ -25,7 +26,6 @@ namespace WpfApplication1
         public Panorama(List<PanoImage> images)
         {
             StitchImages(images);
-            AddViewRectangle();
         }
 
         public void AddViewRectangle()
@@ -75,6 +75,7 @@ namespace WpfApplication1
                     stitcher.Stitch(vectorMat, result);
 
                     var bitmap = result.Bitmap;
+                    bitmap.Save(AppDomain.CurrentDomain.BaseDirectory + "pano.png", ImageFormat.Png);
                     var handle = bitmap.GetHbitmap();
                     try
                     {

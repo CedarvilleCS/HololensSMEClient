@@ -11,8 +11,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using WpfApplication1;
 
 namespace ARTAPclient
@@ -58,7 +60,10 @@ namespace ARTAPclient
 
         private byte[] _lengthBytes;
 
-        private PanoramaStateObject panoramaState;
+        private PanoramaStateObject _panoramaState;
+        private PanoramaWindow _panoramaWindow;
+        public ImageSource panoImage = null;
+        public bool isPanoDone = false;
 
         #endregion
 
@@ -111,8 +116,9 @@ namespace ARTAPclient
             _client.Close();
         }
 
-        public void RequestPanorama(Panorama panorama)
+        public void RequestPanorama(Panorama panorama, PanoramaWindow panoramaWindow)
         {
+            _panoramaWindow = panoramaWindow;
             byte[] ipAddress = null;
             var host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (var ip in host.AddressList)
@@ -131,9 +137,12 @@ namespace ARTAPclient
         {
             try
             {
-                panoramaState = new PanoramaStateObject();
-                panoramaState.Panorama = panorama;
-                _client.BeginReceive(_lengthBytes, 0, 4, 0, new AsyncCallback(ReceiveMessageLength), panoramaState);
+                _panoramaState = new PanoramaStateObject()
+                {
+                    Panorama = panorama
+                };
+
+                _client.BeginReceive(_lengthBytes, 0, 4, 0, new AsyncCallback(ReceiveMessageLength), _panoramaState);
             }
             catch (Exception)
             {
@@ -150,16 +159,16 @@ namespace ARTAPclient
             }
 
             var length = BitConverter.ToInt32(_lengthBytes, 0);
-            panoramaState.buffer = new byte[length];
+            _panoramaState.buffer = new byte[length];
 
             var bytesReceived = 0;
             var bytesRemaining = length;
             while (bytesReceived < bytesRemaining)
             {
-                var numBytes = _client.Receive(panoramaState.buffer, bytesReceived, bytesRemaining, SocketFlags.None);
+                var numBytes = _client.Receive(_panoramaState.buffer, bytesReceived, bytesRemaining, SocketFlags.None);
                 if (numBytes == 0)
                 {
-                    panoramaState.buffer = null;
+                    _panoramaState.buffer = null;
                     break;
                 }
 
@@ -167,8 +176,9 @@ namespace ARTAPclient
                 bytesRemaining -= numBytes;
             }
 
-            var panoImages = ParsePanoData(panoramaState.buffer);
-            panoramaState.Panorama = new Panorama(panoImages);
+            var panoImages = ParsePanoData(_panoramaState.buffer);
+            _panoramaState.Panorama = new Panorama(panoImages);
+            isPanoDone = true;
         }
 
         /// <summary>
@@ -536,7 +546,7 @@ namespace ARTAPclient
                 var imageBytes = SubArray(decompressedData, dataPosition, panoLength);
                 PanoImage pImg = PanoImage.FromByteArray(imageBytes);
                 panoImages.Add(pImg);
-                
+
                 dataPosition += panoLength;
             }
 

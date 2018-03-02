@@ -154,7 +154,10 @@ namespace ARTAPclient
             _panoramaWindow = panoramaWindow;
             _listener = listener;
 
-            GetPanorama(null, null);
+            _getPanoramaTimer = new Timer();
+            _getPanoramaTimer.Elapsed += GetPanorama;
+            _getPanoramaTimer.Interval = 5000;
+            _getPanoramaTimer.Start();
         }
 
         #endregion
@@ -163,13 +166,9 @@ namespace ARTAPclient
 
         private void GetPanorama(object sender, ElapsedEventArgs e)
         {
+            _getPanoramaTimer.Enabled = false;
             var panorama = new Panorama();
-            _listener.RequestPanorama(panorama);
-
-            _panoramaWindow.PanoramaGrid.Children.Add(new Image
-            {
-                Source = panorama.Image
-            });
+            _listener.RequestPanorama(panorama, _panoramaWindow);
         }
 
         /// <summary>
