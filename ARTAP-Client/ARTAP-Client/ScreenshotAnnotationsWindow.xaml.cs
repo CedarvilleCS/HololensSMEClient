@@ -105,6 +105,8 @@ namespace ARTAPclient
         /// </summary>
         private VideoStreamWindow _videoStreamWindow;
 
+        private PanoramaWindow _panoramaWindow;
+
         /// <summary>
         /// Connection to the HoloLens
         /// </summary>
@@ -137,11 +139,25 @@ namespace ARTAPclient
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
             //_listener.ConnectionClosed += _listener_ConnectionClosed;
+        }
 
-            //_getPanoramaTimer = new Timer(5000);
-            //_getPanoramaTimer.Elapsed += GetPanorama;
-            //_getPanoramaTimer.Start();
-            GetPanorama(null, null);
+        public ScreenshotAnnotationsWindow(PanoramaWindow panoramaWindow, AsynchronousSocketListener listener)
+        {
+            InitializeComponent();
+
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb0, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
+
+            _panoramaWindow = panoramaWindow;
+            _listener = listener;
+
+            _getPanoramaTimer = new Timer();
+            _getPanoramaTimer.Elapsed += GetPanorama;
+            _getPanoramaTimer.Interval = 5000;
+            _getPanoramaTimer.Start();
         }
 
         #endregion
@@ -150,8 +166,9 @@ namespace ARTAPclient
 
         private void GetPanorama(object sender, ElapsedEventArgs e)
         {
+            _getPanoramaTimer.Enabled = false;
             var panorama = new Panorama();
-            _listener.RequestPanorama(panorama);
+            _listener.RequestPanorama(panorama, _panoramaWindow);
         }
 
         /// <summary>

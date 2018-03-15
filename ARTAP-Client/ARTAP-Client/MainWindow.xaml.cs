@@ -37,6 +37,10 @@ namespace ARTAPclient
 
         private ScreenshotAnnotationsWindow _annotationsWindow;
 
+        private bool _isPanorama;
+
+        private PanoramaWindow _panoramaWindow;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -60,13 +64,14 @@ namespace ARTAPclient
             _streamQuality = comboBoxStreamQuality.Text;
             _showAnnotations = (bool)checkBoxHolograms.IsChecked;
             _rememberMe = (bool)checkBoxRemember.IsChecked;
+            _isPanorama = (bool)PanoramaToggle.IsChecked;
 
             string port = textBoxPort.Text;
 
             if (ValidateText(_ip, "IP") && ValidateText(port, "port") &&
                 ValidateText(_userName, "user name") && ValidateText(_password, "password"))
             {
-                IPEndPoint hostEndPoint, bandwidthTestHostEndpoint;
+                IPEndPoint hostEndPoint;
                 if (!TryGetIPEndPoint(_ip, port, out hostEndPoint))
                 {
                     return;
@@ -78,14 +83,6 @@ namespace ARTAPclient
                 _listener.Connect();
 
                 IPAddress.TryParse(_ip, out IPAddress hostAddr);
-                bandwidthTestHostEndpoint = new IPEndPoint(hostAddr, BANDWIDTH_TEST_PORT); 
-
-                _bandwidthTestListener = new AsynchronousSocketListener(bandwidthTestHostEndpoint);
-                _bandwidthTestListener.ConnectionEstablished += Listener_ConnectionEstablished;
-                _bandwidthTestListener.ConnectionTimedOut += Listener_ConnectionTimedOut;
-                _bandwidthTestListener.Connect();
-
-                //_bandwidthTestListener.SendBitmap(new BitmapImage(new Uri(@"C:\Users\tfroberg\Documents\Visual Studio 2017\HololensSMEClient\ARTAP-Client\ARTAP-Client\Resources\artap.png"))); // System.IO.IOException: 'Cannot locate resource 'resources/background.png'.'
             }
             else
             {
@@ -99,44 +96,76 @@ namespace ARTAPclient
             _listener.ConnectionTimedOut -= Listener_ConnectionTimedOut;
 
             /// Needed for cross-thread window launch
-            Dispatcher.BeginInvoke((Action) (() =>
-            {
-                _videoWindow = new VideoStreamWindow(_ip, _userName, _password,
-                    _streamQuality, _showAnnotations.ToString());
-                _videoWindow.ConnectionFailed += _videoWindow_ConnectionFailed;
-                _videoWindow.ConnectionSuccesful += _videoWindow_ConnectionSuccesful;
-               
-                _annotationsWindow = new ScreenshotAnnotationsWindow(_videoWindow, _listener);
+            Dispatcher.BeginInvoke((Action)(() =>
+           {
+               if (_isPanorama)
+               {
+                   InitializePanorama();
+               }
+               else
+               {
+                   InitializeVideoWindow();
+               }
 
-                _videoWindow.StartVideo();
+               if ((bool)checkBoxRemember.IsChecked)
+               {
+                   AppSettings.Default.username = textBoxUserName.Text;
+                   AppSettings.Default.portNum = textBoxPort.Text;
+                   AppSettings.Default.ipAddress = textBoxIP.Text;
+                   AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
+                   AppSettings.Default.rememberMe = true;
+                   AppSettings.Default.showAnnotations = (bool)checkBoxHolograms.IsChecked;
+                   AppSettings.Default.Save();
+               }
+               else
+               {
+                   AppSettings.Default.ipAddress = "";
+                   AppSettings.Default.username = "";
+                   AppSettings.Default.portNum = "";
+                   AppSettings.Default.streamQuality = 0;
+                   AppSettings.Default.rememberMe = false;
+                   AppSettings.Default.showAnnotations = false;
+                   AppSettings.Default.Save();
+               }
+           }));
+        }
 
-                if ((bool)checkBoxRemember.IsChecked)
+        private void InitializePanorama()
+        {
+            _panoramaWindow = new PanoramaWindow(_listener);
+            _annotationsWindow = new ScreenshotAnnotationsWindow(_panoramaWindow, _listener);
+            PanoramaDisplay();
+
+        }
+
+        private void PanoramaDisplay()
+        {
+            Application.Current.Dispatcher.Invoke(
+                new Action(() =>
                 {
-                    AppSettings.Default.username = textBoxUserName.Text;
-                    AppSettings.Default.portNum = textBoxPort.Text;
-                    AppSettings.Default.ipAddress = textBoxIP.Text;
-                    AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
-                    AppSettings.Default.rememberMe = true;
-                    AppSettings.Default.showAnnotations = (bool)checkBoxHolograms.IsChecked;
-                    AppSettings.Default.Save();
+                    _panoramaWindow.Show();
+                    _annotationsWindow.Show();
+                    Hide();
                 }
-                else
-                { 
-                    AppSettings.Default.ipAddress = "";
-                    AppSettings.Default.username = "";
-                    AppSettings.Default.portNum = "";
-                    AppSettings.Default.streamQuality = 0;
-                    AppSettings.Default.rememberMe = false;
-                    AppSettings.Default.showAnnotations = false;
-                    AppSettings.Default.Save();
-                }
-            }));
+            ));
+        }
+
+        private void InitializeVideoWindow()
+        {
+            _videoWindow = new VideoStreamWindow(_ip, _userName, _password,
+                    _streamQuality, _showAnnotations.ToString());
+            _videoWindow.ConnectionFailed += _videoWindow_ConnectionFailed;
+            _videoWindow.ConnectionSuccesful += _videoWindow_ConnectionSuccesful;
+
+            _annotationsWindow = new ScreenshotAnnotationsWindow(_videoWindow, _listener);
+
+            _videoWindow.StartVideo();
         }
 
         private void _videoWindow_ConnectionSuccesful(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(
-                new Action(() => 
+                new Action(() =>
                 {
                     _videoWindow.Show();
                     _annotationsWindow.Show();
