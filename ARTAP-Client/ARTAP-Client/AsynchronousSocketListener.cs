@@ -536,7 +536,7 @@ namespace ARTAPclient
                 var imageBytes = SubArray(decompressedData, dataPosition, panoLength);
                 PanoImage pImg = PanoImage.FromByteArray(imageBytes);
                 panoImages.Add(pImg);
-                
+                pImg.image.Save("Image_" + i + ".PNG");
                 dataPosition += panoLength;
             }
 
