@@ -124,6 +124,7 @@ namespace ARTAPclient
         private System.Windows.Shapes.Path placeArrowPath;
         #endregion
 
+        private bool _isPano = false;
         #region Constructor
 
         public ScreenshotAnnotationsWindow(VideoStreamWindow videoStreamWindow, AsynchronousSocketListener listener)
@@ -153,6 +154,7 @@ namespace ARTAPclient
 
             _panoramaWindow = panoramaWindow;
             _listener = listener;
+            _isPano = true;
 
             _getPanoramaTimer = new Timer();
             _getPanoramaTimer.Elapsed += GetPanorama;
@@ -419,9 +421,12 @@ namespace ARTAPclient
         private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
         {
             placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
-            ImageSource screenshot = _videoStreamWindow.CaptureScreen();
+            ImageSource screenshot;
+            if (_isPano) screenshot = _panoramaWindow.panoImage.Source; 
+            else  screenshot = _videoStreamWindow.CaptureScreen(); 
             LocatableImage img = new LocatableImage(screenshot);
             AddNewImage(img);
+            //This might need changed if we have a pano
             _listener.RequestLocationID(img);
         }
 
