@@ -177,7 +177,14 @@ namespace ARTAPclient
             }
 
             var panoImages = ParsePanoData(_panoramaState.buffer);
-            _panoramaState.Panorama = new Panorama(panoImages);
+            Panorama holoPano = new Panorama(panoImages[1]);
+            _panoramaState.Panorama = new Panorama(panoImages[0]);
+            using (var fileStream = new FileStream("HoloPano.png", FileMode.Create))
+            {
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(holoPano.Image));
+                encoder.Save(fileStream);
+            }
             isPanoDone = true;
         }
 
@@ -528,13 +535,14 @@ namespace ARTAPclient
 
         }
 
-        private List<PanoImage> ParsePanoData(byte[] data)
+        private List<PanoImage>[] ParsePanoData(byte[] data)
         {
             var messageType = SubArray(data, 0, 2);
             var panoImages = new List<PanoImage>();
+            var screenshotImages = new List<PanoImage>();
             var decompressedData = SubArray(data, 2, data.Length - 2);
             var dataPosition = 0;
-            for (var i = 0; i < 5; i++)
+            for (var i = 0; i < 10; i++)
             {
                 var lengthBytes = SubArray(decompressedData, dataPosition, 4);
                 dataPosition += 4;
@@ -545,12 +553,20 @@ namespace ARTAPclient
                 var panoLength = BitConverter.ToInt32(lengthBytes, 0);
                 var imageBytes = SubArray(decompressedData, dataPosition, panoLength);
                 PanoImage pImg = PanoImage.FromByteArray(imageBytes);
-                panoImages.Add(pImg);
+                if (i < 5)
+                {
+                    panoImages.Add(pImg);
+                }
+                else
+                {
+                    screenshotImages.Add(pImg);
+                }
+                
 
                 dataPosition += panoLength;
             }
 
-            return panoImages;
+            return new List<PanoImage>[] { panoImages, screenshotImages };
         }
 
         public static byte[] SubArray(byte[] data, int index, int length)

@@ -66,6 +66,10 @@ namespace WpfApplication1
         public void StitchImages(List<PanoImage> images)
         {
             var convertedImages = ConvertImages(images);
+            foreach(PanoImage pi in images)
+            {
+                pi.image.Save("Image_" + DateTime.Now.Ticks + ".PNG", ImageFormat.Png);
+            }
             using (var stitcher = new Stitcher(false))
             {
                 using (var vectorMat = new VectorOfMat())
