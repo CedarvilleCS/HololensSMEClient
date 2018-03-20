@@ -261,7 +261,9 @@
                     <Border x:Name="pdfPages" Background="White" BorderBrush="#FF5B5B5B"  Grid.Row="2" BorderThickness="1">
                         <ScrollViewer x:Name="pdfPagesScroll">
                             <Grid>
-                                <Border x:Name="pdfPage" Background="White" Margin="10,10,0,0" BorderBrush="#FF5B5B5B" Height="72" VerticalAlignment="Top" Width="70" HorizontalAlignment="Left" Grid.Row="2" BorderThickness="1"/>
+                                <Border x:Name="pdfPage" Background="White" Margin="10,10,0,0" BorderBrush="#FF5B5B5B" Height="72" VerticalAlignment="Top" Width="70" HorizontalAlignment="Left" Grid.Row="2" BorderThickness="1">
+                                    <Image />
+                                </Border>
                                 <Border x:Name="pdfPage1" Background="White" Margin="10,88,0,0" BorderBrush="#FF5B5B5B" Height="72" VerticalAlignment="Top" Width="70" HorizontalAlignment="Left" Grid.Row="2" BorderThickness="1"/>
                             </Grid>
                             
