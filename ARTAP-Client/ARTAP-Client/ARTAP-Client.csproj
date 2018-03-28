@@ -102,6 +102,7 @@
     <Compile Include="AnnotatedImage.cs" />
     <Compile Include="AsynchronousSocketListener.cs" />
     <Compile Include="Direction.cs" />
+    <Compile Include="ImagePosition.cs" />
     <Compile Include="LocatableImage.cs" />
     <Compile Include="AppSettings.Designer.cs">
       <AutoGen>True</AutoGen>
