@@ -49,6 +49,6 @@
             <ComboBoxItem Content="High"/>
         </ComboBox>
         <TextBlock x:Name="textBlock_Copy1" HorizontalAlignment="Left" Margin="50,273,0,0" TextWrapping="Wrap" Text="Stream Quality:" VerticalAlignment="Top" Foreground="White"/>
-        <Controls:ToggleSwitch x:Name="PanoramaToggle" OnLabel="Panorama" OffLabel="Video Stream" Height="40" Grid.Column="3" Margin="0,205,58,66"/>
+        <Controls:ToggleSwitch x:Name="PanoramaToggle" OnLabel="Panorama" OffLabel="Video Stream" Height="40" Grid.Column="3" Margin="0,205,58,66" Click="PanoramaToggle_Click"/>
     </Grid>
 </Controls:MetroWindow>
