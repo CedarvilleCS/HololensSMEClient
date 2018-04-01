@@ -50,7 +50,11 @@ namespace ARTAPclient
             EraseMarkers = 4,
             Pdf = 5,
             EraseMarker = 6,
-            PanoRequest = 10
+            PanoRequest = 10,
+            LocationRequest = 11
+            // request one of these every second
+            // he'll send some information for the rectangle
+            // look at imageposition
         }
 
         /// <summary>
@@ -63,7 +67,6 @@ namespace ARTAPclient
         private PanoramaStateObject _panoramaState;
         private PanoramaWindow _panoramaWindow;
         public ImageSource panoImage = null;
-        public bool isPanoDone = false;
 
         #endregion
 
@@ -75,13 +78,14 @@ namespace ARTAPclient
         /// <param name="remoteEndPoint">Remote end point to connect to</param>
         public AsynchronousSocketListener(IPEndPoint remoteEndPoint)
         {
-            _client.ReceiveBufferSize = 100000000;
-
             _remoteEndPoint = remoteEndPoint;
             _connectionAliveTimer = new System.Timers.Timer(5000);
             _connectionAliveTimer.Elapsed += ConnectionAliveTimerElapsed;
-
             _lengthBytes = new byte[4];
+            _panoramaState = new PanoramaStateObject()
+            {
+                Panorama = new Panorama()
+            };
         }
 
         #endregion
@@ -116,9 +120,10 @@ namespace ARTAPclient
             _client.Close();
         }
 
-        public void RequestPanorama(Panorama panorama, PanoramaWindow panoramaWindow)
+        public void SendIpAddress(PanoramaWindow panoramaWindow)
         {
             _panoramaWindow = panoramaWindow;
+
             byte[] ipAddress = null;
             var host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (var ip in host.AddressList)
@@ -130,18 +135,13 @@ namespace ARTAPclient
             }
 
             Send(MessageType.PanoRequest, ipAddress);
-            ReceivePanorama(panorama);
+            ReceivePanorama(_panoramaState.Panorama);
         }
 
         public void ReceivePanorama(Panorama panorama)
         {
             try
             {
-                _panoramaState = new PanoramaStateObject()
-                {
-                    Panorama = panorama
-                };
-
                 _client.BeginReceive(_lengthBytes, 0, 4, 0, new AsyncCallback(ReceiveMessageLength), _panoramaState);
             }
             catch (Exception)
@@ -153,6 +153,7 @@ namespace ARTAPclient
 
         public void ReceiveMessageLength(IAsyncResult ar)
         {
+            IsPanoDone = false;
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(_lengthBytes);
@@ -177,7 +178,7 @@ namespace ARTAPclient
             }
 
             var panoImages = ParsePanoData(_panoramaState.buffer);
-            Panorama holoPano = new Panorama(panoImages[1]);
+            var holoPano = new Panorama(panoImages[1]);
             _panoramaState.Panorama = new Panorama(panoImages[0]);
             using (var fileStream = new FileStream("HoloPano.png", FileMode.Create))
             {
@@ -185,7 +186,11 @@ namespace ARTAPclient
                 encoder.Frames.Add(BitmapFrame.Create(holoPano.Image));
                 encoder.Save(fileStream);
             }
-            isPanoDone = true;
+
+            IsPanoDone = true;
+            _panoramaState.Panorama = new Panorama();
+
+            ReceivePanorama(_panoramaState.Panorama);
         }
 
         /// <summary>
@@ -427,6 +432,8 @@ namespace ARTAPclient
         /// Is the socket connected?
         /// </summary>
         public bool Connected { get; private set; }
+        public bool IsPanoDone { get; set; }
+
 
         #endregion
 
@@ -561,7 +568,7 @@ namespace ARTAPclient
                 {
                     screenshotImages.Add(pImg);
                 }
-                
+
 
                 dataPosition += panoLength;
             }

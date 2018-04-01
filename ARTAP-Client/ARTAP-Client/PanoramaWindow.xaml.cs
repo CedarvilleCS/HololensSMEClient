@@ -113,7 +113,7 @@ namespace WpfApplication1
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            if(_socketListener.isPanoDone)
+            if(_socketListener.IsPanoDone)
             {
                 panoImage.Source = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "pano.png"));
                 dispatcherTimer.Stop();

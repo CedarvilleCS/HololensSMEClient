@@ -139,7 +139,6 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-            //_listener.ConnectionClosed += _listener_ConnectionClosed;
         }
 
         public ScreenshotAnnotationsWindow(PanoramaWindow panoramaWindow, AsynchronousSocketListener listener)
@@ -156,22 +155,12 @@ namespace ARTAPclient
             _listener = listener;
             _isPano = true;
 
-            _getPanoramaTimer = new Timer();
-            _getPanoramaTimer.Elapsed += GetPanorama;
-            _getPanoramaTimer.Interval = 5000;
-            _getPanoramaTimer.Start();
+            _listener.SendIpAddress(_panoramaWindow);
         }
 
         #endregion
 
         #region PrivateMethods
-
-        private void GetPanorama(object sender, ElapsedEventArgs e)
-        {
-            _getPanoramaTimer.Enabled = false;
-            var panorama = new Panorama();
-            _listener.RequestPanorama(panorama, _panoramaWindow);
-        }
 
         /// <summary>
         /// Updates the thumbnails with the latest images captured
