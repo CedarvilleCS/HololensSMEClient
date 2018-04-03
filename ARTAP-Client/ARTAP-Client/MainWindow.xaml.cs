@@ -244,5 +244,10 @@ namespace ARTAPclient
             buttonConnect.Background = Brushes.LightGray;
             buttonConnect.IsEnabled = true;
         }
+
+        private void PanoramaToggle_Click(object sender, RoutedEventArgs e)
+        {
+            comboBoxStreamQuality.IsEnabled = !((bool)PanoramaToggle.IsChecked);
+        }
     }
 }
