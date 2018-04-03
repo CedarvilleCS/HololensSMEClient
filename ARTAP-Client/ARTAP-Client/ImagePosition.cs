@@ -132,7 +132,7 @@ namespace WpfApplication1
 
         public double GetForwardAngle()
         {
-            return Math.Atan((Forward[3] / Forward[0]));
+            return Math.Atan((Forward[2] / Forward[0]));
         }
 
         public bool IsHere(ImagePosition pos)
