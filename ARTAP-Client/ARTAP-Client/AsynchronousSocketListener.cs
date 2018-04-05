@@ -539,7 +539,10 @@ namespace ARTAPclient
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
-
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(state.locatableImage.PositionID);
+            }
         }
 
         private List<PanoImage>[] ParsePanoData(byte[] data)
