@@ -64,6 +64,7 @@ namespace ARTAPclient
 
         private byte[] _lengthBytes;
         private byte[] _headPositionBytes;
+        private ImagePosition _headPosition;
 
         private PanoramaStateObject _panoramaState;
         private PanoramaWindow _panoramaWindow;
@@ -110,6 +111,17 @@ namespace ARTAPclient
         {
             _headPositionBytes = (byte[])ar.AsyncState;
             _client.EndReceive(ar);
+            _headPosition = ImagePosition.FromByteArray(_headPositionBytes);
+            if (_panoramaState.Panorama.ContainsPoint(_headPosition))
+            {
+                float[] pos = _panoramaState.Panorama.GetPositionOnPano(_headPosition);
+                int a = 1;
+                // do something with pos to view tracker
+            }
+            else
+            {
+                // reset view tracker
+            }
         }
 
         /// <summary>
