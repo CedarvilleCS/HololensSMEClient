@@ -63,6 +63,7 @@ namespace ARTAPclient
         private System.Timers.Timer _connectionAliveTimer;
 
         private byte[] _lengthBytes;
+        private byte[] _headPositionBytes;
 
         private PanoramaStateObject _panoramaState;
         private PanoramaWindow _panoramaWindow;
@@ -91,6 +92,25 @@ namespace ARTAPclient
         #endregion
 
         #region Public Methods
+
+        public void GetHeadPosition(byte[] headPositionData)
+        {
+            try
+            {
+                _client.BeginReceive(_headPositionBytes, 0, 44, 0, new AsyncCallback(AssignHeadPositionData), headPositionData);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the Head position data from the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void AssignHeadPositionData(IAsyncResult ar)
+        {
+            _headPositionBytes = (byte[])ar.AsyncState;
+            _client.EndReceive(ar);
+        }
 
         /// <summary>
         /// Connect to the server (HoloLens)
