@@ -343,6 +343,7 @@ namespace ARTAPclient
 
         private void _headPosition_TimerElapsed(object sender, EventArgs e)
         {
+            _listener.RequestHeadPosition();
             _listener.GetHeadPosition(_headPositionData);
         }
 

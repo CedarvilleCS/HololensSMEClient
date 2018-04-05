@@ -94,6 +94,11 @@ namespace ARTAPclient
 
         #region Public Methods
 
+        public void RequestHeadPosition()
+        {
+            Send(MessageType.LocationRequest, new byte[0]);
+        }
+
         public void GetHeadPosition(byte[] headPositionData)
         {
             try
