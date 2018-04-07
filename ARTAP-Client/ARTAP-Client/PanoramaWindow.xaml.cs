@@ -42,6 +42,7 @@ namespace WpfApplication1
         private string _userName;
         private string _password;
         private string _streamQuality;
+        public byte[] _headPositionData;
         private Func<string> toString;
 
         public AsynchronousSocketListener _socketListener;
@@ -55,6 +56,7 @@ namespace WpfApplication1
             _socketListener = listener;
             InitializeComponent();
             pollPanoImage();
+            _headPositionData = new byte[44];
         }
         #endregion
 
@@ -66,6 +68,10 @@ namespace WpfApplication1
             //ImageBrush img = new ImageBrush();
             //img.ImageSource = image;
             //PanoramaGrid.Background = img;
+        }
+        public void HeadPosition_TimerElapsed(object sender, EventArgs e)
+        {
+            _socketListener.RequestHeadPosition(_headPositionData);
         }
 
         public BitmapImage CaptureScreen()

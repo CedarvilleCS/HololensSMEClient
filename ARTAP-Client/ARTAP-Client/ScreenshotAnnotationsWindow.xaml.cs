@@ -124,6 +124,7 @@ namespace ARTAPclient
         private System.Windows.Shapes.Path placeArrowPath;
 
         private Timer _headPositionTimer;
+
         private byte[] _headPositionData;
         #endregion
 
@@ -142,11 +143,6 @@ namespace ARTAPclient
 
             _videoStreamWindow = videoStreamWindow;
             _listener = listener;
-
-            _headPositionTimer = new Timer();
-            _headPositionTimer.Interval = 1500;
-            _headPositionTimer.Elapsed += _headPosition_TimerElapsed;
-            _headPositionTimer.Start();
         }
 
         public ScreenshotAnnotationsWindow(PanoramaWindow panoramaWindow, AsynchronousSocketListener listener)
@@ -163,7 +159,7 @@ namespace ARTAPclient
             _listener = listener;
             _isPano = true;
 
-            _listener.SendIpAddress(_panoramaWindow);
+            _listener.SendIpAddress(_panoramaWindow, _headPositionData);
         }
 
         #endregion
@@ -340,13 +336,7 @@ namespace ARTAPclient
         #endregion
 
         #region EventHandlers
-
-        private void _headPosition_TimerElapsed(object sender, EventArgs e)
-        {
-            _listener.RequestHeadPosition();
-            _listener.GetHeadPosition(_headPositionData);
-        }
-
+        
         private void _listener_ConnectionClosed(object sender, EventArgs e)
         {
             MessageBox.Show("Connection to HoloLens lost.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

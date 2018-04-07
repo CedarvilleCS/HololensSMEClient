@@ -65,6 +65,7 @@ namespace ARTAPclient
         private byte[] _lengthBytes;
         private byte[] _headPositionBytes;
         private ImagePosition _headPosition;
+        private System.Timers.Timer _headPositionTimer;
 
         private PanoramaStateObject _panoramaState;
         private PanoramaWindow _panoramaWindow;
@@ -88,15 +89,18 @@ namespace ARTAPclient
             {
                 Panorama = new Panorama()
             };
+
+            _headPositionBytes = new byte[44];
         }
 
         #endregion
 
         #region Public Methods
 
-        public void RequestHeadPosition()
+        public void RequestHeadPosition(byte[] headPositionData)
         {
             Send(MessageType.LocationRequest, new byte[0]);
+            GetHeadPosition(headPositionData);
         }
 
         public void GetHeadPosition(byte[] headPositionData)
@@ -157,8 +161,9 @@ namespace ARTAPclient
             _client.Close();
         }
 
-        public void SendIpAddress(PanoramaWindow panoramaWindow)
+        public void SendIpAddress(PanoramaWindow panoramaWindow, byte[] headPositionData)
         {
+            _headPositionTimer = null;
             _panoramaWindow = panoramaWindow;
 
             byte[] ipAddress = null;
@@ -227,7 +232,7 @@ namespace ARTAPclient
             IsPanoDone = true;
             _panoramaState.Panorama = new Panorama();
 
-            ReceivePanorama(_panoramaState.Panorama);
+            SetUpTimer();
         }
 
         /// <summary>
@@ -375,6 +380,18 @@ namespace ARTAPclient
         #endregion
 
         #region Private Methods
+
+        private void SetUpTimer()
+        {
+            _headPositionTimer = new System.Timers.Timer()
+            {
+                Enabled = false,
+                Interval = 1500
+            };
+
+            _headPositionTimer.Elapsed += _panoramaWindow.HeadPosition_TimerElapsed;
+            _headPositionTimer.Start();
+        }
 
         /// <summary>
         /// Combines byte arrays passed in, code borrowed from:
