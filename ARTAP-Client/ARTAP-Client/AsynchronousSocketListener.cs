@@ -90,7 +90,7 @@ namespace ARTAPclient
                 Panorama = new Panorama()
             };
 
-            _headPositionBytes = new byte[44];
+            _headPositionBytes = new byte[50];
         }
 
         #endregion
@@ -107,7 +107,7 @@ namespace ARTAPclient
         {
             try
             {
-                _client.BeginReceive(_headPositionBytes, 0, 44, 0, new AsyncCallback(AssignHeadPositionData), headPositionData);
+                _client.BeginReceive(_headPositionBytes, 0, 50, 0, new AsyncCallback(AssignHeadPositionData), headPositionData);
             }
             catch (Exception)
             {
@@ -118,7 +118,7 @@ namespace ARTAPclient
 
         public void AssignHeadPositionData(IAsyncResult ar)
         {
-            _headPositionBytes = (byte[])ar.AsyncState;
+            _headPositionBytes = _headPositionBytes.Skip(6).Take(44).ToArray();
             _client.EndReceive(ar);
             _headPosition = ImagePosition.FromByteArray(_headPositionBytes);
             if (_panoramaState.Panorama.ContainsPoint(_headPosition))
@@ -386,7 +386,7 @@ namespace ARTAPclient
             _headPositionTimer = new System.Timers.Timer()
             {
                 Enabled = false,
-                Interval = 1500
+                Interval = 1000
             };
 
             _headPositionTimer.Elapsed += _panoramaWindow.HeadPosition_TimerElapsed;

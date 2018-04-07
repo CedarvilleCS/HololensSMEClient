@@ -56,7 +56,7 @@ namespace WpfApplication1
             _socketListener = listener;
             InitializeComponent();
             pollPanoImage();
-            _headPositionData = new byte[44];
+            _headPositionData = new byte[50];
         }
         #endregion
 
