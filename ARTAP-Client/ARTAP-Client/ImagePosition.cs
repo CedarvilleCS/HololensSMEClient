@@ -132,15 +132,19 @@ namespace WpfApplication1
 
         public double GetForwardAngle()
         {
-            return Math.Atan((Forward[2] / Forward[0]));
+            //get angle relative to z axis
+            double val = Math.Atan((Forward[0] / Forward[2]));
+            if (val < 0)
+                val += Math.PI;
+            return val;
         }
 
         public bool IsHere(ImagePosition pos)
         {
             float[] posToCheck = pos.Position;
-            return (Position[0] - .15f < posToCheck[0] && Position[0] + .15f > posToCheck[0] &&
-                    Position[1] - .15f < posToCheck[1] && Position[1] + .15f > posToCheck[1] &&
-                    Position[2] - .15f < posToCheck[2] && Position[2] + .15f > posToCheck[2]);
+            return (Position[0] - .5f < posToCheck[0] && Position[0] + .5f > posToCheck[0] &&
+                    Position[1] - .5f < posToCheck[1] && Position[1] + .5f > posToCheck[1] &&
+                    Position[2] - .5f < posToCheck[2] && Position[2] + .5f > posToCheck[2]);
         }
     }
 }

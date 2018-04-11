@@ -108,13 +108,14 @@ namespace WpfApplication1
         {
             if (ImagePositions[0].IsHere(pos))
             {
-                if(maxAngleLeft < maxAngleRight)
+                double forwardAngle = pos.GetForwardAngle();
+                if (maxAngleLeft > maxAngleRight)
                 {
-                    return (pos.GetForwardAngle() < maxAngleLeft || pos.GetForwardAngle() > maxAngleRight);
+                    return (forwardAngle < maxAngleLeft && forwardAngle > maxAngleRight);
                 }
                 else
                 {
-                    return (pos.GetForwardAngle() > maxAngleLeft && pos.GetForwardAngle() < maxAngleRight);
+                    return (forwardAngle < maxAngleLeft || forwardAngle > maxAngleRight);
                 }
             }
             return false;       
@@ -122,32 +123,45 @@ namespace WpfApplication1
 
         public float[] GetPositionOnPano(ImagePosition pos)
         {
-            float x;
-            if (maxAngleLeft < maxAngleRight)
-            {
-                x = (float)Math.Abs((maxAngleLeft - pos.GetForwardAngle()) / ((maxAngleRight - 2 * Math.PI) - maxAngleLeft));
-            }
-            else
-            {
-                x = (float)Math.Abs((maxAngleLeft - pos.GetForwardAngle()) / (maxAngleRight - maxAngleLeft));
-            }
-            float y = (float)((pos.Forward[1] - minHeight) / (maxHeight - minHeight));
+            float x = angleBetween(pos.GetForwardAngle(), maxAngleLeft) / angleBetween(maxAngleLeft, maxAngleRight);
+            float y = (float) ((pos.Forward[1] - minHeight) / (maxHeight - minHeight));
+            //float y = -(float)((pos.Forward[1] - minHeight) / (maxHeight - minHeight));
             return new float[] { x, y };
+        }
+
+        public float angleBetween(double angle1, double angle2)
+        {
+            int angle1Deg = (int)(angle1 * (180.0 / Math.PI));
+            int angle2Deg = (int)(angle2 * (180.0 / Math.PI));
+            int phi = Math.Abs(angle2Deg - angle1Deg) % 360;       // This is either the distance or 360 - distance
+            int distance = phi > 180 ? 360 - phi : phi;
+            return distance;
+        }
+
+        public float degreesToRads(float degrees)
+        {
+            return degrees * .0174533f;
         }
 
         private void InstantiatePositions()
         {
-            //Measurements in degrees
-            double minAngle = ImagePositions[0].GetForwardAngle();
-            double maxAngle = ImagePositions[4].GetForwardAngle();
-            double centerPoint = (maxAngle - minAngle) / 2;
-            double width = Math.Abs(maxAngle - minAngle)*(1.215);
-            maxAngleLeft = centerPoint - width / 2.0;
-            maxAngleRight = centerPoint + width / 2.0;
+            //Measurements in radians
+            double rightmostAngle = ImagePositions[0].GetForwardAngle();
+            double leftmostAngle = ImagePositions[4].GetForwardAngle();
+            double centerPoint = (leftmostAngle + rightmostAngle) / 2;
+            double width = degreesToRads(angleBetween(leftmostAngle, rightmostAngle)*(1.215f));
+            maxAngleLeft = centerPoint + width / 2.0;
+            maxAngleRight = centerPoint - width / 2.0;
+            if ((maxAngleLeft > maxAngleRight && maxAngleLeft > (maxAngleRight + 1.2)) || (maxAngleRight > maxAngleLeft && maxAngleRight < (maxAngleLeft + 1.2)))
+            {
+                double temp = maxAngleRight;
+                maxAngleRight = maxAngleLeft;
+                maxAngleLeft = temp;
+            }
             float sumY = 0;
             foreach(ImagePosition ip in ImagePositions)
             {
-                sumY += ip.Forward[2];
+                sumY += ip.Forward[1];
             }
             float avgY = sumY / 5;
             double height = width * .367;

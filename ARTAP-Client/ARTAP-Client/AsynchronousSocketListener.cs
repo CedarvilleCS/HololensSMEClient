@@ -118,9 +118,9 @@ namespace ARTAPclient
 
         public void AssignHeadPositionData(IAsyncResult ar)
         {
-            _headPositionBytes = _headPositionBytes.Skip(6).Take(44).ToArray();
+            byte[] bytesWithoutTypeCode = _headPositionBytes.Skip(6).Take(44).ToArray();
             _client.EndReceive(ar);
-            _headPosition = ImagePosition.FromByteArray(_headPositionBytes);
+            _headPosition = ImagePosition.FromByteArray(bytesWithoutTypeCode);
             if (_panoramaState.Panorama.ContainsPoint(_headPosition))
             {
                 float[] pos = _panoramaState.Panorama.GetPositionOnPano(_headPosition);
@@ -230,8 +230,6 @@ namespace ARTAPclient
             }
 
             IsPanoDone = true;
-            _panoramaState.Panorama = new Panorama();
-
             SetUpTimer();
         }
 
