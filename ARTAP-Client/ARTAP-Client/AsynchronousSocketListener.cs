@@ -124,7 +124,6 @@ namespace ARTAPclient
             if (_panoramaState.Panorama.ContainsPoint(_headPosition))
             {
                 float[] pos = _panoramaState.Panorama.GetPositionOnPano(_headPosition);
-                int a = 1;
                 // do something with pos to view tracker
             }
             else
