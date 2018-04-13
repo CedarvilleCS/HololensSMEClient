@@ -219,14 +219,14 @@ namespace ARTAPclient
             }
 
             var panoImages = ParsePanoData(_panoramaState.buffer);
-            var holoPano = new Panorama(panoImages[1]);
+            //var holoPano = new Panorama(panoImages[1]);
             _panoramaState.Panorama = new Panorama(panoImages[0]);
-            using (var fileStream = new FileStream("HoloPano.png", FileMode.Create))
-            {
-                BitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(holoPano.Image));
-                encoder.Save(fileStream);
-            }
+            //using (var fileStream = new FileStream("HoloPano.png", FileMode.Create))
+            //{
+            //    BitmapEncoder encoder = new PngBitmapEncoder();
+            //    encoder.Frames.Add(BitmapFrame.Create(holoPano.Image));
+            //    encoder.Save(fileStream);
+            //}
 
             IsPanoDone = true;
             SetUpTimer();
@@ -603,7 +603,8 @@ namespace ARTAPclient
             var screenshotImages = new List<PanoImage>();
             var decompressedData = SubArray(data, 2, data.Length - 2);
             var dataPosition = 0;
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 5; i++)
+            //for (var i = 0; i < 10; i++)
             {
                 var lengthBytes = SubArray(decompressedData, dataPosition, 4);
                 dataPosition += 4;
