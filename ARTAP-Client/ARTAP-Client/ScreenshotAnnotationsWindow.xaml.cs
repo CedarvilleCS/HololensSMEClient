@@ -1030,7 +1030,15 @@ namespace ARTAPclient
 
         private void buttonLoadPDF_Click(object sender, RoutedEventArgs e)
         {
-            try
+
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "PDF Files (*.PDF)|*.PDF;";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+
+            }
+                try
             {
                 PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
                 bool? result = pdfDialog.ShowDialog();
