@@ -1017,5 +1017,51 @@ namespace ARTAPclient
         }
 
         #endregion
+
+        private void buttonPrevPDF_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonNextPDF_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonLoadPDF_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+                bool? result = pdfDialog.ShowDialog();
+                if (result == true)
+                {
+                    List<ImageSource> images = new List<ImageSource>();
+                    foreach (var image in pdfDialog.selectedImages)
+                    {
+                        images.Add(image);
+                        AddNewImage(new AnnotatedImage(image, true));
+                    }
+                }
+            }
+            catch (TypeInitializationException)
+            {
+                MessageBoxResult result = MessageBox.Show
+                    ("GhostScript must be installed to support this feature.\nWould you like to download it?",
+                     "Dependency Missing",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Error);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    result = MessageBox.Show
+                    ("NOTE: After installing, you must restart the application", "NOTE",
+                     MessageBoxButton.OK,
+                     MessageBoxImage.Exclamation);
+
+                    Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+                }
+            }
+        }
     }
 }
