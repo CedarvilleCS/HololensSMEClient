@@ -12,6 +12,7 @@ using PDFViewer;
 using System.Diagnostics;
 using System.IO;
 using MahApps.Metro.Controls;
+using PDFToImage;
 
 namespace ARTAPclient
 {
@@ -1036,40 +1037,77 @@ namespace ARTAPclient
 
             if (openFileDialog.ShowDialog() == true)
             {
+                int numPages = PDFManager.getNumPages(openFileDialog.FileName);
+                //System.Drawing.Image image = PDFManager.getImage(pdfFile, pageNumber);
+                //Get the first page
+                System.Drawing.Image image = PDFManager.getImage(openFileDialog.FileName, 1);
 
-            }
-                try
-            {
-                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
-                bool? result = pdfDialog.ShowDialog();
-                if (result == true)
+                BitmapImage bmi = convertDrawiningImageToBitmap(image);
+
+                ImageBrush ib = new ImageBrush();
+                ib.Stretch = Stretch.Uniform;
+                ib.ImageSource = bmi;
+                pdfViewer.Background = ib;
+
+                var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                images[0].Source = bmi.Clone();
+                //Set the first 4 border/images now
+                //only have 4 display images and don't want to loop if we have less than 4 pages
+                for (int i = 1; i < 4 && i < numPages; i++)
                 {
-                    List<ImageSource> images = new List<ImageSource>();
-                    foreach (var image in pdfDialog.selectedImages)
-                    {
-                        images.Add(image);
-                        AddNewImage(new AnnotatedImage(image, true));
-                    }
+                    BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
+                    images[i].Source = temp;
                 }
-            }
-            catch (TypeInitializationException)
-            {
-                MessageBoxResult result = MessageBox.Show
-                    ("GhostScript must be installed to support this feature.\nWould you like to download it?",
-                     "Dependency Missing",
-                     MessageBoxButton.YesNo,
-                     MessageBoxImage.Error);
 
-                if (result == MessageBoxResult.Yes)
-                {
-                    result = MessageBox.Show
-                    ("NOTE: After installing, you must restart the application", "NOTE",
-                     MessageBoxButton.OK,
-                     MessageBoxImage.Exclamation);
-
-                    Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
-                }
             }
+            //try
+            //{
+            //    PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+            //    bool? result = pdfDialog.ShowDialog();
+            //    if (result == true)
+            //    {
+            //        List<ImageSource> images = new List<ImageSource>();
+            //        foreach (var image in pdfDialog.selectedImages)
+            //        {
+            //            images.Add(image);
+            //            AddNewImage(new AnnotatedImage(image, true));
+            //        }
+            //    }
+            //}
+            //catch (TypeInitializationException)
+            //{
+            //    MessageBoxResult result = MessageBox.Show
+            //        ("GhostScript must be installed to support this feature.\nWould you like to download it?",
+            //         "Dependency Missing",
+            //         MessageBoxButton.YesNo,
+            //         MessageBoxImage.Error);
+
+            //    if (result == MessageBoxResult.Yes)
+            //    {
+            //        result = MessageBox.Show
+            //        ("NOTE: After installing, you must restart the application", "NOTE",
+            //         MessageBoxButton.OK,
+            //         MessageBoxImage.Exclamation);
+
+            //        Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+            //    }
+            //}
+        }
+
+        private BitmapImage convertDrawiningImageToBitmap(System.Drawing.Image im)
+        {
+            BitmapImage bmi;
+
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+
+            im.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+
+            bmi = new BitmapImage();
+            bmi.BeginInit();
+            bmi.StreamSource = ms;
+            bmi.EndInit();
+
+            return bmi;
         }
     }
 }
