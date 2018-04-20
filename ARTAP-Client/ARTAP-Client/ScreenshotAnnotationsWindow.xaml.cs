@@ -56,6 +56,11 @@ namespace ARTAPclient
         private Direction _markerDirection = Direction.MiddleMiddle;
         private string _oldText = "";
         private int _thumbIndex = 0;
+
+        //for pdf tab
+        private BitmapImage[] _pdfPages;
+        //This will tell what four pages to display when the arrows are clicked
+        private int _pdfStartingIndex = 0;
         #endregion
 
         #region Constructor
@@ -1021,12 +1026,71 @@ namespace ARTAPclient
 
         private void buttonPrevPDF_Click(object sender, RoutedEventArgs e)
         {
+            var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+            //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+
+            int imageNum = 0;
+            _pdfStartingIndex -= 4;
+            for (int i = _pdfStartingIndex; i < _pdfStartingIndex+4; i++)
+            {
+                //pdfToCanvas(_pdfPages[i], images[imageNum]);
+                images[imageNum].Source = _pdfPages[i];
+                imageNum++;
+            }
+
+            pdfToCanvas(_pdfPages[_pdfStartingIndex], pdfViewer);
+            
+
+            if (_pdfStartingIndex == 0)
+            {
+                buttonPrevPDF.IsEnabled = false;
+            }
+            if(_pdfStartingIndex + 4 < _pdfPages.Length)
+            {
+                buttonNextPDF.IsEnabled = true;
+            }
 
         }
 
         private void buttonNextPDF_Click(object sender, RoutedEventArgs e)
         {
+            if (_pdfStartingIndex+4 < _pdfPages.Length)
+            {
+                var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                _pdfStartingIndex += 4;
+                int imageNum = 0;
+                //Hot fix, clear all images before
+                ClearPDFImages();
+                for(int i =_pdfStartingIndex; i < _pdfStartingIndex+4 && i < _pdfPages.Length; i++)
+                {
+                    //pdfToCanvas(_pdfPages[i], images[imageNum]);
+                    images[imageNum].Source = _pdfPages[i];
+                    imageNum++;
+                }
+                pdfToCanvas(_pdfPages[_pdfStartingIndex], pdfViewer);
+                
+                if(_pdfStartingIndex > 0)
+                {
+                    buttonPrevPDF.IsEnabled = true;
+                }
+                if(_pdfStartingIndex+4 > _pdfPages.Length)
+                {
+                    buttonNextPDF.IsEnabled = false;
+                }
 
+            }
+
+        }
+
+        private void ClearPDFImages()
+        {
+            var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+            //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+            for (int i = 0; i < images.Length; i++)
+            {
+                images[i].Source = null;
+            }
         }
 
         private void buttonLoadPDF_Click(object sender, RoutedEventArgs e)
@@ -1037,26 +1101,43 @@ namespace ARTAPclient
 
             if (openFileDialog.ShowDialog() == true)
             {
-                int numPages = PDFManager.getNumPages(openFileDialog.FileName);
-                //System.Drawing.Image image = PDFManager.getImage(pdfFile, pageNumber);
+                _pdfStartingIndex = 0;
+                int numPDFPages = PDFManager.getNumPages(openFileDialog.FileName);
+                _pdfPages = new BitmapImage[numPDFPages];
                 //Get the first page
                 System.Drawing.Image image = PDFManager.getImage(openFileDialog.FileName, 1);
 
                 BitmapImage bmi = convertDrawiningImageToBitmap(image);
 
-                ImageBrush ib = new ImageBrush();
-                ib.Stretch = Stretch.Uniform;
-                ib.ImageSource = bmi;
-                pdfViewer.Background = ib;
+                pdfToCanvas(bmi, pdfViewer);
 
                 var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                //pdfToCanvas(bmi.Clone(), images[0]);
                 images[0].Source = bmi.Clone();
+                _pdfPages[0] = bmi.Clone();
+
                 //Set the first 4 border/images now
                 //only have 4 display images and don't want to loop if we have less than 4 pages
-                for (int i = 1; i < 4 && i < numPages; i++)
+                //int maxValue = System.Math.Min(4, numPDFPages);
+                for (int i = 1; i < 4 && i < numPDFPages; i++)
                 {
                     BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
+                    //pdfToCanvas(temp, images[i]);
                     images[i].Source = temp;
+                    _pdfPages[i] = temp.Clone();
+                }
+
+                //Get the rest of the pages if there are any
+                for(int i = 4; i < numPDFPages; i++)
+                {
+                    BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
+                    _pdfPages[i] = temp;
+                }
+
+                if(numPDFPages > 4)
+                {
+                    buttonNextPDF.IsEnabled = true;
                 }
 
             }
@@ -1108,6 +1189,24 @@ namespace ARTAPclient
             bmi.EndInit();
 
             return bmi;
+        }
+        //Will select the current one for sending and will also send it to the viewer
+        private void pdfThumb_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var thumbName = ((Image)sender).Name;
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
+
+
+            pdfToCanvas(_pdfPages[_pdfStartingIndex + thumbNailNum], pdfViewer);
+            //UpdateThumbnailBorders();
+        }
+
+        private void pdfToCanvas(BitmapImage img, Canvas can)
+        {
+            ImageBrush ib = new ImageBrush();
+            ib.Stretch = Stretch.Uniform;
+            ib.ImageSource = img;
+            can.Background = ib;
         }
     }
 }
