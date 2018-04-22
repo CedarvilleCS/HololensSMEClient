@@ -111,7 +111,8 @@ namespace WpfApplication1
                 var forwardAngle = pos.GetForwardAngle();
                 if (MaxAngleLeft > MaxAngleRight)
                 {
-                    return (forwardAngle < MaxAngleLeft && forwardAngle > MaxAngleRight);
+                    return (forwardAngle < MaxAngleLeft && forwardAngle > MaxAngleRight) ||
+                            (forwardAngle - 2*Math.PI < MaxAngleLeft && forwardAngle - 2*Math.PI > MaxAngleRight);
                 }
                 else
                 {
@@ -146,8 +147,19 @@ namespace WpfApplication1
         {
             //Measurements in radians
             double rightmostAngle = ImagePositions[0].GetForwardAngle();
+            double point2 = ImagePositions[1].GetForwardAngle();
+            double point3 = ImagePositions[2].GetForwardAngle();
+            double point4 = ImagePositions[3].GetForwardAngle();
             double leftmostAngle = ImagePositions[4].GetForwardAngle();
-            double centerPoint = (leftmostAngle + rightmostAngle) / 2;
+            double centerPoint;
+            if(leftmostAngle > rightmostAngle)
+            {
+                centerPoint = (leftmostAngle + rightmostAngle) / 2;
+            }
+            else
+            {
+                centerPoint = (leftmostAngle + rightmostAngle - 2 * Math.PI) / 2;
+            }
             double width = DegreesToRads(AngleBetween(leftmostAngle, rightmostAngle) * (1.215f));
             MaxAngleLeft = centerPoint + width / 2.0;
             MaxAngleRight = centerPoint - width / 2.0;
@@ -157,6 +169,8 @@ namespace WpfApplication1
                 MaxAngleRight = MaxAngleLeft;
                 MaxAngleLeft = temp;
             }
+            MaxAngleLeft += .275;
+            MaxAngleRight -= .275;
             float sumY = 0;
             foreach (ImagePosition ip in ImagePositions)
             {

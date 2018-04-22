@@ -134,8 +134,12 @@ namespace WpfApplication1
         {
             //get angle relative to z axis
             double val = Math.Atan((Forward[0] / Forward[2]));
-            if (val < 0)
+            if(Forward[2] < 0)
+            {
                 val += Math.PI;
+            }
+            if (val < 0)
+                val += 2 * Math.PI;
             return val;
         }
 
