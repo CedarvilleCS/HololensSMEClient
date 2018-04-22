@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="WpfApplication1.TaskListUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Background="White" Name="TaskListGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+        <!--Add Grid.RowSpan=2 if want the border around the buttons too-->
+        <Border Grid.Row="0" BorderBrush="#1065ed" BorderThickness="1,1,1,1" CornerRadius="8,8,8,8" Margin="3,0,0,35" Grid.RowSpan="2">
+            <!-- Need to figure out how to add the tasks to here-->
+            <ScrollViewer x:Name="ScrollView" Grid.Row="0" Margin="0,15,0,10">
+                <Grid Background="White" Margin="5.5,0,0,0" x:Name="IndividualTasks" ScrollViewer.CanContentScroll="True">
+                </Grid>
+            </ScrollViewer>
+        </Border>
+        <Button Content="Add Task" Grid.Row="1" HorizontalAlignment="Center" Margin="0,5,100,5" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White" Click="AddTaskClick"/>
+        <Button Content="Send Task List" Grid.Row="1" HorizontalAlignment="Center" Margin="100,5,0,5" VerticalAlignment="Top" Width="75" FontSize="8" Background="#FF1065ED" Foreground="White" Click="SendTaskClick"/>
+    </Grid>
+</UserControl>

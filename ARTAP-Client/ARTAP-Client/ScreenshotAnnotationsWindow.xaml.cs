@@ -11,112 +11,50 @@ using WpfApplication1;
 using PDFViewer;
 using System.Diagnostics;
 using System.IO;
+using MahApps.Metro.Controls;
 
 namespace ARTAPclient
 {
     /// <summary>
     /// Interaction logic for Window2.xaml
     /// </summary>
-    /// 
+    ///
     public partial class ScreenshotAnnotationsWindow : MahApps.Metro.Controls.MetroWindow
     {
         #region Fields
 
-        /// <summary>
-        /// Maximum number of images to hold in the history.
-        /// </summary>
+        private const int DPIX = 96;
+        private const int DPIY = 96;
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
-
         private const int THUMBNAIL_GALLERY_SIZE = 5;
 
-        /// <summary>
-        /// Current bitmap active for drawing
-        /// </summary>
+        public TaskListUI CurrentTaskList;
+
         private AnnotatedImage _activeImage;
-
-        /// <summary>
-        /// History of images snapped or uploaded
-        /// </summary>
-        private List<AnnotatedImage> _imageHistory = new List<AnnotatedImage>();
-
-        private List<Image> _selectedImages = new List<Image>();
-
-        /// <summary>
-        /// Inedex of current image in _imageHistory
-        /// </summary>
-        private int _currentImageIndex = 0;
-
-        private Direction _markerDirection = Direction.MiddleMiddle;
-
-        ///// <summary>
-        ///// History of images snapped from the stream
-        ///// </summary>
-        //private List<ImageSource> _imageHistory = new List<ImageSource>();
-
-        ///// <summary>
-        ///// History of orignal images snapped from the stream
-        ///// </summary>
-        //private List<ImageSource> _imageOriginals = new List<ImageSource>();
-
-        /// <summary>
-        /// List containing all of the thumbnail pictureboxes to make updating easy
-        /// </summary>
-        private List<ThumbnailImage> _pictureBoxThumbnails = new List<ThumbnailImage>();
-
-        /// <summary>
-        /// List of all of the buttons we want to enable/disable during arrow placement
-        /// </summary>
-        private List<Button> _editButtons = new List<Button>();
-
-        ///// <summary>
-        ///// List containing all of the thumbnail pictureboxes to make updating easy
-        ///// </summary>
-        //private List<Polyline[]>_annotations = new List<Polyline[]>();
-
-        /// <summary>
-        /// Number of thumbnail images
-        /// </summary>
-
-        /// <summary>
-        /// Color used for canvas annotations, default to Red
-        /// </summary>
-        private System.Windows.Media.Color _brushColor = Colors.Red;
-
-        /// <summary>
-        /// Size used for canvas annotations, default to 5
-        /// </summary>
-        private double _brushSize = 5;
-
-        /// <summary>
-        /// X DPI of the screen
-        /// </summary>
-        private const int DPIX = 96;
-
-        /// <summary>
-        /// Y DPI of the screen
-        /// </summary>
-        private const int DPIY = 96;
-
-        /// <summary>
-        /// Window that the video view is on
-        /// </summary>
+        private System.Timers.Timer _checkTaskListTimer;
+        private List<Button> _editButtons;
+        private List<AnnotatedImage> _imageHistory;
+        private AsynchronousSocketListener _listener;
+        private List<ThumbnailImage> _pictureBoxThumbnails;
+        private System.Windows.Shapes.Path _placeArrowPath;
+        private Style _removeButtonStyle;
+        private List<Image> _selectedImages;
+        private List<TaskListUI> _taskLists;
+        private Style _taskStyle;
+        private Style _taskTitleStyle;
+        private Style _addImageStyle;
+        private Style _afterImageStyle;
+        private TaskListUserControl _userControl;
         private VideoStreamWindow _videoStreamWindow;
 
-        /// <summary>
-        /// Connection to the HoloLens
-        /// </summary>
-        private AsynchronousSocketListener _listener;
-
-        /// <summary>
-        /// Are we currently in "Arrow place mode?"
-        /// </summary>
-        private bool _placingMarker;
-
-        private int _thumbIndex = 0;
-
+        private Color _brushColor = Colors.Red;
+        private double _brushSize = 5;
+        private int _currentImageIndex = 0;
+        private bool _isPlacingMarker;
         private bool _isSelectMultiple = false;
-
-        private System.Windows.Shapes.Path placeArrowPath;
+        private Direction _markerDirection = Direction.MiddleMiddle;
+        private string _oldText = "";
+        private int _thumbIndex = 0;
         #endregion
 
         #region Constructor
@@ -125,24 +63,478 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb0, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
 
-            _videoStreamWindow = videoStreamWindow;
+            _checkTaskListTimer = new System.Timers.Timer(2000);
+            _checkTaskListTimer.Elapsed += SendTaskListRequest;
+
+            _editButtons = new List<Button>();
+            _imageHistory = new List<AnnotatedImage>();
             _listener = listener;
-            //_listener.ConnectionClosed += _listener_ConnectionClosed;
-        }
 
+            _pictureBoxThumbnails = new List<ThumbnailImage>
+            {
+                new ThumbnailImage(imageThumb0, false),
+                new ThumbnailImage(imageThumb1, false),
+                new ThumbnailImage(imageThumb2, false),
+                new ThumbnailImage(imageThumb3, false),
+                new ThumbnailImage(imageThumb4, false)
+            };
+
+            _removeButtonStyle = FindResource("RoundX") as Style;
+            _selectedImages = new List<Image>();
+            _taskLists = new List<TaskListUI>();
+            _taskStyle = FindResource("Task") as Style;
+            _taskTitleStyle = FindResource("Title") as Style;
+            _addImageStyle = FindResource("imageButton") as Style;
+            _afterImageStyle = FindResource("imageAdded") as Style;
+            _userControl = new TaskListUserControl(this);
+            _videoStreamWindow = videoStreamWindow;
+        }
         #endregion
 
         #region PrivateMethods
 
-        /// <summary>
-        /// Updates the thumbnails with the latest images captured
-        /// </summary>
+        private void AddAllTaskUIs(List<TaskUI> uiTasks)
+        {
+            foreach (var uiTask in uiTasks)
+            {
+                AddUITask(uiTask);
+            }
+        }
+
+        private void AddNewImage(AnnotatedImage source)
+        {
+            DrawImageToCanvas(source.OriginalImage);
+
+            if (_imageHistory.Count >= MAX_IMAGE_HISTORY_SIZE)
+            {
+                _imageHistory.RemoveAt(_imageHistory.Count - 1);
+            }
+
+            _activeImage = source;
+            _imageHistory.Insert(0, source);
+            _currentImageIndex = 0;
+
+            CheckMarkerPlacementAllowed();
+            UpdateThumbnails();
+            UpdateThumbnailBorders();
+        }
+
+        public void AddNewTask(object sender, RoutedEventArgs e)
+        {
+            var order = CurrentTaskList.TaskList.Tasks.Count;
+            var task = new Task(order);
+            CurrentTaskList.TaskList.Tasks.Add(task);
+
+            var uiTask = new TaskUI(task, 60 + (30 * order), _removeButtonStyle, _taskStyle, _addImageStyle, order);
+            CurrentTaskList.TaskUIs.Add(uiTask);
+            AddUITask(uiTask);
+        }
+
+        private void AddTaskListName(TaskListUI taskList)
+        {
+            var nameBox = taskList.NameTextBox;
+            taskList.NameTextBox.TextChanged += UpdateTaskListName;
+            _userControl.IndividualTasks.Children.Add(nameBox);
+        }
+
+        private void AddUITask(TaskUI uiTask)
+        {
+            var checkbox = uiTask.IsCompletedUI;
+            var remove = uiTask.Remove;
+            var nameBox = uiTask.NameUI;
+            var addImage = uiTask.AddImage;
+
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == uiTask.TaskId);
+            if (!task.IsNew) nameBox.Text = task.Name;
+            else nameBox.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
+
+            if (task.Attachment != null)
+            {
+                Image content = new Image();
+                Image toolTip = new Image();
+                content.Source = task.Attachment;
+                toolTip.Source = task.Attachment;
+
+                addImage.Content = content;
+                ToolTip tt = new ToolTip
+                {
+                    Content = toolTip,
+                    Width = 500,
+                    Height = 500,
+                };
+                addImage.ToolTip = tt;
+            }
+
+            //Make it so images are set
+
+            remove.Click += removeTask_Click;
+            uiTask.NameUI.TextChanged += UpdateTaskName;
+            checkbox.Checked += UpdateTaskCompletion;
+            checkbox.Unchecked += UpdateTaskCompletion;
+            addImage.Click += AddImageClick;
+
+            _userControl.IndividualTasks.Children.Add(remove);
+            _userControl.IndividualTasks.Children.Add(nameBox);
+            _userControl.IndividualTasks.Children.Add(checkbox);
+            _userControl.IndividualTasks.Children.Add(addImage);
+        }
+
+        private void AddImageClick(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "Image Files (*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG)|*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+
+                var btn = (Button)sender;
+                var img = new Image();
+                var toolTipImg = new Image();
+
+                var bitmap = new BitmapImage(new Uri(openFileDialog.FileName, UriKind.Absolute));
+                img.Source = bitmap;
+                toolTipImg.Source = bitmap;
+
+                var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == btn.Tag.ToString());
+                var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
+                //Ask if should do actual size or scaling height or flat (currently what I am doing)
+                //scaling
+                ToolTip tt = new ToolTip
+                {
+                    Content = toolTipImg,
+                    Width = 500,
+                    Height = 500,
+                };
+
+                task.Attachment = bitmap;
+
+                btn.ToolTip = tt;
+                btn.Content = img;
+                //CurrentTaskList.RecreateUIElements(_taskTitleStyle);
+            }
+        }
+
+        private void CheckMarkerPlacementAllowed()
+        {
+            if (_activeImage is LocatableImage)
+            {
+                buttonPlaceArrow.IsEnabled = true;
+            }
+            else
+            {
+                //
+                // Make sure we are not in marker placing mode
+                // if placing markers is not allowed
+                //
+                SetPlacingMarkers(false);
+                buttonPlaceArrow.IsEnabled = false;
+            }
+        }
+
+        private void ChooseMarkerType(object sender, RoutedEventArgs e)
+        {
+
+            Button btn = (Button)sender;
+            string btnName = btn.Name;
+
+            var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
+
+            _markerDirection = (Direction)(direction - 1);
+
+            Image content = (Image)btn.Content;
+            var test = content.Source;
+            buttonPlaceArrow.Content = (Image)btn.Content;
+
+            String correctPhoto = "";
+
+            switch (direction)
+            {
+                case 1:
+                    correctPhoto = "downright";
+                    break;
+                case 2:
+                    correctPhoto = "down";
+                    break;
+                case 3:
+                    correctPhoto = "downleft";
+                    break;
+                case 4:
+                    correctPhoto = "right";
+                    break;
+                case 5:
+                    correctPhoto = "filled_circle";
+                    break;
+                case 6:
+                    correctPhoto = "left";
+                    break;
+                case 7:
+                    correctPhoto = "upright";
+                    break;
+                case 8:
+                    correctPhoto = "up";
+                    break;
+                case 9:
+                    correctPhoto = "upleft";
+                    break;
+            }
+            btn.Content = new Image
+            {
+                Source = new BitmapImage(new Uri("Resources/" + correctPhoto + ".png", UriKind.Relative)),
+            };
+            //Maybe always set it to true?
+            SetPlacingMarkers(true);
+
+            //Disable all buttons that do not need to be available for this mode
+            buttonChangeColor.IsEnabled = false;
+            buttonUploadImage.IsEnabled = false;
+            buttonCaptureScreenshot.IsEnabled = false;
+
+            //The menu will have to be open to click a button so we don't have to toggle here
+            MenuFlyout.IsOpen = false;
+        }
+
+        private void DrawImageToCanvas(ImageSource image)
+        {
+            var ib = new ImageBrush();
+
+            try
+            {
+                ib.Stretch = Stretch.Uniform;
+                ib.ImageSource = image.Clone();
+            }
+            catch (NotSupportedException)
+            {
+                MessageBox.Show("The selected file must be an image.", "Not an image file", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            canvasImageEditor.Children.Clear();
+            if (image.Height < image.Width)
+            {
+                canvasImageEditor.Width = (360 / image.Height) * image.Width;
+                canvasImageEditor.Height = 360;
+            }
+            else
+            {
+                canvasImageEditor.Width = 640;
+                canvasImageEditor.Height = (640 / image.Width) * image.Height;
+            }
+
+            canvasImageEditor.Background = ib;
+            canvasImageEditor.InvalidateVisual();
+        }
+
+        private int GetIndexFromThumbnailName(string name)
+        {
+            var character = name[name.Length - 1];
+            switch (character)
+            {
+                case '1':
+                    return 1;
+                case '2':
+                    return 2;
+                case '3':
+                    return 3;
+                case '4':
+                    return 4;
+                default:
+                    return 0;
+            }
+        }
+
+        private void LoadPDF(string pdfFile)
+        {
+            try
+            {
+                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+                bool? result = pdfDialog.ShowDialog();
+                if (result == true)
+                {
+                    List<ImageSource> images = new List<ImageSource>();
+                    foreach (var image in pdfDialog.selectedImages)
+                    {
+                        images.Add(image);
+                        AddNewImage(new AnnotatedImage(image, true));
+                    }
+                }
+            }
+            catch (TypeInitializationException)
+            {
+                MessageBoxResult result = MessageBox.Show
+                    ("GhostScript must be installed to support this feature.\nWould you like to download it?",
+                     "Dependency Missing",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Error);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    result = MessageBox.Show
+                    ("NOTE: After installing, you must restart the application", "NOTE",
+                     MessageBoxButton.OK,
+                     MessageBoxImage.Exclamation);
+
+                    Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+                }
+            }
+        }
+
+        private void ReceiveTaskListCallback(IAsyncResult ar)
+        {
+            var notification = new TaskListNotification((byte[])ar.AsyncState);
+            _listener.ClientEndReceive(ar);
+        }
+
+        private void SaveCanvasToActiveImage()
+        {
+            if (_imageHistory.Count != 0)
+            {
+                Rect bounds = VisualTreeHelper.GetDescendantBounds(canvasImageEditor);
+                var rtb =
+                    new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height,
+                    DPIX, DPIY, PixelFormats.Default);
+
+                var dv = new DrawingVisual();
+                using (DrawingContext dc = dv.RenderOpen())
+                {
+                    var vb = new VisualBrush(canvasImageEditor);
+                    dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
+                }
+
+                rtb.Render(dv);
+
+                _activeImage.LatestImage = rtb.Clone();
+                UpdateThumbnails();
+                UpdateThumbnailBorders();
+            }
+        }
+
+        public void SelectThumbnail(int thumbnailNum)
+        {
+            _currentImageIndex = thumbnailNum;
+            _activeImage = _imageHistory[_currentImageIndex];
+            CheckMarkerPlacementAllowed();
+
+            //Draw the orignal image to the canvas
+            DrawImageToCanvas(_activeImage.OriginalImage);
+
+            //Add the annotations over top
+            foreach (Polyline line in _activeImage.Annotations)
+            {
+                canvasImageEditor.Children.Add(line);
+            }
+
+            //Add the markers if they exist
+            if (_activeImage is LocatableImage)
+            {
+                foreach (var m in (_activeImage as LocatableImage).Markers)
+                {
+                    canvasImageEditor.Children.Add(m.Annotation);
+                }
+            }
+
+        }
+
+        public void SendTaskList()
+        {
+            _listener.SendTaskList(CurrentTaskList.TaskList);
+        }
+
+        private void SendTaskListRequest(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                var state = new StateObject();
+                _listener.ClientReceive(state.buffer, 0, 10, 0,
+                    new AsyncCallback(ReceiveTaskListCallback), state);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the Task List from the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SetPlacingMarkers(bool placingArrow)
+        {
+            _isPlacingMarker = placingArrow;
+            _activeImage.SetAnnotationsVisibility(placingArrow ? Visibility.Hidden : Visibility.Visible);
+
+            if (placingArrow)
+            {
+                buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
+                                       !(_activeImage as LocatableImage).HasUnsentMarkers();
+
+                buttonPlaceArrow.Background = Brushes.LightGreen;
+            }
+            else
+            {
+                buttonUndo.IsEnabled = true;
+
+                buttonPlaceArrow.Background = Brushes.LightGray;
+            }
+        }
+
+        public void UpdateTaskCompletion(object sender, RoutedEventArgs e)
+        {
+            var box = (CheckBox)sender;
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == box.Tag.ToString());
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
+
+            task.IsCompleted = (bool)(box.IsChecked);
+            taskUI.NameUI.IsEnabled = !task.IsCompleted;
+            taskUI.AddImage.IsEnabled = !task.IsCompleted;
+        }
+
+        public void UpdateTaskListName(object sender, RoutedEventArgs e)
+        {
+            var stackPanel = (StackPanel)(TaskListGrid.Children[0]);
+            var box = (TextBox)sender;
+
+            foreach (var panelChild in stackPanel.Children)
+            {
+                if (panelChild is Button button)
+                {
+                    if ((int)button.Tag == CurrentTaskList.TaskList.Id)
+                    {
+                        CurrentTaskList.TaskList.Name = box.Text;
+                        button.Content = box.Text;
+                    }
+                }
+            }
+        }
+
+        public void UpdateTaskName(object sender, RoutedEventArgs e)
+        {
+            var box = (TextBox)sender;
+
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == box.Tag.ToString());
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
+
+            task.Name = box.Text;
+            task.IsNew = false;
+        }
+
+        private void UpdateThumbnailBorders()
+        {
+            var borders = new Border[] {
+                imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
+            };
+
+            for (var i = 0; i < THUMBNAIL_GALLERY_SIZE; i++)
+            {
+                var thumbnailBorder = borders[i];
+                if (_pictureBoxThumbnails[i].IsSelected)
+                {
+                    thumbnailBorder.BorderBrush = Brushes.Cyan;
+                }
+                else
+                {
+                    thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF5B5B5B"));
+                }
+            }
+        }
+
         private void UpdateThumbnails()
         {
             int numActiveThumbnails = THUMBNAIL_GALLERY_SIZE;
@@ -181,147 +573,195 @@ namespace ARTAPclient
             }
         }
 
-        /// <summary>
-        /// Render image to canvas
-        /// </summary>
-        private void SaveCanvasToActiveImage()
+        #endregion
+
+        #region EventHandlers
+        private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
-            if (_imageHistory.Count != 0)
+            var count = _taskLists.Count;
+
+            if (count < 14)
             {
-                Rect bounds = VisualTreeHelper.GetDescendantBounds(canvasImageEditor);
-                var rtb =
-                    new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height,
-                    DPIX, DPIY, PixelFormats.Default);
+                var taskListUI = new TaskListUI(new TaskList(count), _removeButtonStyle, _taskTitleStyle, _taskStyle, _addImageStyle);
+                var button = taskListUI.Button;
+                _taskLists.Add(taskListUI);
 
-                var dv = new DrawingVisual();
-                using (DrawingContext dc = dv.RenderOpen())
-                {
-                    var vb = new VisualBrush(canvasImageEditor);
-                    dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
-                }
+                button.Click += list_Click;
 
-                rtb.Render(dv);
+                taskListButtons.Children.Add(button);
+                list_Click(button, null);
+            }
+        }
 
-                _activeImage.LatestImage = rtb.Clone();
+        private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
+        {
+            _placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
+            ImageSource screenshot = _videoStreamWindow.CaptureScreen();
+            LocatableImage img = new LocatableImage(screenshot);
+            AddNewImage(img);
+            _listener.RequestLocationID(img);
+        }
+
+        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
+        {
+            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
+            colorDialog.SelectedColor = _brushColor;
+            colorDialog.SelectedSize = _brushSize;
+            colorDialog.Owner = this;
+            if ((bool)colorDialog.ShowDialog())
+            {
+                _brushColor = colorDialog.SelectedColor;
+                _brushSize = colorDialog.SelectedSize;
+            }
+        }
+
+        private void buttonNext_Click(object sender, RoutedEventArgs e)
+        {
+            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
+            {
+                _thumbIndex++;
+
                 UpdateThumbnails();
                 UpdateThumbnailBorders();
             }
         }
 
-        /// <summary>
-        /// Loads the thumbnail image passed
-        /// </summary>
-        /// <param name="thumbnailNum">Thumnail num to load</param>
-        public void SelectThumbnail(int thumbnailNum)
+        private void buttonPrev_Click(object sender, RoutedEventArgs e)
         {
-            _currentImageIndex = thumbnailNum;
-            _activeImage = _imageHistory[_currentImageIndex];
-            CheckMarkerPlacementAllowed();
-
-            //Draw the orignal image to the canvas
-            DrawImageToCanvas(_activeImage.OriginalImage);
-
-            //Add the annotations over top
-            foreach (Polyline line in _activeImage.Annotations)
+            if (_thumbIndex > 0)
             {
-                canvasImageEditor.Children.Add(line);
+                _thumbIndex--;
+                UpdateThumbnails();
+                UpdateThumbnailBorders();
+            }
+        }
+
+        private void buttonRemoveList_Click(object sender, RoutedEventArgs e)
+        {
+            var dialogResult = MessageBox.Show("Are you sure you want to delete this TaskList?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                var button = (Button)sender;
+                var index = _taskLists.FindIndex(x => x == CurrentTaskList);
+
+                _taskLists.RemoveAt(index);
+
+                var buttons = taskListButtons.Children;
+                buttons.RemoveAt(index);
+
+                if (buttons.Count > 0)
+                {
+                    list_Click(buttons[buttons.Count - 1], null);
+                }
+                else
+                {
+                    buttonAddList_Click(null, null);
+                }
+            }
+        }
+
+        private void buttonSelectMultiple_Click(object sender, EventArgs e)
+        {
+            if (_isPlacingMarker)
+            {
+                SetPlacingMarkers(!_isPlacingMarker);
+                buttonChangeColor.IsEnabled = !_isPlacingMarker;
+                buttonUploadImage.IsEnabled = !_isPlacingMarker;
+                buttonCaptureScreenshot.IsEnabled = !_isPlacingMarker;
+                buttonPlaceArrow.Content = _placeArrowPath;
+            }
+            else
+            {
+                _isSelectMultiple = !_isSelectMultiple;
+
+                buttonUndo.IsEnabled = !_isSelectMultiple;
+                buttonChangeColor.IsEnabled = !_isSelectMultiple;
+                buttonUploadImage.IsEnabled = !_isSelectMultiple;
+                buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
+                buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
             }
 
-            //Add the markers if they exist
-            if (_activeImage is LocatableImage)
+        }
+
+        private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
+        {
+            if (_activeImage != null)
             {
-                foreach (var m in (_activeImage as LocatableImage).Markers)
+                _listener.SendBitmap(_activeImage.LatestImage);
+                if (_selectedImages.Any())
                 {
-                    canvasImageEditor.Children.Add(m.Annotation);
+                    var document = new PDFDocument();
+                    foreach (var image in _selectedImages)
+                    {
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+
+                        if (image.Source is BitmapSource bitmapSource)
+                        {
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                            using (var stream = new MemoryStream())
+                            {
+                                encoder.Save(stream);
+                                bytes = stream.ToArray();
+                            }
+
+                            document.Pages.Add(bytes);
+                        }
+                    }
+
+                    _listener.SendPDF(document);
+                }
+                else if (_isPlacingMarker)
+                {
+                    if (((LocatableImage)_activeImage).PositionID != null)
+                    {
+                        _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Waiting for Location ID from Image", "Error", MessageBoxButton.OK);
+                    }
+                }
+                else
+                {
+                    _listener.SendBitmap(_activeImage.LatestImage);
+                }
+            }
+        }
+
+        private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
+        }
+
+        private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                if (openFileDialog.FileName.EndsWith(".pdf"))
+                {
+                    LoadPDF(openFileDialog.FileName);
+                }
+                else
+                {
+                    Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
+                    ImageSource img = new BitmapImage(imageUri);
+                    AddNewImage(new AnnotatedImage(img));
                 }
             }
 
-        }
-
-        /// <summary>
-        /// Changes the Image that is being edited and updates the
-        /// history thumbnails.
-        /// </summary>
-        /// <param name="source">Image to be displayed</param>
-        private void AddNewImage(AnnotatedImage source)
-        {
-            DrawImageToCanvas(source.OriginalImage);
-
-            if (_imageHistory.Count >= MAX_IMAGE_HISTORY_SIZE)
-            {
-                _imageHistory.RemoveAt(_imageHistory.Count - 1);
-            }
-
-            _activeImage = source;
-            _imageHistory.Insert(0, source);
-            _currentImageIndex = 0;
-
-            CheckMarkerPlacementAllowed();
-            UpdateThumbnails();
-            UpdateThumbnailBorders();
-        }
-
-        /// <summary>
-        /// Renders image to the canvas and clears any annotations
-        /// </summary>
-        /// <param name="image">Image to draw</param>
-        private void DrawImageToCanvas(ImageSource image)
-        {
-            ImageBrush ib = new ImageBrush();
-            ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = image.Clone();
-            canvasImageEditor.Children.Clear();
-            if (image.Height < image.Width)
-            {
-                canvasImageEditor.Width = (360 / image.Height) * image.Width;
-                canvasImageEditor.Height = 360;
-            }
-            else
-            {
-                canvasImageEditor.Width = 640;
-                canvasImageEditor.Height = (640 / image.Width) * image.Height;
-            }
-
-            canvasImageEditor.Background = ib;
-            canvasImageEditor.InvalidateVisual();
-        }
-
-        /// <summary>
-        /// Checks if marker placement can be preformed on selected image
-        /// and enables/disables corresponding buttons
-        /// </summary>
-        private void CheckMarkerPlacementAllowed()
-        {
-            if (_activeImage is LocatableImage)
-            {
-                buttonPlaceArrow.IsEnabled = true;
-            }
-            else
-            {
-                //
-                // Make sure we are not in marker placing mode
-                // if placing markers is not allowed
-                //
-                SetPlacingMarkers(false);
-                buttonPlaceArrow.IsEnabled = false;
-            }
-        }
-
-        #endregion
-
-        #region EventHandlers
-
-        private void _listener_ConnectionClosed(object sender, EventArgs e)
-        {
-            MessageBox.Show("Connection to HoloLens lost.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (_activeImage != null && !_isSelectMultiple)
             {
-                Debug.WriteLine("Placing Arrow: " + _placingMarker);
-                if (_placingMarker)
+                Debug.WriteLine("Placing Arrow: " + _isPlacingMarker);
+                if (_isPlacingMarker)
                 {
                     //
                     // Get the pixel value in the original image
@@ -332,8 +772,10 @@ namespace ARTAPclient
 
                     Point absoluteClickPoint = new Point(x, y);
 
-                    canvasImageEditor.Children.Add((_activeImage as LocatableImage).AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
+                    var locatableImage = _activeImage as LocatableImage;
+                    canvasImageEditor.Children.Add(locatableImage.AddMarker(relativeClickPoint, absoluteClickPoint, _markerDirection, _brushColor));
+
+                    _listener.SendArrowLocation(locatableImage);
 
                     //se
                     // Enable the undo button for placing arrows
@@ -358,7 +800,7 @@ namespace ARTAPclient
         {
             if (e.LeftButton == MouseButtonState.Pressed &&
                 _activeImage != null &&
-                !_placingMarker)
+                !_isPlacingMarker)
             {
                 Polyline polyLine;
                 if (_activeImage.NumAnnotations == 0)
@@ -385,55 +827,29 @@ namespace ARTAPclient
             SaveCanvasToActiveImage();
         }
 
-        private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
-        {
-            placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
-            ImageSource screenshot = _videoStreamWindow.CaptureScreen();
-            LocatableImage img = new LocatableImage(screenshot);
-            AddNewImage(img);
-            _listener.RequestLocationID(img);
-        }
-
-        private void undoButton_Click(object sender, RoutedEventArgs e)
+        private void clearAllAnnotationsMenu_Click(object sender, RoutedEventArgs e)
         {
             //
-            // We can't undo annotations if there is no
-            // active image
+            // If it's the active image, remove the markers from the cavas
+            // This will happen automatically for others when they are loaded
             //
-            if (_activeImage != null)
+            if (_activeImage is LocatableImage)
             {
-                //
-                // If there are unsent markers we can undo
-                // 
-                var locatableImage = _activeImage as LocatableImage;
-
-                if (locatableImage.NumMarkers > 0)
+                foreach (Marker m in (_activeImage as LocatableImage).Markers)
                 {
-                    canvasImageEditor.Children.Remove(locatableImage.GetLastMarker().Annotation);
-                    locatableImage.UndoMarker();
-                    _listener.EraseOneMarker(locatableImage);
-
-                    //
-                    // If there are no more unsent markers disable the undo button
-                    //
-                    buttonUndo.IsEnabled = locatableImage.NumMarkers > 0;
+                    canvasImageEditor.Children.Remove(m.Annotation);
                 }
-                
-                if (_activeImage.NumAnnotations > 0)
-                {
-                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
-                    _activeImage.UndoAnnotation();
+                SaveCanvasToActiveImage();
+            }
 
-                    SaveCanvasToActiveImage();
+            if (_listener != null && _listener.Connected)
+            {
+                _listener.EraseAllMarkers();
+                foreach (LocatableImage image in _imageHistory.OfType<LocatableImage>())
+                {
+                    image.ClearMarkers();
                 }
             }
-        }
-
-        //Function implemented but not used, values used elsewhere
-        private void buttonDirection_Click(object sender, RoutedEventArgs e)
-        {
-            var name = ((Button)sender).Name;
-            _markerDirection = (Direction)name[name.Length - 1];
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
@@ -445,9 +861,9 @@ namespace ARTAPclient
                 // if the clear annotations toolbar item is clicked that
                 // Annotations will be cleared instead of markers.
                 //
-                if (_placingMarker && sender == buttonClear)
+                if (_isPlacingMarker && sender == buttonClear)
                 {
-                    _listener.SendEraseMarkers(_activeImage as LocatableImage);
+                    _listener.EraseMarkersOnImage(_activeImage as LocatableImage);
                     foreach (Marker m in (_activeImage as LocatableImage).Markers)
                     {
                         canvasImageEditor.Children.Remove(m.Annotation);
@@ -503,86 +919,34 @@ namespace ARTAPclient
             var thumbName = ((Image)sender).Name;
             var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length-1]);
 
+            var thumbName = ((Image)sender).Name;
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
+
             SelectThumbnail(thumbNailNum + _thumbIndex);
 
             UpdateThumbnailBorders();
         }
 
-        private void UpdateThumbnailBorders()
+        private void list_Click(object sender, RoutedEventArgs e)
         {
-            var borders = new Border[] {
-                imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
-            };
+            var button = (Button)sender;
+            var buttons = taskListButtons.Children;
 
-            for (var i = 0; i < THUMBNAIL_GALLERY_SIZE; i++)
+            // crashing here right now
+            var taskList = _taskLists.Find(x => x.TaskList.Id == (int)button.Tag);
+            if (CurrentTaskList != taskList)
             {
-                var thumbnailBorder = borders[i];
-                if (_pictureBoxThumbnails[i].IsSelected)
-                {
-                    thumbnailBorder.BorderBrush = Brushes.Cyan;
-                }
-                else
-                {
-                    thumbnailBorder.BorderBrush = Brushes.White;
-                }
-            }
-        }
-        private int GetIndexFromThumbnailName(string name)
-        {
-            var character = name[name.Length - 1];
-            switch (character)
-            {
-                case '1':
-                    return 1;
-                case '2':
-                    return 2;
-                case '3':
-                    return 3;
-                case '4':
-                    return 4;
-                default:
-                    return 0;
-            }
-        }
+                _userControl = new TaskListUserControl(this);
+                CurrentTaskList = taskList;
+                CurrentTaskList.RecreateUIElements(_taskTitleStyle);
 
-        private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
-        {
-            if (_activeImage != null)
-            {
-                //_listener.SendBitmap(_activeImage.LatestImage);
-                if (_selectedImages.Any()  && _isSelectMultiple)
-                {
-                    var document = new PDFDocument();
-                    foreach (var image in _selectedImages)
-                    {
-                        byte[] bytes;
-                        var encoder = new PngBitmapEncoder();
-                        var bitmapSource = image.Source as BitmapSource;
+                AddTaskListName(taskList);
+                AddAllTaskUIs(taskList.TaskUIs);
 
-                        if (bitmapSource != null)
-                        {
-                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                TaskListGrid.Children.Add(_userControl);
 
-                            using (var stream = new MemoryStream())
-                            {
-                                encoder.Save(stream);
-                                bytes = stream.ToArray();
-                            }
-
-                            document.Pages.Add(bytes);
-                        }
-                    }
-
-                    _listener.SendPDF(document);
-                }
-                else if (_placingMarker)
-                {
-                    _listener.SendArrowLocation((LocatableImage)_activeImage);
-                }
-                else
-                {
-                    _listener.SendBitmap(_activeImage.LatestImage);
-                }
+                Grid.SetColumn(_userControl, 1);
+                Grid.SetRow(_userControl, 0);
             }
         }
 
@@ -605,244 +969,55 @@ namespace ARTAPclient
             }
         }
 
-        private void LoadPDF(string pdfFile)
+
+        public void removeTask_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
-                bool? result = pdfDialog.ShowDialog();
-                if (result == true)
-                {
-                    List<ImageSource> images = new List<ImageSource>();
-                    foreach (var image in pdfDialog.selectedImages)
-                    {
-                        images.Add(image);
-                        AddNewImage(new AnnotatedImage(image, true));
-                    }
-                }
-            }
-            catch (TypeInitializationException)
-            {
-                MessageBoxResult result = MessageBox.Show
-                    ("GhostScript must be installed to support this feature.\nWould you like to download it?",
-                     "Dependency Missing",
-                     MessageBoxButton.YesNo,
-                     MessageBoxImage.Error);
+            var button = ((Button)sender);
+            var taskUI = CurrentTaskList.TaskUIs.Find(x => x.Id.ToString() == button.Tag.ToString());
+            var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == taskUI.TaskId);
 
-                if (result == MessageBoxResult.Yes)
-                {
-                    result = MessageBox.Show
-                    ("NOTE: After installing, you must restart the application", "NOTE",
-                     MessageBoxButton.OK,
-                     MessageBoxImage.Exclamation);
-
-                    Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
-                }
-            }
+            //CurrentTaskList.TaskList.Tasks.Remove(task);
+            CurrentTaskList.RemoveTaskUI(taskUI, _userControl.IndividualTasks);
+            CurrentTaskList.ReorderTasks();
+            CurrentTaskList.SetTaskUIMargins(60);
+            //CurrentTaskList.RecreateUIElements(_taskTitleStyle);
         }
 
-        private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                if (openFileDialog.FileName.EndsWith(".pdf"))
-                {
-                    LoadPDF(openFileDialog.FileName);
-                }
-                else
-                {
-                    Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
-                    ImageSource img = new BitmapImage(imageUri);
-                    AddNewImage(new AnnotatedImage(img));
-                }
-            }
-
-        }
-
-        private void buttonChangeColor_Click(object sender, RoutedEventArgs e)
-        {
-            WPFColorPickerLib.ColorDialog colorDialog = new WPFColorPickerLib.ColorDialog();
-            colorDialog.SelectedColor = _brushColor;
-            colorDialog.SelectedSize = _brushSize;
-            colorDialog.Owner = this;
-            if ((bool)colorDialog.ShowDialog())
-            {
-                _brushColor = colorDialog.SelectedColor;
-                _brushSize = colorDialog.SelectedSize;
-            }
-        }
-
-        private void buttonPlaceArrow_Click(object sender, RoutedEventArgs e)
-        {
-            SetPlacingMarkers(!_placingMarker);
-        }
-        private void buttonShowFlyout_Click(object sender, RoutedEventArgs e)
-        {
-            //Toggles the menu upon click
-            MenuFlyout.IsOpen = !MenuFlyout.IsOpen;
-
-        }
-
-        private void ChooseMarkerType(object sender, RoutedEventArgs e)
-        {
-
-            Button btn = (Button)sender;
-            string btnName = btn.Name;
-            
-            //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
-            var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
-
-            //Set the correction marker type
-            _markerDirection = (Direction)(direction - 1);
-
-            //Works in theory, need to test
-            Image content = (Image)btn.Content;
-            var test = content.Source;
-            buttonPlaceArrow.Content = (Image)btn.Content;
-
-            //System.Drawing.Bitmap(WpfApplication1.Properties.Resources.filled_circle);
-            String correctPhoto = "";
-
-            switch (direction)
-            {
-                case 1:
-                    correctPhoto = "downright";
-                    break;
-                case 2:
-                    correctPhoto = "down";
-                    break;
-                case 3:
-                    correctPhoto = "downleft";
-                    break;
-                case 4:
-                    correctPhoto = "right";
-                    break;
-                case 5:
-                    correctPhoto = "filled_circle";
-                    break;
-                case 6:
-                    correctPhoto = "left";
-                    break;
-                case 7:
-                    correctPhoto = "upright";
-                    break;
-                case 8:
-                    correctPhoto = "up";
-                    break;
-                case 9:
-                    correctPhoto = "upleft";
-                    break;
-            }
-            btn.Content = new Image
-            {
-                Source = new BitmapImage(new Uri("Resources/" + correctPhoto + ".png", UriKind.Relative)),
-            };
-            //Maybe always set it to true?
-            SetPlacingMarkers(true);
-
-            //Disable all buttons that do not need to be available for this mode
-            buttonChangeColor.IsEnabled = false;
-            buttonUploadImage.IsEnabled = false;
-            buttonCaptureScreenshot.IsEnabled = false;
-
-            //The menu will have to be open to click a button so we don't have to toggle here
-            MenuFlyout.IsOpen = false;
-        }
-
-        private void SetPlacingMarkers(bool placingArrow)
-        {
-            _placingMarker = placingArrow;
-            _activeImage.SetAnnotationsVisibility(placingArrow ? Visibility.Hidden : Visibility.Visible);
-
-            if (placingArrow)
-            {
-                buttonUndo.IsEnabled = (_activeImage as LocatableImage).NumMarkers > 0 &&
-                                       !(_activeImage as LocatableImage).HasUnsentMarkers();
-
-                buttonPlaceArrow.Background = Brushes.LightGreen;
-            }
-            else
-            {
-                buttonUndo.IsEnabled = true;
-
-                buttonPlaceArrow.Background = Brushes.LightGray;
-            }
-        }
-
-        //To do deslect all selected pdf's upon sending them in _isSelectMultiple mode
-        private void buttonSelectMultiple_Click(object sender, EventArgs e)
-        {
-            //If in placingMarker mode get out and reset everything
-            if (_placingMarker)
-            {
-                SetPlacingMarkers(!_placingMarker);
-                buttonChangeColor.IsEnabled = !_placingMarker;
-                buttonUploadImage.IsEnabled = !_placingMarker;
-                buttonCaptureScreenshot.IsEnabled = !_placingMarker;
-                buttonPlaceArrow.Content = placeArrowPath;
-            }
-            else
-            {
-                _isSelectMultiple = !_isSelectMultiple;
-
-                buttonUndo.IsEnabled = !_isSelectMultiple;
-                buttonChangeColor.IsEnabled = !_isSelectMultiple;
-                buttonUploadImage.IsEnabled = !_isSelectMultiple;
-                buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
-                //buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
-                buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
-            }
-
-        }
-
-        private void buttonNext_Click(object sender, RoutedEventArgs e)
-        {
-            if ((_thumbIndex + THUMBNAIL_GALLERY_SIZE) < _imageHistory.Count)
-            {
-                _thumbIndex++;
-
-                UpdateThumbnails();
-                UpdateThumbnailBorders();
-            }
-        }
-
-        private void buttonPrev_Click(object sender, RoutedEventArgs e)
-        {
-            if (_thumbIndex > 0)
-            {
-                _thumbIndex--;
-                UpdateThumbnails();
-                UpdateThumbnailBorders();
-            }
-        }
-
-        private void clearAllAnnotationsMenu_Click(object sender, RoutedEventArgs e)
+        private void undoButton_Click(object sender, RoutedEventArgs e)
         {
             //
-            // If it's the active image, remove the markers from the cavas
-            // This will happen automatically for others when they are loaded
+            // We can't undo annotations if there is no
+            // active image
             //
-            if (_activeImage is LocatableImage)
+            if (_activeImage != null)
             {
-                foreach (Marker m in (_activeImage as LocatableImage).Markers)
-                {
-                    canvasImageEditor.Children.Remove(m.Annotation);
-                }
-                SaveCanvasToActiveImage();
-            }
+                //
+                // If there are unsent markers we can undo
+                //
+                var locatableImage = _activeImage as LocatableImage;
 
-            if (_listener != null && _listener.Connected)
-            {
-                _listener.SendEraseMarkers();
-                foreach (LocatableImage image in _imageHistory.OfType<LocatableImage>())
+                if (locatableImage.NumMarkers > 0)
                 {
-                    image.ClearMarkers();
+                    canvasImageEditor.Children.Remove(locatableImage.GetLastMarker().Annotation);
+                    locatableImage.UndoMarker();
+                    _listener.EraseOneMarker(locatableImage);
+
+                    //
+                    // If there are no more unsent markers disable the undo button
+                    //
+                    buttonUndo.IsEnabled = locatableImage.NumMarkers > 0;
+                }
+
+                if (_activeImage.NumAnnotations > 0)
+                {
+                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                    _activeImage.UndoAnnotation();
+
+                    SaveCanvasToActiveImage();
                 }
             }
         }
 
         #endregion
-
     }
 }
