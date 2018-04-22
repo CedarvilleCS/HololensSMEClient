@@ -263,7 +263,7 @@
                     <Canvas x:Name="pdfThumb1" MouseUp="pdfThumb_MouseUp" ClipToBounds="True" Grid.Column="1" Background="#FFE8E8E8" MinHeight="100" Margin="10,127,0,0" VerticalAlignment="Top" MinWidth="90" HorizontalAlignment="Left" Grid.Row="1"/>
                     <Canvas x:Name="pdfThumb2" MouseUp="pdfThumb_MouseUp" ClipToBounds="True" Grid.Column="1" Background="#FFE8E8E8" MinHeight="100" Margin="10,237,0,0" VerticalAlignment="Top" MinWidth="90" HorizontalAlignment="Left" Grid.Row="1"/>
                     <Canvas x:Name="pdfThumb3" MouseUp="pdfThumb_MouseUp" ClipToBounds="True" Grid.Column="1" Background="#FFE8E8E8" MinHeight="100" Margin="10,347,0,0" VerticalAlignment="Top" MinWidth="90" HorizontalAlignment="Left" Grid.Row="1"/>-->
-                    <Border x:Name="pdfThumbBorder" Grid.Column="1" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" MinHeight="100" Margin="10,17,0,0" VerticalAlignment="Top" MinWidth="90" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
+                    <Border x:Name="pdfThumbBorder0" Grid.Column="1" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="100" Margin="10,17,0,0" VerticalAlignment="Top" Width="90" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
                         <!--<Canvas x:Name="pdfThumb0" MouseUp="pdfThumb_MouseUp" ClipToBounds="True"/>-->
                         <Image x:Name="pdfThumb0"  MouseUp="pdfThumb_MouseUp" />
                     </Border>
@@ -280,7 +280,7 @@
                         <Image x:Name="pdfThumb3"  MouseUp="pdfThumb_MouseUp" />
                     </Border>
                     <Button x:Name="buttonPrevPDF" Grid.Column="1" Content="&#x25B2;" IsEnabled="False" HorizontalAlignment="Left" Margin="10,0,50,4.5" Grid.Row="1" VerticalAlignment="Bottom" Width="40" Height="26" Click="buttonPrevPDF_Click"/>
-                    <Button x:Name="buttonNextPDF" Grid.Column="1" Content="&#x25BC;" IsEnabled="False" HorizontalAlignment="Left" Margin="60,0,0,4.5" Grid.Row="1" VerticalAlignment="Bottom" Width="45" Height="26" Click="buttonNextPDF_Click"/>
+                    <Button x:Name="buttonNextPDF" Grid.Column="1" Content="&#x25BC;" IsEnabled="False" HorizontalAlignment="Left" Margin="60,0,0,4.5" Grid.Row="1" VerticalAlignment="Bottom" Width="40" Height="26" Click="buttonNextPDF_Click"/>
                     <Button x:Name="loadPDF" Grid.Column="2" Content="Load PDF" Background="#FF1065ED" Foreground="White" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,80,5" Width="70" Height="30" Click="buttonLoadPDF_Click" />
                     <Button x:Name="sendPDF" Grid.Column="2" Content="Send PDF" Background="#FF1065ED" Foreground="White" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,7,5" Width="70" Height="30" />
                 </Grid>

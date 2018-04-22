@@ -28,6 +28,7 @@ namespace ARTAPclient
         private const int DPIY = 96;
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
         private const int THUMBNAIL_GALLERY_SIZE = 5;
+        private const int PDF_GALLERY_SIZE = 4;
 
         public TaskListUI CurrentTaskList;
 
@@ -58,7 +59,7 @@ namespace ARTAPclient
         private int _thumbIndex = 0;
 
         //for pdf tab
-        private BitmapImage[] _pdfPages;
+        private ThumbnailImage[] _pdfPages;
         //This will tell what four pages to display when the arrows are clicked
         private int _pdfStartingIndex = 0;
         #endregion
@@ -1030,15 +1031,15 @@ namespace ARTAPclient
             //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
 
             int imageNum = 0;
-            _pdfStartingIndex -= 4;
-            for (int i = _pdfStartingIndex; i < _pdfStartingIndex+4; i++)
+            _pdfStartingIndex -= PDF_GALLERY_SIZE;
+            for (int i = _pdfStartingIndex; i < _pdfStartingIndex+PDF_GALLERY_SIZE; i++)
             {
                 //pdfToCanvas(_pdfPages[i], images[imageNum]);
-                images[imageNum].Source = _pdfPages[i];
+                images[imageNum].Source = _pdfPages[i].Image.Source;
                 imageNum++;
             }
 
-            pdfToCanvas(_pdfPages[_pdfStartingIndex], pdfViewer);
+            pdfToCanvas(_pdfPages[_pdfStartingIndex].Image, pdfViewer);
             
 
             if (_pdfStartingIndex == 0)
@@ -1049,26 +1050,26 @@ namespace ARTAPclient
             {
                 buttonNextPDF.IsEnabled = true;
             }
-
+            UpdatePDFBorders();
         }
 
         private void buttonNextPDF_Click(object sender, RoutedEventArgs e)
         {
-            if (_pdfStartingIndex+4 < _pdfPages.Length)
+            if (_pdfStartingIndex+PDF_GALLERY_SIZE < _pdfPages.Length)
             {
                 var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
                 //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
-                _pdfStartingIndex += 4;
+                _pdfStartingIndex += PDF_GALLERY_SIZE;
                 int imageNum = 0;
                 //Hot fix, clear all images before
                 ClearPDFImages();
-                for(int i =_pdfStartingIndex; i < _pdfStartingIndex+4 && i < _pdfPages.Length; i++)
+                for(int i =_pdfStartingIndex; i < _pdfStartingIndex+PDF_GALLERY_SIZE && i < _pdfPages.Length; i++)
                 {
                     //pdfToCanvas(_pdfPages[i], images[imageNum]);
-                    images[imageNum].Source = _pdfPages[i];
+                    images[imageNum].Source = _pdfPages[i].Image.Source;
                     imageNum++;
                 }
-                pdfToCanvas(_pdfPages[_pdfStartingIndex], pdfViewer);
+                pdfToCanvas(_pdfPages[_pdfStartingIndex].Image, pdfViewer);
                 
                 if(_pdfStartingIndex > 0)
                 {
@@ -1080,6 +1081,7 @@ namespace ARTAPclient
                 }
 
             }
+            UpdatePDFBorders();
 
         }
 
@@ -1101,44 +1103,53 @@ namespace ARTAPclient
 
             if (openFileDialog.ShowDialog() == true)
             {
+                ResetPDFGallery();
                 _pdfStartingIndex = 0;
                 int numPDFPages = PDFManager.getNumPages(openFileDialog.FileName);
-                _pdfPages = new BitmapImage[numPDFPages];
+                _pdfPages = new ThumbnailImage[numPDFPages];
                 //Get the first page
                 System.Drawing.Image image = PDFManager.getImage(openFileDialog.FileName, 1);
 
                 BitmapImage bmi = convertDrawiningImageToBitmap(image);
+                Image img = new Image();
+                img.Source = bmi;
 
-                pdfToCanvas(bmi, pdfViewer);
+                pdfToCanvas(img, pdfViewer);
 
                 var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
                 //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
                 //pdfToCanvas(bmi.Clone(), images[0]);
-                images[0].Source = bmi.Clone();
-                _pdfPages[0] = bmi.Clone();
+                images[0].Source = bmi.Clone(); 
+                _pdfPages[0] = new ThumbnailImage(img, true, true);
 
                 //Set the first 4 border/images now
                 //only have 4 display images and don't want to loop if we have less than 4 pages
                 //int maxValue = System.Math.Min(4, numPDFPages);
-                for (int i = 1; i < 4 && i < numPDFPages; i++)
+                for (int i = 1; i < PDF_GALLERY_SIZE && i < numPDFPages; i++)
                 {
                     BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
                     //pdfToCanvas(temp, images[i]);
                     images[i].Source = temp;
-                    _pdfPages[i] = temp.Clone();
+                    Image firstFour = new Image();
+                    firstFour.Source = temp;
+                    _pdfPages[i] = new ThumbnailImage(firstFour, true, true);
+
                 }
 
                 //Get the rest of the pages if there are any
-                for(int i = 4; i < numPDFPages; i++)
+                for(int i = PDF_GALLERY_SIZE; i < numPDFPages; i++)
                 {
                     BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
-                    _pdfPages[i] = temp;
+                    Image rest = new Image();
+                    rest.Source = temp;
+                    _pdfPages[i] = new ThumbnailImage(rest, true, true);
                 }
 
-                if(numPDFPages > 4)
+                if(numPDFPages > PDF_GALLERY_SIZE)
                 {
                     buttonNextPDF.IsEnabled = true;
                 }
+                UpdatePDFBorders();
 
             }
             //try
@@ -1195,18 +1206,56 @@ namespace ARTAPclient
         {
             var thumbName = ((Image)sender).Name;
             var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
+            var curPDF = _pdfPages[_pdfStartingIndex + thumbNailNum];
+            curPDF.IsSelected = !(curPDF.IsSelected);
 
-
-            pdfToCanvas(_pdfPages[_pdfStartingIndex + thumbNailNum], pdfViewer);
+            pdfToCanvas(curPDF.Image, pdfViewer);
+            UpdatePDFBorders();
             //UpdateThumbnailBorders();
         }
 
-        private void pdfToCanvas(BitmapImage img, Canvas can)
+        private void ResetPDFGallery()
+        {
+            ClearPDFImages();
+            buttonNextPDF.IsEnabled = false;
+            buttonPrevPDF.IsEnabled = false;
+            pdfViewer.Background = null;
+
+
+        }
+
+        private void pdfToCanvas(Image img, Canvas can)
         {
             ImageBrush ib = new ImageBrush();
             ib.Stretch = Stretch.Uniform;
-            ib.ImageSource = img;
+            ib.ImageSource = img.Source;
             can.Background = ib;
+        }
+
+        private void UpdatePDFBorders()
+        {
+            var borders = new Border[] {
+                pdfThumbBorder0, pdfThumbBorder1, pdfThumbBorder2, pdfThumbBorder3
+            };
+
+            for (var i = 0; i < PDF_GALLERY_SIZE; i++)
+            {
+                var thumbnailBorder = borders[i];
+                if (i+_pdfStartingIndex < _pdfPages.Length && _pdfPages[i+_pdfStartingIndex].IsSelected)
+                {
+                    thumbnailBorder.BorderThickness = new Thickness(2.0);
+                    thumbnailBorder.BorderBrush = Brushes.Black;
+                    //thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#53c653"));
+                    //thumbnailBorder.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#0099ff"));
+                    //Brushes.Cyan; #53c653 #0099ff
+                }
+                else
+                {
+                    thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF5B5B5B"));
+                    thumbnailBorder.BorderThickness = new Thickness(1.0);
+                    //thumbnailBorder.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFE8E8E8"));
+                }
+            }
         }
     }
 }
