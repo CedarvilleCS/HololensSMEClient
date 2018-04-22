@@ -163,16 +163,6 @@
                             </Path>
 
                         </Button>
-                        <Button x:Name="buttonSelectImages" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,379,5,0" VerticalAlignment="Top"
-                        Grid.Column="1" Click="buttonSelectMultiple_Click" ToolTip="Select multiple uploaded images" Grid.RowSpan="2">
-                            <Path Fill="#030104" Stretch="Uniform" Height="35" Width="40" >
-                                <Path.Data>
-                                    <PathGeometry Figures="M26.474,70c-2.176,0-4.234-1.018-5.557-2.764L3.049,43.639C0.725,40.57,1.33,36.2,4.399,33.875
-				    c3.074-2.326,7.441-1.717,9.766,1.35l11.752,15.518L55.474,3.285c2.035-3.265,6.332-4.264,9.604-2.232
-				    c3.268,2.034,4.266,6.334,2.23,9.602l-34.916,56.06c-1.213,1.949-3.307,3.175-5.6,3.279C26.685,69.998,26.58,70,26.474,70z" FillRule="NonZero"/>
-                                </Path.Data>
-                            </Path>
-                        </Button>
                         <Button x:Name="buttonNext" Content="&gt;" IsEnabled="False" HorizontalAlignment="Left" Margin="0,38,0,0" Grid.Row="1" VerticalAlignment="Top" Width="26" Height="35" Click="buttonNext_Click"/>
                         <Button x:Name="buttonPrev" Content="&lt;" IsEnabled="False" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="26" Height="35" Click="buttonPrev_Click"/>
                     </Grid>
@@ -240,6 +230,59 @@
                     </Button>
                 </Grid>
             </TabItem>
+            <TabItem Header="PDF" Controls:ControlsHelper.HeaderFontSize="20" Height="31" VerticalAlignment="Bottom" >
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="150" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="47" />
+                    </Grid.RowDefinitions>
+                        <Viewbox Grid.Row="0" Margin="0,0,0,0"  Grid.RowSpan="5">
+                        <Canvas x:Name="pdfViewer" VerticalAlignment="Top"
+                          Margin="0,0,0,15" Background="Gray" x:FieldModifier="public" MouseUp="canvasImageEditor_MouseUp" MinWidth="500" MinHeight="720" ClipToBounds="True"/>
+                    </Viewbox>
+                     <Viewbox Grid.Column="1" Grid.Row="0" Margin="15,17,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Border x:Name="pdfThumbBorder0"  Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="100"  VerticalAlignment="Top" Width="90" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
+                            <!--<Canvas x:Name="pdfThumb0" MouseUp="pdfThumb_MouseUp" ClipToBounds="True"/>-->
+                            <Image x:Name="pdfThumb0"  MouseUp="pdfThumb_MouseUp" />
+                        </Border>
+                    </Viewbox>
+                    <Viewbox Grid.Column="1" Grid.Row="1" Margin="15,17,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Border x:Name="pdfThumbBorder1"  Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="100" VerticalAlignment="Top" Width="90" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
+                            <!--<Canvas x:Name="pdfThumb1" MouseUp="pdfThumb_MouseUp" ClipToBounds="True"/>-->
+                            <Image x:Name="pdfThumb1"  MouseUp="pdfThumb_MouseUp" />
+                        </Border>
+                    </Viewbox>
+                    <Viewbox Grid.Column="1" Grid.Row="2" Margin="15,17,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Border x:Name="pdfThumbBorder2" Grid.Column="1" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="100" VerticalAlignment="Top" Width="90" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
+                            <!--<Canvas x:Name="pdfThumb2" MouseUp="pdfThumb_MouseUp" ClipToBounds="True"/>-->
+                            <Image x:Name="pdfThumb2"  MouseUp="pdfThumb_MouseUp" />
+                        </Border>
+                    </Viewbox>
+
+                    <Viewbox Grid.Column="1" Grid.Row="3" Margin="15,17,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Border x:Name="pdfThumbBorder3" Grid.Column="1" Background="#FFE8E8E8" BorderBrush="#FF5B5B5B" Height="100" VerticalAlignment="Top" Width="90" HorizontalAlignment="Left" Grid.Row="1" BorderThickness="1">
+                            <!--<Canvas x:Name="pdfThumb3" MouseUp="pdfThumb_MouseUp" ClipToBounds="True"/>-->
+                            <Image x:Name="pdfThumb3"  MouseUp="pdfThumb_MouseUp" />
+                        </Border>
+                    </Viewbox>
+                    <Button x:Name="buttonPrevPDF" Grid.Column="1" Content="&#x25B2;" IsEnabled="False" HorizontalAlignment="Left" Margin="10,0,50,4.5" Grid.Row="5" VerticalAlignment="Bottom" Width="40" Height="26" Click="buttonPrevPDF_Click"/>
+                    <Button x:Name="buttonNextPDF" Grid.Column="1" Content="&#x25BC;" IsEnabled="False" HorizontalAlignment="Left" Margin="60,0,0,4.5" Grid.Row="5" VerticalAlignment="Bottom" Width="40" Height="26" Click="buttonNextPDF_Click"/>
+                    <Button x:Name="buttonPDFSelectAll" Grid.Column="1" Background="#FF1065ED" Foreground="White" IsEnabled="False" HorizontalAlignment="Left" Margin="110,0,0,4.5" Grid.Row="5" VerticalAlignment="Bottom" Width="70" Height="40" Click="buttonPDFSelectAll_Click">
+                        <TextBlock Text="Select/Deselect All" TextWrapping="Wrap" TextAlignment="Center" />
+                    </Button>
+                    <Button x:Name="loadPDF" Grid.Column="2" Grid.Row="5" Content="Load PDF" Background="#FF1065ED" Foreground="White" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,80,5" Width="70" Height="30" Click="buttonLoadPDF_Click" />
+                    <Button x:Name="sendPDF" Grid.Column="2" Grid.Row="5" Content="Send PDF" Background="#FF1065ED" Foreground="White" IsEnabled="False" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,7,5" Width="70" Height="30" Click="sendPDF_Click"/>
+                </Grid>
+            </TabItem>
         </TabControl>
     </DockPanel>
     <Window.Resources>
@@ -284,7 +327,7 @@
             <Style.Resources>
                 <SolidColorBrush x:Key="highlight" Color="LawnGreen" Opacity="0.75" />
             </Style.Resources>
-            
+
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Content" Value="{StaticResource circleplus}" />
             <Setter Property="BorderThickness" Value="1"/>
@@ -313,7 +356,7 @@
             </Setter>
         </Style>
         <!-- End Style for add image button-->
-        
+
         <!--New Style for Headers-->
         <Style x:Key="Title" TargetType="TextBox">
             <Style.Resources>
@@ -324,13 +367,13 @@
                 <SolidColorBrush x:Key="Shaded" Color="#FF111111" Opacity="0.2" />
                 <SolidColorBrush x:Key="Light" Color="#FFF1F1F1"/>
             </Style.Resources>
-            
+
             <Setter Property="TextBox.BorderThickness" Value="0" />
             <Setter Property="FontSize" Value="24"/>
             <Setter Property="Foreground" Value="{StaticResource ThemeBlue}" />
             <!--<Setter Property="FontFamily" Value="Times New Romans Bold" />-->
-            
-            
+
+
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TextBoxBase}">
@@ -350,16 +393,16 @@
                                 <Setter Property="Foreground" Value="{StaticResource Charcoal}" />
                                 <!--<Setter Property="Foreground" Value="{StaticResource Light}"/>-->
                             </Trigger>
-                            
+
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
-                
+
             </Setter>
-            
+
         </Style>
         <!-- End Style for Headers -->
-        
+
         <!-- Begin Style for Textboxes-->
         <Style x:Key="Task" TargetType="TextBox">
             <Style.Resources>
@@ -506,8 +549,8 @@
         </Style>
 
         <!--End Rounded X Style-->
-        
-        
+
+
         <RoutedUICommand x:Key="undoCommand" Text="Undo" />
         <RoutedUICommand x:Key="captureCommand" Text="Capture" />
         <RoutedUICommand x:Key="sendCommand" Text="Send" />
@@ -556,8 +599,8 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
     </Window.Resources>
-    
-    
+
+
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource undoCommand}"
                     Executed="undoButton_Click" />

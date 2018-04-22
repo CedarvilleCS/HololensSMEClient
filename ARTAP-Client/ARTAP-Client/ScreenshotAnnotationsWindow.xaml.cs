@@ -12,6 +12,7 @@ using PDFViewer;
 using System.Diagnostics;
 using System.IO;
 using MahApps.Metro.Controls;
+using PDFToImage;
 
 namespace ARTAPclient
 {
@@ -27,6 +28,7 @@ namespace ARTAPclient
         private const int DPIY = 96;
         private const int MAX_IMAGE_HISTORY_SIZE = 50;
         private const int THUMBNAIL_GALLERY_SIZE = 5;
+        private const int PDF_GALLERY_SIZE = 4;
 
         public TaskListUI CurrentTaskList;
 
@@ -51,10 +53,14 @@ namespace ARTAPclient
         private double _brushSize = 5;
         private int _currentImageIndex = 0;
         private bool _isPlacingMarker;
-        private bool _isSelectMultiple = false;
         private Direction _markerDirection = Direction.MiddleMiddle;
         private string _oldText = "";
         private int _thumbIndex = 0;
+
+        //for pdf tab
+        private ThumbnailImage[] _pdfPages;
+        //This will tell what four pages to display when the arrows are clicked
+        private int _pdfStartingIndex = 0;
         #endregion
 
         #region Constructor
@@ -661,30 +667,6 @@ namespace ARTAPclient
             }
         }
 
-        private void buttonSelectMultiple_Click(object sender, EventArgs e)
-        {
-            if (_isPlacingMarker)
-            {
-                SetPlacingMarkers(!_isPlacingMarker);
-                buttonChangeColor.IsEnabled = !_isPlacingMarker;
-                buttonUploadImage.IsEnabled = !_isPlacingMarker;
-                buttonCaptureScreenshot.IsEnabled = !_isPlacingMarker;
-                buttonPlaceArrow.Content = _placeArrowPath;
-            }
-            else
-            {
-                _isSelectMultiple = !_isSelectMultiple;
-
-                buttonUndo.IsEnabled = !_isSelectMultiple;
-                buttonChangeColor.IsEnabled = !_isSelectMultiple;
-                buttonUploadImage.IsEnabled = !_isSelectMultiple;
-                buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
-                buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
-                buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
-            }
-
-        }
-
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
             if (_activeImage != null)
@@ -740,25 +722,19 @@ namespace ARTAPclient
         private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "Image Files (*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG)|*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG";
             if (openFileDialog.ShowDialog() == true)
             {
-                if (openFileDialog.FileName.EndsWith(".pdf"))
-                {
-                    LoadPDF(openFileDialog.FileName);
-                }
-                else
-                {
                     Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
                     ImageSource img = new BitmapImage(imageUri);
                     AddNewImage(new AnnotatedImage(img));
-                }
             }
 
         }
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_activeImage != null && !_isSelectMultiple)
+            if (_activeImage != null)
             {
                 Debug.WriteLine("Placing Arrow: " + _isPlacingMarker);
                 if (_isPlacingMarker)
@@ -854,7 +830,7 @@ namespace ARTAPclient
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage != null && !_isSelectMultiple)
+            if (_activeImage != null)
             {
                 //
                 // The sender == buttonClear clause makes sure that
@@ -882,41 +858,10 @@ namespace ARTAPclient
                     SaveCanvasToActiveImage();
                 }
             }
-            else if (_isSelectMultiple)
-            {
-                var borders = new Border[] {
-                    imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
-                };
-
-                foreach (var border in borders)
-                {
-                    border.BorderBrush = Brushes.White;
-                }
-            }
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (_isSelectMultiple)
-            {
-                var index = GetIndexFromThumbnailName(((Image)sender).Name);
-                var thumbnail = _pictureBoxThumbnails[index];
-                buttonUndo.IsEnabled = false;
-
-                if (!thumbnail.IsSelected && thumbnail.IsPdf)
-                {
-                    _selectedImages.Add(thumbnail.Image);
-                    _imageHistory[_thumbIndex + index].IsSelected = true;
-                    thumbnail.IsSelected = true;
-                }
-                else if (thumbnail.IsSelected && thumbnail.IsPdf)
-                {
-                    _selectedImages.Remove(thumbnail.Image);
-                    _imageHistory[_thumbIndex + index].IsSelected = false;
-                    thumbnail.IsSelected = false;
-                }
-            }
-
             var thumbName = ((Image)sender).Name;
             var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length-1]);
 
@@ -1017,5 +962,286 @@ namespace ARTAPclient
         }
 
         #endregion
+
+        private void buttonPrevPDF_Click(object sender, RoutedEventArgs e)
+        {
+            var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+            //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+
+            int imageNum = 0;
+            _pdfStartingIndex -= PDF_GALLERY_SIZE;
+            for (int i = _pdfStartingIndex; i < _pdfStartingIndex+PDF_GALLERY_SIZE; i++)
+            {
+                //pdfToCanvas(_pdfPages[i], images[imageNum]);
+                images[imageNum].Source = _pdfPages[i].Image.Source;
+                imageNum++;
+            }
+
+            pdfToCanvas(_pdfPages[_pdfStartingIndex].Image, pdfViewer);
+            
+
+            if (_pdfStartingIndex == 0)
+            {
+                buttonPrevPDF.IsEnabled = false;
+            }
+            if(_pdfStartingIndex + 4 < _pdfPages.Length)
+            {
+                buttonNextPDF.IsEnabled = true;
+            }
+            UpdatePDFBorders();
+        }
+
+        private void buttonNextPDF_Click(object sender, RoutedEventArgs e)
+        {
+            if (_pdfStartingIndex+PDF_GALLERY_SIZE < _pdfPages.Length)
+            {
+                var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                _pdfStartingIndex += PDF_GALLERY_SIZE;
+                int imageNum = 0;
+                //Hot fix, clear all images before
+                ClearPDFImages();
+                for(int i =_pdfStartingIndex; i < _pdfStartingIndex+PDF_GALLERY_SIZE && i < _pdfPages.Length; i++)
+                {
+                    //pdfToCanvas(_pdfPages[i], images[imageNum]);
+                    images[imageNum].Source = _pdfPages[i].Image.Source;
+                    imageNum++;
+                }
+                pdfToCanvas(_pdfPages[_pdfStartingIndex].Image, pdfViewer);
+                
+                if(_pdfStartingIndex > 0)
+                {
+                    buttonPrevPDF.IsEnabled = true;
+                }
+                if(_pdfStartingIndex+4 > _pdfPages.Length)
+                {
+                    buttonNextPDF.IsEnabled = false;
+                }
+
+            }
+            UpdatePDFBorders();
+
+        }
+
+        private void ClearPDFImages()
+        {
+            var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+            //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+            for (int i = 0; i < images.Length; i++)
+            {
+                images[i].Source = null;
+            }
+        }
+
+        private void buttonLoadPDF_Click(object sender, RoutedEventArgs e)
+        {
+
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "PDF Files (*.PDF)|*.PDF;";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                ResetPDFGallery();
+                _pdfStartingIndex = 0;
+                int numPDFPages = PDFManager.getNumPages(openFileDialog.FileName);
+                _pdfPages = new ThumbnailImage[numPDFPages];
+                //Get the first page
+                System.Drawing.Image image = PDFManager.getImage(openFileDialog.FileName, 1);
+
+                BitmapImage bmi = convertDrawiningImageToBitmap(image);
+                Image img = new Image();
+                img.Source = bmi;
+
+                pdfToCanvas(img, pdfViewer);
+
+                var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
+                //pdfToCanvas(bmi.Clone(), images[0]);
+                images[0].Source = bmi.Clone(); 
+                _pdfPages[0] = new ThumbnailImage(img, true, true);
+
+                //Set the first 4 border/images now
+                //only have 4 display images and don't want to loop if we have less than 4 pages
+                //int maxValue = System.Math.Min(4, numPDFPages);
+                for (int i = 1; i < PDF_GALLERY_SIZE && i < numPDFPages; i++)
+                {
+                    BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
+                    //pdfToCanvas(temp, images[i]);
+                    images[i].Source = temp;
+                    Image firstFour = new Image();
+                    firstFour.Source = temp;
+                    _pdfPages[i] = new ThumbnailImage(firstFour, true, true);
+
+                }
+
+                //Get the rest of the pages if there are any
+                for(int i = PDF_GALLERY_SIZE; i < numPDFPages; i++)
+                {
+                    BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
+                    Image rest = new Image();
+                    rest.Source = temp;
+                    _pdfPages[i] = new ThumbnailImage(rest, true, true);
+                }
+
+                if(numPDFPages > PDF_GALLERY_SIZE)
+                {
+                    buttonNextPDF.IsEnabled = true;
+                }
+
+                buttonPDFSelectAll.IsEnabled = true;
+                sendPDF.IsEnabled = true;
+                UpdatePDFBorders();
+
+            }
+            //try
+            //{
+            //    PDFViewer.PDFViewerDialog pdfDialog = new PDFViewerDialog(pdfFile);
+            //    bool? result = pdfDialog.ShowDialog();
+            //    if (result == true)
+            //    {
+            //        List<ImageSource> images = new List<ImageSource>();
+            //        foreach (var image in pdfDialog.selectedImages)
+            //        {
+            //            images.Add(image);
+            //            AddNewImage(new AnnotatedImage(image, true));
+            //        }
+            //    }
+            //}
+            //catch (TypeInitializationException)
+            //{
+            //    MessageBoxResult result = MessageBox.Show
+            //        ("GhostScript must be installed to support this feature.\nWould you like to download it?",
+            //         "Dependency Missing",
+            //         MessageBoxButton.YesNo,
+            //         MessageBoxImage.Error);
+
+            //    if (result == MessageBoxResult.Yes)
+            //    {
+            //        result = MessageBox.Show
+            //        ("NOTE: After installing, you must restart the application", "NOTE",
+            //         MessageBoxButton.OK,
+            //         MessageBoxImage.Exclamation);
+
+            //        Process.Start("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w32.exe");
+            //    }
+            //}
+        }
+
+        private BitmapImage convertDrawiningImageToBitmap(System.Drawing.Image im)
+        {
+            BitmapImage bmi;
+
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+
+            im.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+
+            bmi = new BitmapImage();
+            bmi.BeginInit();
+            bmi.StreamSource = ms;
+            bmi.EndInit();
+
+            return bmi;
+        }
+        //Will select the current one for sending and will also send it to the viewer
+        private void pdfThumb_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var thumbName = ((Image)sender).Name;
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
+            var curPDF = _pdfPages[_pdfStartingIndex + thumbNailNum];
+            curPDF.IsSelected = !(curPDF.IsSelected);
+
+            pdfToCanvas(curPDF.Image, pdfViewer);
+            UpdatePDFBorders();
+            //UpdateThumbnailBorders();
+        }
+
+        private void ResetPDFGallery()
+        {
+            ClearPDFImages();
+            buttonNextPDF.IsEnabled = false;
+            buttonPrevPDF.IsEnabled = false;
+            pdfViewer.Background = null;
+
+
+        }
+
+        private void pdfToCanvas(Image img, Canvas can)
+        {
+            ImageBrush ib = new ImageBrush();
+            ib.Stretch = Stretch.Uniform;
+            ib.ImageSource = img.Source;
+            can.Background = ib;
+        }
+
+        private void UpdatePDFBorders()
+        {
+            var borders = new Border[] {
+                pdfThumbBorder0, pdfThumbBorder1, pdfThumbBorder2, pdfThumbBorder3
+            };
+
+            for (var i = 0; i < PDF_GALLERY_SIZE; i++)
+            {
+                var thumbnailBorder = borders[i];
+                if (i+_pdfStartingIndex < _pdfPages.Length && _pdfPages[i+_pdfStartingIndex].IsSelected)
+                {
+                    //thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#00ccff"));
+                    thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#53c653"));
+                    thumbnailBorder.BorderThickness = new Thickness(2.5);
+                    //thumbnailBorder.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#0099ff"));
+                    //Brushes.Cyan; #53c653 #0099ff
+                }
+                else
+                {
+                    thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF5B5B5B"));
+                    thumbnailBorder.BorderThickness = new Thickness(1.0);
+                    //thumbnailBorder.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFE8E8E8"));
+                }
+            }
+        }
+
+        private void buttonPDFSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            for(int i = 0; i < _pdfPages.Length; i++)
+            {
+                _pdfPages[i].IsSelected = !_pdfPages[i].IsSelected;
+                UpdatePDFBorders();
+            }
+        }
+
+        private void sendPDF_Click(object sender, RoutedEventArgs e)
+        {
+                var document = new PDFDocument();
+                for(int i = 0; i < _pdfPages.Length; i++)
+                {
+                    if (_pdfPages[i].IsSelected)
+                    {
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+
+                        if (_pdfPages[i].Image.Source is BitmapSource bitmapSource)
+                        {
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                            using (var stream = new MemoryStream())
+                            {
+                                encoder.Save(stream);
+                                bytes = stream.ToArray();
+                            }
+
+                            document.Pages.Add(bytes);
+                        }
+                    }
+
+                }
+
+                _listener.SendPDF(document);
+
+            for (int i = 0; i < _pdfPages.Length; i++)
+            {
+                _pdfPages[i].IsSelected = false;
+                UpdatePDFBorders();
+            }
+        }
+
     }
 }
