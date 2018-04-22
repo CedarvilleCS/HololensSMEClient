@@ -53,7 +53,6 @@ namespace ARTAPclient
         private double _brushSize = 5;
         private int _currentImageIndex = 0;
         private bool _isPlacingMarker;
-        private bool _isSelectMultiple = false;
         private Direction _markerDirection = Direction.MiddleMiddle;
         private string _oldText = "";
         private int _thumbIndex = 0;
@@ -668,30 +667,6 @@ namespace ARTAPclient
             }
         }
 
-        private void buttonSelectMultiple_Click(object sender, EventArgs e)
-        {
-            if (_isPlacingMarker)
-            {
-                SetPlacingMarkers(!_isPlacingMarker);
-                buttonChangeColor.IsEnabled = !_isPlacingMarker;
-                buttonUploadImage.IsEnabled = !_isPlacingMarker;
-                buttonCaptureScreenshot.IsEnabled = !_isPlacingMarker;
-                buttonPlaceArrow.Content = _placeArrowPath;
-            }
-            else
-            {
-                _isSelectMultiple = !_isSelectMultiple;
-
-                buttonUndo.IsEnabled = !_isSelectMultiple;
-                buttonChangeColor.IsEnabled = !_isSelectMultiple;
-                buttonUploadImage.IsEnabled = !_isSelectMultiple;
-                buttonCaptureScreenshot.IsEnabled = !_isSelectMultiple;
-                buttonSendScreenshot.IsEnabled = !_isSelectMultiple;
-                buttonPlaceArrow.IsEnabled = !_isSelectMultiple;
-            }
-
-        }
-
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
             if (_activeImage != null)
@@ -747,25 +722,19 @@ namespace ARTAPclient
         private void buttonUploadImage_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "Image Files (*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG)|*.BMP;*.JPG;*.GIF; *.JPEG; *.PNG";
             if (openFileDialog.ShowDialog() == true)
             {
-                if (openFileDialog.FileName.EndsWith(".pdf"))
-                {
-                    LoadPDF(openFileDialog.FileName);
-                }
-                else
-                {
                     Uri imageUri = new Uri(openFileDialog.FileName, UriKind.Relative);
                     ImageSource img = new BitmapImage(imageUri);
                     AddNewImage(new AnnotatedImage(img));
-                }
             }
 
         }
 
         private void canvasImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_activeImage != null && !_isSelectMultiple)
+            if (_activeImage != null)
             {
                 Debug.WriteLine("Placing Arrow: " + _isPlacingMarker);
                 if (_isPlacingMarker)
@@ -861,7 +830,7 @@ namespace ARTAPclient
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_activeImage != null && !_isSelectMultiple)
+            if (_activeImage != null)
             {
                 //
                 // The sender == buttonClear clause makes sure that
@@ -889,41 +858,10 @@ namespace ARTAPclient
                     SaveCanvasToActiveImage();
                 }
             }
-            else if (_isSelectMultiple)
-            {
-                var borders = new Border[] {
-                    imageThumbBorder, imageThumb1Border, imageThumb2Border, imageThumb3Border, imageThumb4Border
-                };
-
-                foreach (var border in borders)
-                {
-                    border.BorderBrush = Brushes.White;
-                }
-            }
         }
 
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (_isSelectMultiple)
-            {
-                var index = GetIndexFromThumbnailName(((Image)sender).Name);
-                var thumbnail = _pictureBoxThumbnails[index];
-                buttonUndo.IsEnabled = false;
-
-                if (!thumbnail.IsSelected && thumbnail.IsPdf)
-                {
-                    _selectedImages.Add(thumbnail.Image);
-                    _imageHistory[_thumbIndex + index].IsSelected = true;
-                    thumbnail.IsSelected = true;
-                }
-                else if (thumbnail.IsSelected && thumbnail.IsPdf)
-                {
-                    _selectedImages.Remove(thumbnail.Image);
-                    _imageHistory[_thumbIndex + index].IsSelected = false;
-                    thumbnail.IsSelected = false;
-                }
-            }
-
             var thumbName = ((Image)sender).Name;
             var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
 

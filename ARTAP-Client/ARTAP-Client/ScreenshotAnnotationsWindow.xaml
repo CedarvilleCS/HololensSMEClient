@@ -163,16 +163,6 @@
                             </Path>
 
                         </Button>
-                        <Button x:Name="buttonSelectImages" HorizontalAlignment="Center" Height="50" Width="50" Margin="5,379,5,0" VerticalAlignment="Top"
-                        Grid.Column="1" Click="buttonSelectMultiple_Click" ToolTip="Select multiple uploaded images" Grid.RowSpan="2">
-                            <Path Fill="#030104" Stretch="Uniform" Height="35" Width="40" >
-                                <Path.Data>
-                                    <PathGeometry Figures="M26.474,70c-2.176,0-4.234-1.018-5.557-2.764L3.049,43.639C0.725,40.57,1.33,36.2,4.399,33.875
-				    c3.074-2.326,7.441-1.717,9.766,1.35l11.752,15.518L55.474,3.285c2.035-3.265,6.332-4.264,9.604-2.232
-				    c3.268,2.034,4.266,6.334,2.23,9.602l-34.916,56.06c-1.213,1.949-3.307,3.175-5.6,3.279C26.685,69.998,26.58,70,26.474,70z" FillRule="NonZero"/>
-                                </Path.Data>
-                            </Path>
-                        </Button>
                         <Button x:Name="buttonNext" Content="&gt;" IsEnabled="False" HorizontalAlignment="Left" Margin="0,38,0,0" Grid.Row="1" VerticalAlignment="Top" Width="26" Height="35" Click="buttonNext_Click"/>
                         <Button x:Name="buttonPrev" Content="&lt;" IsEnabled="False" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="26" Height="35" Click="buttonPrev_Click"/>
                     </Grid>
