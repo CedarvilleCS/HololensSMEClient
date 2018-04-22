@@ -142,9 +142,9 @@ namespace WpfApplication1
         public bool IsHere(ImagePosition pos)
         {
             float[] posToCheck = pos.Position;
-            return (Position[0] - .5f < posToCheck[0] && Position[0] + .5f > posToCheck[0] &&
-                    Position[1] - .5f < posToCheck[1] && Position[1] + .5f > posToCheck[1] &&
-                    Position[2] - .5f < posToCheck[2] && Position[2] + .5f > posToCheck[2]);
+            return (Position[0] - 2.5f < posToCheck[0] && Position[0] + 2.5f > posToCheck[0] &&
+                    Position[1] - 2.5f < posToCheck[1] && Position[1] + 2.5f > posToCheck[1] &&
+                    Position[2] - 2.5f < posToCheck[2] && Position[2] + 2.5f > posToCheck[2]);
         }
     }
 }

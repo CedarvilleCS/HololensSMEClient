@@ -16,16 +16,16 @@ namespace WpfApplication1
 {
     public class Panorama
     {
-        public int Id { get; set; }
         public Polyline Drawing { private get; set; }
         public System.Windows.Point Location { private get; set; }
         public BitmapSource Image { get; set; }
+        public int Id { get; set; }
         public List<ImagePosition> ImagePositions;
-        public double maxHeight;
-        public double minHeight;
-        public double maxAngleLeft;
-        public double maxAngleRight;
-        public float[] position;
+        public double MaxAngleLeft { get; set; }
+        public double MaxAngleRight { get; set; }
+        public double MaxHeight { get; set; }
+        public double MinHeight { get; set; }
+        public float[] SurfacePosition { get; set; }
 
         public Panorama() { }
 
@@ -75,7 +75,7 @@ namespace WpfApplication1
         public void StitchImages(List<PanoImage> images)
         {
             var convertedImages = ConvertImages(images);
-            foreach(PanoImage pi in images)
+            foreach (PanoImage pi in images)
             {
                 pi.image.Save("Image_" + DateTime.Now.Ticks + ".PNG", ImageFormat.Png);
             }
@@ -94,7 +94,7 @@ namespace WpfApplication1
                     {
                         Image = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Console.WriteLine(e.StackTrace);
                     }
@@ -108,28 +108,27 @@ namespace WpfApplication1
         {
             if (ImagePositions[0].IsHere(pos))
             {
-                double forwardAngle = pos.GetForwardAngle();
-                if (maxAngleLeft > maxAngleRight)
+                var forwardAngle = pos.GetForwardAngle();
+                if (MaxAngleLeft > MaxAngleRight)
                 {
-                    return (forwardAngle < maxAngleLeft && forwardAngle > maxAngleRight);
+                    return (forwardAngle < MaxAngleLeft && forwardAngle > MaxAngleRight);
                 }
                 else
                 {
-                    return (forwardAngle < maxAngleLeft || forwardAngle > maxAngleRight);
+                    return (forwardAngle < MaxAngleLeft || forwardAngle > MaxAngleRight);
                 }
             }
-            return false;       
+            return false;
         }
 
         public float[] GetPositionOnPano(ImagePosition pos)
         {
-            float x = angleBetween(pos.GetForwardAngle(), maxAngleLeft) / angleBetween(maxAngleLeft, maxAngleRight);
-            float y = (float) ((pos.Forward[1] - minHeight) / (maxHeight - minHeight));
-            //float y = -(float)((pos.Forward[1] - minHeight) / (maxHeight - minHeight));
+            var x = AngleBetween(pos.GetForwardAngle(), MaxAngleLeft) / AngleBetween(MaxAngleLeft, MaxAngleRight);
+            var y = (float)((pos.Forward[1] - MinHeight) / (MaxHeight - MinHeight));
             return new float[] { x, y };
         }
 
-        public float angleBetween(double angle1, double angle2)
+        public float AngleBetween(double angle1, double angle2)
         {
             int angle1Deg = (int)(angle1 * (180.0 / Math.PI));
             int angle2Deg = (int)(angle2 * (180.0 / Math.PI));
@@ -138,7 +137,7 @@ namespace WpfApplication1
             return distance;
         }
 
-        public float degreesToRads(float degrees)
+        public float DegreesToRads(float degrees)
         {
             return degrees * .0174533f;
         }
@@ -149,30 +148,30 @@ namespace WpfApplication1
             double rightmostAngle = ImagePositions[0].GetForwardAngle();
             double leftmostAngle = ImagePositions[4].GetForwardAngle();
             double centerPoint = (leftmostAngle + rightmostAngle) / 2;
-            double width = degreesToRads(angleBetween(leftmostAngle, rightmostAngle)*(1.215f));
-            maxAngleLeft = centerPoint + width / 2.0;
-            maxAngleRight = centerPoint - width / 2.0;
-            if ((maxAngleLeft > maxAngleRight && maxAngleLeft > (maxAngleRight + 1.2)) || (maxAngleRight > maxAngleLeft && maxAngleRight < (maxAngleLeft + 1.2)))
+            double width = DegreesToRads(AngleBetween(leftmostAngle, rightmostAngle) * (1.215f));
+            MaxAngleLeft = centerPoint + width / 2.0;
+            MaxAngleRight = centerPoint - width / 2.0;
+            if ((MaxAngleLeft > MaxAngleRight && MaxAngleLeft > (MaxAngleRight + 1.2)) || (MaxAngleRight > MaxAngleLeft && MaxAngleRight < (MaxAngleLeft + 1.2)))
             {
-                double temp = maxAngleRight;
-                maxAngleRight = maxAngleLeft;
-                maxAngleLeft = temp;
+                double temp = MaxAngleRight;
+                MaxAngleRight = MaxAngleLeft;
+                MaxAngleLeft = temp;
             }
             float sumY = 0;
-            foreach(ImagePosition ip in ImagePositions)
+            foreach (ImagePosition ip in ImagePositions)
             {
                 sumY += ip.Forward[1];
             }
             float avgY = sumY / 5;
             double height = width * .367;
-            maxHeight = avgY + height / 2;
-            minHeight = avgY - height / 2; 
+            MaxHeight = avgY + height / 2;
+            MinHeight = avgY - height / 2;
         }
 
         private void SavePositionToFile()
         {
             String printStr = "";
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 printStr += (i + 1) + ".\n";
                 printStr += "Position:\n";

@@ -97,17 +97,17 @@ namespace ARTAPclient
 
         #region Public Methods
 
-        public void RequestHeadPosition(byte[] headPositionData)
+        public void RequestHeadPosition()
         {
             Send(MessageType.LocationRequest, new byte[0]);
-            GetHeadPosition(headPositionData);
+            GetHeadPosition();
         }
 
-        public void GetHeadPosition(byte[] headPositionData)
+        public void GetHeadPosition()
         {
             try
             {
-                _client.BeginReceive(_headPositionBytes, 0, 50, 0, new AsyncCallback(AssignHeadPositionData), headPositionData);
+                _client.BeginReceive(_headPositionBytes, 0, 50, 0, new AsyncCallback(AssignHeadPositionData), null);
             }
             catch (Exception)
             {
@@ -118,17 +118,12 @@ namespace ARTAPclient
 
         public void AssignHeadPositionData(IAsyncResult ar)
         {
-            byte[] bytesWithoutTypeCode = _headPositionBytes.Skip(6).Take(44).ToArray();
+            var bytesWithoutTypeCode = _headPositionBytes.Skip(6).Take(44).ToArray();
             _client.EndReceive(ar);
             _headPosition = ImagePosition.FromByteArray(bytesWithoutTypeCode);
             if (_panoramaState.Panorama.ContainsPoint(_headPosition))
             {
-                float[] pos = _panoramaState.Panorama.GetPositionOnPano(_headPosition);
-                // do something with pos to view tracker
-            }
-            else
-            {
-                // reset view tracker
+                _panoramaWindow.HeadPositionCoordinates = _panoramaState.Panorama.GetPositionOnPano(_headPosition);
             }
         }
 
@@ -137,10 +132,8 @@ namespace ARTAPclient
         /// </summary>
         public void Connect()
         {
-            // Connect to a remote device.
             try
             {
-                // Connect to the remote endpoint.
                 _client.BeginConnect(_remoteEndPoint,
                     new AsyncCallback(ConnectCallback), _client);
 
@@ -604,7 +597,6 @@ namespace ARTAPclient
             var decompressedData = SubArray(data, 2, data.Length - 2);
             var dataPosition = 0;
             for (var i = 0; i < 5; i++)
-            //for (var i = 0; i < 10; i++)
             {
                 var lengthBytes = SubArray(decompressedData, dataPosition, 4);
                 dataPosition += 4;
@@ -623,7 +615,6 @@ namespace ARTAPclient
                 {
                     screenshotImages.Add(pImg);
                 }
-
 
                 dataPosition += panoLength;
             }
