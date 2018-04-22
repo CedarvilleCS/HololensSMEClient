@@ -239,10 +239,6 @@
     <Resource Include="Resources\filled_circle.png" />
     <Resource Include="Resources\downright.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\filled-circle %2864x64%29.png" />
-    <Resource Include="Resources\downright.png" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\EMGU.CV.3.3.0.2824\build\Emgu.CV.targets" Condition="Exists('..\packages\EMGU.CV.3.3.0.2824\build\Emgu.CV.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -916,11 +916,9 @@ namespace ARTAPclient
                     thumbnail.IsSelected = false;
                 }
             }
-            var thumbName = ((Image)sender).Name;
-            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length-1]);
 
             var thumbName = ((Image)sender).Name;
-            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length-1]);
 
             SelectThumbnail(thumbNailNum + _thumbIndex);
 
