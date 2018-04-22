@@ -1149,6 +1149,9 @@ namespace ARTAPclient
                 {
                     buttonNextPDF.IsEnabled = true;
                 }
+
+                buttonPDFSelectAll.IsEnabled = true;
+                sendPDF.IsEnabled = true;
                 UpdatePDFBorders();
 
             }
@@ -1243,9 +1246,9 @@ namespace ARTAPclient
                 var thumbnailBorder = borders[i];
                 if (i+_pdfStartingIndex < _pdfPages.Length && _pdfPages[i+_pdfStartingIndex].IsSelected)
                 {
-                    thumbnailBorder.BorderThickness = new Thickness(2.0);
-                    thumbnailBorder.BorderBrush = Brushes.Black;
-                    //thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#53c653"));
+                    //thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#00ccff"));
+                    thumbnailBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#53c653"));
+                    thumbnailBorder.BorderThickness = new Thickness(2.5);
                     //thumbnailBorder.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#0099ff"));
                     //Brushes.Cyan; #53c653 #0099ff
                 }
@@ -1257,5 +1260,50 @@ namespace ARTAPclient
                 }
             }
         }
+
+        private void buttonPDFSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            for(int i = 0; i < _pdfPages.Length; i++)
+            {
+                _pdfPages[i].IsSelected = !_pdfPages[i].IsSelected;
+                UpdatePDFBorders();
+            }
+        }
+
+        private void sendPDF_Click(object sender, RoutedEventArgs e)
+        {
+                var document = new PDFDocument();
+                for(int i = 0; i < _pdfPages.Length; i++)
+                {
+                    if (_pdfPages[i].IsSelected)
+                    {
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+
+                        if (_pdfPages[i].Image.Source is BitmapSource bitmapSource)
+                        {
+                            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                            using (var stream = new MemoryStream())
+                            {
+                                encoder.Save(stream);
+                                bytes = stream.ToArray();
+                            }
+
+                            document.Pages.Add(bytes);
+                        }
+                    }
+
+                }
+
+                _listener.SendPDF(document);
+
+            for (int i = 0; i < _pdfPages.Length; i++)
+            {
+                _pdfPages[i].IsSelected = false;
+                UpdatePDFBorders();
+            }
+        }
+
     }
 }

@@ -281,8 +281,11 @@
                     </Border>
                     <Button x:Name="buttonPrevPDF" Grid.Column="1" Content="&#x25B2;" IsEnabled="False" HorizontalAlignment="Left" Margin="10,0,50,4.5" Grid.Row="1" VerticalAlignment="Bottom" Width="40" Height="26" Click="buttonPrevPDF_Click"/>
                     <Button x:Name="buttonNextPDF" Grid.Column="1" Content="&#x25BC;" IsEnabled="False" HorizontalAlignment="Left" Margin="60,0,0,4.5" Grid.Row="1" VerticalAlignment="Bottom" Width="40" Height="26" Click="buttonNextPDF_Click"/>
+                    <Button x:Name="buttonPDFSelectAll" Grid.Column="1" Background="#FF1065ED" Foreground="White" IsEnabled="False" HorizontalAlignment="Left" Margin="110,0,0,4.5" Grid.Row="1" VerticalAlignment="Bottom" Width="70" Height="40" Click="buttonPDFSelectAll_Click">
+                        <TextBlock Text="Select/Deselect All" TextWrapping="Wrap" TextAlignment="Center" />
+                    </Button>
                     <Button x:Name="loadPDF" Grid.Column="2" Content="Load PDF" Background="#FF1065ED" Foreground="White" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,80,5" Width="70" Height="30" Click="buttonLoadPDF_Click" />
-                    <Button x:Name="sendPDF" Grid.Column="2" Content="Send PDF" Background="#FF1065ED" Foreground="White" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,7,5" Width="70" Height="30" />
+                    <Button x:Name="sendPDF" Grid.Column="2" Content="Send PDF" Background="#FF1065ED" Foreground="White" IsEnabled="False" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,7,5" Width="70" Height="30" Click="sendPDF_Click"/>
                 </Grid>
             </TabItem>
         </TabControl>
