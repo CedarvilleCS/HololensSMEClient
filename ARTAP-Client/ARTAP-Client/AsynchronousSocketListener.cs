@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using WpfApplication1;
 
 namespace ARTAPclient
@@ -29,12 +33,28 @@ namespace ARTAPclient
             PositionIDRequest = 2,
             ArrowPlacement = 3,
             EraseMarkers = 4,
-	        Pdf = 5,
+            Pdf = 5,
             EraseMarker = 6,
-	        TaskList = 7,
-            TaskListRequest = 8
+            TaskList = 7,
+            TaskListRequest = 8,
+            PanoRequest = 10,
+            LocationRequest = 11
         }
-      
+
+        /// <summary>
+        /// Handles timing for checking if the connection is alive
+        /// </summary>
+        private System.Timers.Timer _connectionAliveTimer;
+
+        private byte[] _lengthBytes;
+        private byte[] _headPositionBytes;
+        private ImagePosition _headPosition;
+        private System.Timers.Timer _headPositionTimer;
+
+        private PanoramaStateObject _panoramaState;
+        private PanoramaWindow _panoramaWindow;
+        public ImageSource panoImage = null;
+
         #endregion
 
         #region Constructor
@@ -45,18 +65,56 @@ namespace ARTAPclient
         /// <param name="remoteEndPoint">Remote end point to connect to</param>
         public AsynchronousSocketListener(IPEndPoint remoteEndPoint)
         {
-            _client = new Socket(AddressFamily.InterNetwork,
-                SocketType.Stream, ProtocolType.Tcp); ;
-
+            _remoteEndPoint = remoteEndPoint;
             _connectionAliveTimer = new System.Timers.Timer(5000);
             _connectionAliveTimer.Elapsed += ConnectionAliveTimerElapsed;
+            _lengthBytes = new byte[4];
+            _panoramaState = new PanoramaStateObject()
+            {
+                Panorama = new Panorama()
+            };
 
+            _headPositionBytes = new byte[50];
             _remoteEndPoint = remoteEndPoint;
         }
 
         #endregion
 
         #region Public Methods
+
+        public void RequestHeadPosition()
+        {
+            Send(MessageType.LocationRequest, new byte[0]);
+            GetHeadPosition();
+        }
+
+        public void GetHeadPosition()
+        {
+            try
+            {
+                _client.BeginReceive(_headPositionBytes, 0, 50, 0, new AsyncCallback(AssignHeadPositionData), null);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the Head position data from the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void AssignHeadPositionData(IAsyncResult ar)
+        {
+            var bytesWithoutTypeCode = _headPositionBytes.Skip(6).Take(44).ToArray();
+            _client.EndReceive(ar);
+            _headPosition = ImagePosition.FromByteArray(bytesWithoutTypeCode);
+            if (_panoramaState.Panorama.ContainsPoint(_headPosition))
+            {
+                _panoramaWindow.HeadPositionCoordinates = _panoramaState.Panorama.GetPositionOnPano(_headPosition);
+            }
+        }
+
+        /// <summary>
+        /// Connect to the server (HoloLens)
+        /// </summary>
         
         public void CloseConnection()
         {
@@ -66,10 +124,8 @@ namespace ARTAPclient
 
         public void Connect()
         {
-            // Connect to a remote device.
             try
             {
-                // Connect to the remote endpoint.
                 _client.BeginConnect(_remoteEndPoint,
                     new AsyncCallback(ConnectCallback), _client);
 
@@ -120,6 +176,82 @@ namespace ARTAPclient
             ReceivePositionID(image);
         }
 
+        public void SendIpAddress(PanoramaWindow panoramaWindow, byte[] headPositionData)
+        {
+            _headPositionTimer = null;
+            _panoramaWindow = panoramaWindow;
+
+            byte[] ipAddress = null;
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ipAddress = Encoding.UTF8.GetBytes(ip.ToString());
+                }
+            }
+
+            Send(MessageType.PanoRequest, ipAddress);
+            ReceivePanorama(_panoramaState.Panorama);
+        }
+
+        public void ReceivePanorama(Panorama panorama)
+        {
+            try
+            {
+                _client.BeginReceive(_lengthBytes, 0, 4, 0, new AsyncCallback(ReceiveMessageLength), _panoramaState);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred receiving the Panorama from the HoloLens.",
+                    "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void ReceiveMessageLength(IAsyncResult ar)
+        {
+            IsPanoDone = false;
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(_lengthBytes);
+            }
+
+            var length = BitConverter.ToInt32(_lengthBytes, 0);
+            _panoramaState.buffer = new byte[length];
+
+            var bytesReceived = 0;
+            var bytesRemaining = length;
+            while (bytesReceived < bytesRemaining)
+            {
+                var numBytes = _client.Receive(_panoramaState.buffer, bytesReceived, bytesRemaining, SocketFlags.None);
+                if (numBytes == 0)
+                {
+                    _panoramaState.buffer = null;
+                    break;
+                }
+
+                bytesReceived += numBytes;
+                bytesRemaining -= numBytes;
+            }
+
+            var panoImages = ParsePanoData(_panoramaState.buffer);
+            //var holoPano = new Panorama(panoImages[1]);
+            _panoramaState.Panorama = new Panorama(panoImages[0]);
+            //using (var fileStream = new FileStream("HoloPano.png", FileMode.Create))
+            //{
+            //    BitmapEncoder encoder = new PngBitmapEncoder();
+            //    encoder.Frames.Add(BitmapFrame.Create(holoPano.Image));
+            //    encoder.Save(fileStream);
+            //}
+
+            IsPanoDone = true;
+            SetUpTimer();
+        }
+
+        /// <summary>
+        /// Send bitmap to the server (HoloLens)
+        /// </summary>
+        /// <param name="bm">Bitmap object to send</param>
         public void SendBitmap(ImageSource image)
         {
             var bmpSrc = image as BitmapSource;
@@ -181,6 +313,62 @@ namespace ARTAPclient
         public void ClientReceive(byte[] data, int offset, int size, SocketFlags flag, AsyncCallback callback, object state)
         {
             _client.BeginReceive(data, offset, size, flag, callback, state);
+        }
+
+        /// <summary>
+        /// Gets a location ID from the HoloLens for a locatable image
+        /// </summary>
+        /// <param name="image">Image to get ID for</param>
+        public void RequestLocationID(LocatableImage image)
+        {
+            Send(MessageType.PositionIDRequest, new Byte[0]);
+            ReceivePositionID(image);
+        }
+
+        public static byte[] Compress(byte[] data)
+        {
+            using (var ms = new MemoryStream())
+            {
+                using (var gzip = new GZipStream(ms, CompressionMode.Compress))
+                {
+                    gzip.Write(data, 0, data.Length);
+                }
+                data = ms.ToArray();
+            }
+            return data;
+        }
+        public static byte[] Decompress(byte[] data)
+        {
+            // the trick is to read the last 4 bytes to get the length
+            // gzip appends this to the array when compressing
+            var lengthBuffer = new byte[4];
+            Array.Copy(data, data.Length - 4, lengthBuffer, 0, 4);
+            int uncompressedSize = BitConverter.ToInt32(lengthBuffer, 0);
+            var buffer = new byte[uncompressedSize];
+            using (var ms = new MemoryStream(data))
+            {
+                using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
+                {
+                    gzip.Read(buffer, 0, uncompressedSize);
+                }
+            }
+            return buffer;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void SetUpTimer()
+        {
+            _headPositionTimer = new System.Timers.Timer()
+            {
+                Enabled = false,
+                Interval = 1000
+            };
+
+            _headPositionTimer.Elapsed += _panoramaWindow.HeadPosition_TimerElapsed;
+            _headPositionTimer.Start();
         }
 
         /// <summary>
@@ -263,6 +451,8 @@ namespace ARTAPclient
         /// Is the socket connected?
         /// </summary>
         public bool Connected { get; private set; }
+        public bool IsPanoDone { get; set; }
+
 
         #endregion
 
@@ -347,6 +537,45 @@ namespace ARTAPclient
 
             state.locatableImage.PositionID = new byte[4];
             Array.Copy(state.buffer, 6, state.locatableImage.PositionID, 0, 4);
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(state.locatableImage.PositionID);
+            }
+        }
+
+        private List<PanoImage>[] ParsePanoData(byte[] data)
+        {
+            var messageType = SubArray(data, 0, 2);
+            var panoImages = new List<PanoImage>();
+            var screenshotImages = new List<PanoImage>();
+            var decompressedData = SubArray(data, 2, data.Length - 2);
+            var dataPosition = 0;
+            for (var i = 0; i < 5; i++)
+            {
+                var lengthBytes = SubArray(decompressedData, dataPosition, 4);
+                dataPosition += 4;
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(lengthBytes);
+                }
+                var panoLength = BitConverter.ToInt32(lengthBytes, 0);
+                var imageBytes = SubArray(decompressedData, dataPosition, panoLength);
+                PanoImage pImg = PanoImage.FromByteArray(imageBytes);
+                if (i < 5)
+                {
+                    panoImages.Add(pImg);
+                }
+                else
+                {
+                    screenshotImages.Add(pImg);
+                }
+
+                dataPosition += panoLength;
+            }
+
+            return new List<PanoImage>[] { panoImages, screenshotImages };
+        }
+
         }
         
         private void SendCallback(IAsyncResult ar)
@@ -356,6 +585,11 @@ namespace ARTAPclient
             /// For testing purposes
             ///
             Debug.WriteLine($"Sent {bytesSent} bytes to server.");
+        public static byte[] SubArray(byte[] data, int index, int length)
+        {
+            var result = new byte[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
         }
         
         #endregion
@@ -380,5 +614,12 @@ namespace ARTAPclient
         /// Image the location ID corresponds with
         /// </summary>
         public LocatableImage locatableImage;
+    }
+
+    public class PanoramaStateObject
+    {
+        public int expectedDataLength { get; set; }
+        public byte[] buffer { get; set; }
+        public Panorama Panorama { get; set; }
     }
 }

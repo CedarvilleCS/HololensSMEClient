@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Net;
 using WpfApplication1;
 
@@ -23,7 +13,11 @@ namespace ARTAPclient
     /// Test Commit! Spencer
     public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
     {
+        private const int BANDWIDTH_TEST_PORT = 1000;
+
         private AsynchronousSocketListener _listener;
+
+        private AsynchronousSocketListener _bandwidthTestListener;
 
         private string _ip;
 
@@ -39,13 +33,18 @@ namespace ARTAPclient
 
         private bool _rememberMe;
 
-        VideoStreamWindow _videoWindow;
+        private VideoStreamWindow _videoWindow;
 
-        ScreenshotAnnotationsWindow _annotationsWindow;
+        private ScreenshotAnnotationsWindow _annotationsWindow;
+
+        private bool _isPanorama;
+
+        private PanoramaWindow _panoramaWindow;
 
         public MainWindow()
         {
             InitializeComponent();
+
             textBoxIP.Text = AppSettings.Default.ipAddress;
             textBoxPort.Text = AppSettings.Default.portNum;
             textBoxUserName.Text = AppSettings.Default.username;
@@ -56,16 +55,18 @@ namespace ARTAPclient
 
         private void buttonConnect_Click(object sender, RoutedEventArgs e)
         {
-            // comment
             buttonConnect.IsEnabled = false;
             buttonConnect.Background = Brushes.Yellow;
+
             _ip = textBoxIP.Text;
-            string port = textBoxPort.Text;
             _userName = textBoxUserName.Text;
             _password = passwordBoxPassword.Password;
             _streamQuality = comboBoxStreamQuality.Text;
             _showAnnotations = (bool)checkBoxHolograms.IsChecked;
             _rememberMe = (bool)checkBoxRemember.IsChecked;
+            _isPanorama = (bool)PanoramaToggle.IsChecked;
+
+            string port = textBoxPort.Text;
 
             if (ValidateText(_ip, "IP") && ValidateText(port, "port") &&
                 ValidateText(_userName, "user name") && ValidateText(_password, "password"))
@@ -80,6 +81,8 @@ namespace ARTAPclient
                 _listener.ConnectionEstablished += Listener_ConnectionEstablished;
                 _listener.ConnectionTimedOut += Listener_ConnectionTimedOut;
                 _listener.Connect();
+
+                IPAddress.TryParse(_ip, out IPAddress hostAddr);
             }
             else
             {
@@ -92,54 +95,83 @@ namespace ARTAPclient
             _listener.ConnectionEstablished -= Listener_ConnectionEstablished;
             _listener.ConnectionTimedOut -= Listener_ConnectionTimedOut;
 
-            ///
             /// Needed for cross-thread window launch
-            ///
-            this.Dispatcher.BeginInvoke((Action) (() =>
-            {
-                _videoWindow = new ARTAPclient.VideoStreamWindow(_ip, _userName, _password,
-                    _streamQuality, _showAnnotations.ToString());
-                _videoWindow.ConnectionFailed += _videoWindow_ConnectionFailed;
-                _videoWindow.ConnectionSuccesful += _videoWindow_ConnectionSuccesful;
-               
-                _annotationsWindow = new ARTAPclient.ScreenshotAnnotationsWindow(_videoWindow, _listener);
+            Dispatcher.BeginInvoke((Action)(() =>
+           {
+               if (_isPanorama)
+               {
+                   InitializePanorama();
+               }
+               else
+               {
+                   InitializeVideoWindow();
+               }
 
-                _videoWindow.StartVideo();
-                ///
-                /// Check to see if Remember Me has been selected
-                if ((bool)checkBoxRemember.IsChecked)
-                /// 
+               if ((bool)checkBoxRemember.IsChecked)
+               {
+                   AppSettings.Default.username = textBoxUserName.Text;
+                   AppSettings.Default.portNum = textBoxPort.Text;
+                   AppSettings.Default.ipAddress = textBoxIP.Text;
+                   AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
+                   AppSettings.Default.rememberMe = true;
+                   AppSettings.Default.showAnnotations = (bool)checkBoxHolograms.IsChecked;
+                   AppSettings.Default.Save();
+               }
+               else
+               {
+                   AppSettings.Default.ipAddress = "";
+                   AppSettings.Default.username = "";
+                   AppSettings.Default.portNum = "";
+                   AppSettings.Default.streamQuality = 0;
+                   AppSettings.Default.rememberMe = false;
+                   AppSettings.Default.showAnnotations = false;
+                   AppSettings.Default.Save();
+               }
+           }));
+        }
+
+        private void InitializePanorama()
+        {
+            _panoramaWindow = new PanoramaWindow(_listener);
+            _annotationsWindow = new ScreenshotAnnotationsWindow(_panoramaWindow, _listener);
+            PanoramaDisplay();
+
+        }
+
+        private void PanoramaDisplay()
+        {
+            Application.Current.Dispatcher.Invoke(
+                new Action(() =>
                 {
-                    AppSettings.Default.username = textBoxUserName.Text;
-                    AppSettings.Default.portNum = textBoxPort.Text;
-                    AppSettings.Default.ipAddress = textBoxIP.Text;
-                    AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
-                    AppSettings.Default.rememberMe = true;
-                    AppSettings.Default.showAnnotations = (bool)checkBoxHolograms.IsChecked;
-                    AppSettings.Default.Save();
+                    _panoramaWindow.Show();
+                    _annotationsWindow.Show();
+                    Hide();
                 }
-                else
-                { 
-                    AppSettings.Default.ipAddress = "";
-                    AppSettings.Default.username = "";
-                    AppSettings.Default.portNum = "";
-                    AppSettings.Default.streamQuality = 0;
-                    AppSettings.Default.rememberMe = false;
-                    AppSettings.Default.showAnnotations = false;
-                    AppSettings.Default.Save();
-                }
-            }));
+            ));
+        }
+
+        private void InitializeVideoWindow()
+        {
+            _videoWindow = new VideoStreamWindow(_ip, _userName, _password,
+                    _streamQuality, _showAnnotations.ToString());
+            _videoWindow.ConnectionFailed += _videoWindow_ConnectionFailed;
+            _videoWindow.ConnectionSuccesful += _videoWindow_ConnectionSuccesful;
+
+            _annotationsWindow = new ScreenshotAnnotationsWindow(_videoWindow, _listener);
+
+            _videoWindow.StartVideo();
         }
 
         private void _videoWindow_ConnectionSuccesful(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(
-                new Action(() => 
-                    {
-                        _videoWindow.Show();
-                        _annotationsWindow.Show();
-                        this.Hide();
-                    }));
+                new Action(() =>
+                {
+                    _videoWindow.Show();
+                    _annotationsWindow.Show();
+                    Hide();
+                }
+            ));
         }
 
         private void _videoWindow_ConnectionFailed(object sender, EventArgs e)
@@ -153,12 +185,13 @@ namespace ARTAPclient
                     MessageBox.Show("Connection to the HoloLens video stream was unsuccesful, " +
                         "please check your connection and login info and try again.", "Connection Error", MessageBoxButton.OK);
                     EnableConnectButton();
-                }));
+                }
+            ));
         }
 
         private void Listener_ConnectionTimedOut(object sender, EventArgs e)
         {
-            this.Dispatcher.BeginInvoke((Action)(() =>
+            Dispatcher.BeginInvoke((Action)(() =>
             {
                 EnableConnectButton();
                 MessageBox.Show("Connection timed out, please verify IP and Port.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -168,21 +201,19 @@ namespace ARTAPclient
         private bool TryGetIPEndPoint(string ip, string port, out IPEndPoint endPoint)
         {
             endPoint = null;
-            IPAddress hostAddr;
-            if (!IPAddress.TryParse(ip, out hostAddr))
+            if (!IPAddress.TryParse(ip, out IPAddress hostAddr))
             {
                 MessageBox.Show("Please provide a valid IP.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
-            int portNum;
-            if (!int.TryParse(port, out portNum))
+            if (!int.TryParse(port, out int portNum))
             {
                 MessageBox.Show("Please provide a valid port.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
-            endPoint = new System.Net.IPEndPoint(hostAddr, portNum);
+            endPoint = new IPEndPoint(hostAddr, portNum);
             return true;
         }
 
@@ -212,6 +243,11 @@ namespace ARTAPclient
         {
             buttonConnect.Background = Brushes.LightGray;
             buttonConnect.IsEnabled = true;
+        }
+
+        private void PanoramaToggle_Click(object sender, RoutedEventArgs e)
+        {
+            comboBoxStreamQuality.IsEnabled = !((bool)PanoramaToggle.IsChecked);
         }
     }
 }

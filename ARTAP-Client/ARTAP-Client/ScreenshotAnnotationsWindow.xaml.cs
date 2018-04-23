@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using MahApps.Metro.Controls;
 using PDFToImage;
+using System.Timers;
 
 namespace ARTAPclient
 {
@@ -49,13 +50,11 @@ namespace ARTAPclient
         private TaskListUserControl _userControl;
         private VideoStreamWindow _videoStreamWindow;
 
-        private Color _brushColor = Colors.Red;
-        private double _brushSize = 5;
-        private int _currentImageIndex = 0;
-        private bool _isPlacingMarker;
-        private Direction _markerDirection = Direction.MiddleMiddle;
-        private string _oldText = "";
-        private int _thumbIndex = 0;
+
+        /// <summary>
+        /// History of images snapped or uploaded
+        /// </summary>
+        private List<AnnotatedImage> _imageHistory = new List<AnnotatedImage>();
 
         //for pdf tab
         private ThumbnailImage[] _pdfPages;
@@ -126,6 +125,12 @@ namespace ARTAPclient
             UpdateThumbnailBorders();
         }
 
+        private PanoramaWindow _panoramaWindow;
+
+        /// <summary>
+        /// Connection to the HoloLens
+        /// </summary>
+        private AsynchronousSocketListener _listener;
         public void AddNewTask(object sender, RoutedEventArgs e)
         {
             var order = CurrentTaskList.TaskList.Tasks.Count;
@@ -151,16 +156,17 @@ namespace ARTAPclient
             var nameBox = uiTask.NameUI;
             var addImage = uiTask.AddImage;
 
+        private System.Windows.Shapes.Path placeArrowPath;
+
+        private Timer _headPositionTimer;
+
+        private byte[] _headPositionData;
+        #endregion
             var task = CurrentTaskList.TaskList.Tasks.Find(x => x.Id == uiTask.TaskId);
             if (!task.IsNew) nameBox.Text = task.Name;
             else nameBox.SetValue(TextBoxHelper.WatermarkProperty, task.Name);
 
-            if (task.Attachment != null)
-            {
-                Image content = new Image();
-                Image toolTip = new Image();
-                content.Source = task.Attachment;
-                toolTip.Source = task.Attachment;
+        #region Constructor
 
                 addImage.Content = content;
                 ToolTip tt = new ToolTip
@@ -174,6 +180,25 @@ namespace ARTAPclient
 
             //Make it so images are set
 
+            _videoStreamWindow = videoStreamWindow;
+            _listener = listener;
+        }
+
+        public ScreenshotAnnotationsWindow(PanoramaWindow panoramaWindow, AsynchronousSocketListener listener)
+        {
+            InitializeComponent();
+
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb0, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
+            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
+
+            _panoramaWindow = panoramaWindow;
+            _listener = listener;
+            _isPano = true;
+
+            _listener.SendIpAddress(_panoramaWindow, _headPositionData);
             remove.Click += removeTask_Click;
             uiTask.NameUI.TextChanged += UpdateTaskName;
             checkbox.Checked += UpdateTaskCompletion;
@@ -666,6 +691,11 @@ namespace ARTAPclient
                 }
             }
         }
+        
+        private void _listener_ConnectionClosed(object sender, EventArgs e)
+        {
+            MessageBox.Show("Connection to HoloLens lost.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
 
         private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
         {
@@ -803,7 +833,28 @@ namespace ARTAPclient
             SaveCanvasToActiveImage();
         }
 
-        private void clearAllAnnotationsMenu_Click(object sender, RoutedEventArgs e)
+private void buttonCaptureScreenshot_Click(object sender, RoutedEventArgs e)
+{
+    placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
+    ImageSource screenshot;
+    if (_isPano) screenshot = _panoramaWindow.panoImage.Source;
+    else screenshot = _videoStreamWindow.CaptureScreen();
+    LocatableImage img = new LocatableImage(screenshot);
+    AddNewImage(img);
+    //This might need changed if we have a pano
+    _listener.RequestLocationID(img);
+}
+
+private void clearAllAnnotationsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
+            ImageSource screenshot = _videoStreamWindow.CaptureScreen();
+            LocatableImage img = new LocatableImage(screenshot);
+            AddNewImage(img);
+            _listener.RequestLocationID(img);
+        }
+
+        private void undoButton_Click(object sender, RoutedEventArgs e)
         {
             //
             // If it's the active image, remove the markers from the cavas
@@ -824,6 +875,13 @@ namespace ARTAPclient
                 foreach (LocatableImage image in _imageHistory.OfType<LocatableImage>())
                 {
                     image.ClearMarkers();
+
+                if (_activeImage.NumAnnotations > 0)
+                {
+                    canvasImageEditor.Children.Remove(_activeImage.GetLastAnnotation());
+                    _activeImage.UndoAnnotation();
+
+                    SaveCanvasToActiveImage();
                 }
             }
         }
@@ -863,7 +921,7 @@ namespace ARTAPclient
         private void imageThumb_MouseUp(object sender, MouseButtonEventArgs e)
         {
             var thumbName = ((Image)sender).Name;
-            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length-1]);
+            var thumbNailNum = (int)Char.GetNumericValue(thumbName[thumbName.Length - 1]);
 
             SelectThumbnail(thumbNailNum + _thumbIndex);
 
@@ -883,6 +941,19 @@ namespace ARTAPclient
                 CurrentTaskList = taskList;
                 CurrentTaskList.RecreateUIElements(_taskTitleStyle);
 
+        private void buttonSendScreenshot_Click(object sender, RoutedEventArgs e)
+        {
+            if (_activeImage != null)
+            {
+                //_listener.SendBitmap(_activeImage.LatestImage);
+                if (_selectedImages.Any() && _isSelectMultiple)
+                {
+                    var document = new PDFDocument();
+                    foreach (var image in _selectedImages)
+                    {
+                        byte[] bytes;
+                        var encoder = new PngBitmapEncoder();
+                        var bitmapSource = image.Source as BitmapSource;
                 AddTaskListName(taskList);
                 AddAllTaskUIs(taskList.TaskUIs);
 
@@ -1053,6 +1124,11 @@ namespace ARTAPclient
                 img.Source = bmi;
 
                 pdfToCanvas(img, pdfViewer);
+            Button btn = (Button)sender;
+            string btnName = btn.Name;
+
+            //Char.GetNumericValue returns a floating point double, casting to int should be fine since we only have whole numbers
+            var direction = (int)Char.GetNumericValue(btnName[btnName.Length - 1]);
 
                 var images = new Image[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };
                 //var images = new Canvas[] { pdfThumb0, pdfThumb1, pdfThumb2, pdfThumb3 };

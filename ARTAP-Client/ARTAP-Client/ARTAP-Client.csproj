@@ -105,6 +105,7 @@
     <Compile Include="AnnotatedImage.cs" />
     <Compile Include="AsynchronousSocketListener.cs" />
     <Compile Include="Direction.cs" />
+    <Compile Include="ImagePosition.cs" />
     <Compile Include="LocatableImage.cs" />
     <Compile Include="AppSettings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -114,7 +115,11 @@
     <Compile Include="Marker.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="TaskList.cs" />
+    <Compile Include="PanoImage.cs" />
     <Compile Include="Panorama.cs" />
+    <Compile Include="PanoramaWindow.xaml.cs">
+      <DependentUpon>PanoramaWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PDFDocument.cs" />
     <Compile Include="TaskListNotification.cs" />
     <Compile Include="TaskListUI.cs" />
@@ -148,6 +153,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="TaskListUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PanoramaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
