@@ -65,6 +65,9 @@ namespace ARTAPclient
         /// <param name="remoteEndPoint">Remote end point to connect to</param>
         public AsynchronousSocketListener(IPEndPoint remoteEndPoint)
         {
+            _client = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
+
             _remoteEndPoint = remoteEndPoint;
             _connectionAliveTimer = new System.Timers.Timer(5000);
             _connectionAliveTimer.Elapsed += ConnectionAliveTimerElapsed;

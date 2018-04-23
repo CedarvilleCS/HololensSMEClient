@@ -70,11 +70,6 @@ namespace ARTAPclient
 
         private ThumbnailImage[] _pdfPages;
         private int _pdfStartingIndex = 0;
-
-
-
-        private System.Windows.Shapes.Path placeArrowPath;
-
         private Timer _headPositionTimer;
 
         private byte[] _headPositionData;
@@ -117,11 +112,15 @@ namespace ARTAPclient
         {
             InitializeComponent();
 
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb0, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb1, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb2, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb3, false));
-            _pictureBoxThumbnails.Add(new ThumbnailImage(imageThumb4, false));
+
+            _pictureBoxThumbnails = new List<ThumbnailImage>
+            {
+                new ThumbnailImage(imageThumb0, false),
+                new ThumbnailImage(imageThumb1, false),
+                new ThumbnailImage(imageThumb2, false),
+                new ThumbnailImage(imageThumb3, false),
+                new ThumbnailImage(imageThumb4, false)
+            };
 
             _panoramaWindow = panoramaWindow;
             _listener = listener;
@@ -135,6 +134,8 @@ namespace ARTAPclient
             _addImageStyle = FindResource("imageButton") as Style;
             _afterImageStyle = FindResource("imageAdded") as Style;
             _userControl = new TaskListUserControl(this);
+
+            _listener.SendIpAddress(_panoramaWindow, _headPositionData);
         }
         #endregion
 
@@ -629,7 +630,20 @@ namespace ARTAPclient
         #endregion
 
         #region EventHandlers
-        private void buttonAddList_Click(object sender, RoutedEventArgs e)
+
+        private void buttonSelectMultiple_Click(object sender, EventArgs e)
+        {
+            if (_isPlacingMarker)
+            {
+                SetPlacingMarkers(!_isPlacingMarker);
+                buttonChangeColor.IsEnabled = !_isPlacingMarker;
+                buttonUploadImage.IsEnabled = !_isPlacingMarker;
+                buttonCaptureScreenshot.IsEnabled = !_isPlacingMarker;
+                buttonPlaceArrow.Content = _placeArrowPath;
+            }
+        }
+
+            private void buttonAddList_Click(object sender, RoutedEventArgs e)
         {
             var count = _taskLists.Count;
 
@@ -882,7 +896,6 @@ namespace ARTAPclient
 
         private void clearAllAnnotationsMenu_Click(object sender, RoutedEventArgs e)
         {
-            placeArrowPath = (System.Windows.Shapes.Path)buttonPlaceArrow.Content;
             ImageSource screenshot = _videoStreamWindow.CaptureScreen();
             LocatableImage img = new LocatableImage(screenshot);
             AddNewImage(img);

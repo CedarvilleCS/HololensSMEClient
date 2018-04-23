@@ -1,21 +1,9 @@
 ﻿using ARTAPclient;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace WpfApplication1
@@ -26,39 +14,22 @@ namespace WpfApplication1
     public partial class PanoramaWindow : Window
     {
         #region Private Fields
-
-        /// <summary>
-        /// URL to connect to
-        /// </summary>
-        private readonly Uri _conURI;
-
+        
         /// <summary>
         /// Location of temp dir
         /// </summary>
         private const string _tmpLocation = "C:\\tmp";
-
-        /// <summary>
-        /// Is the height being adjusted
-        /// </summary>
-        private bool? _adjustingHeight = null;
-        private string _ip;
-        private string _userName;
+        
         private Bitmap _panoramaBitmap;
         private BitmapImage _panoramaBitmapSource;
-        private string _password;
-        private string _streamQuality;
         private System.Drawing.Pen _headPositionPen;
 
         public float[] HeadPositionCoordinates { get; set; }
-        private Func<string> toString;
-
         public static int test = 0;
 
         public AsynchronousSocketListener _socketListener;
 
         private DispatcherTimer _checkHeadData;
-
-        public List<float[]> testData;
 
         #endregion
 
@@ -66,8 +37,6 @@ namespace WpfApplication1
 
         public PanoramaWindow(AsynchronousSocketListener listener)
         {
-            testData = new List<float[]>();
-
             _panoramaBitmap = null;
             _socketListener = listener;
             InitializeComponent();
@@ -101,7 +70,7 @@ namespace WpfApplication1
 
         public BitmapImage CaptureScreen()
         {
-            string tmpBmpPath = System.IO.Path.Combine(_tmpLocation, System.IO.Path.GetRandomFileName().Substring(0, 5));
+            string tmpBmpPath = Path.Combine(_tmpLocation, Path.GetRandomFileName().Substring(0, 5));
             tmpBmpPath += ".bmp";
 
             var bitmap = new BitmapImage();
@@ -158,16 +127,12 @@ namespace WpfApplication1
             {
                 var coordinates = AdjustCoordinates((1 - HeadPositionCoordinates[0]), 1 - HeadPositionCoordinates[1]);
                 graphics.DrawRectangle(_headPositionPen, coordinates[0] - 50, coordinates[1] - 18, coordinates[0] + 50, coordinates[1] + 18);
-                var directory = AppDomain.CurrentDomain.BaseDirectory;
-                _panoramaBitmap.Save(AppDomain.CurrentDomain.BaseDirectory + $"drawing{test}.png", ImageFormat.Png);
-                test++;
                 return ConvertBitmaptoImageSource();
             }
         }
 
         public float[] AdjustCoordinates(float x, float y)
         {
-            testData.Add(new float[] { x, y });
             if (x > 1)
             {
                 x = 1;

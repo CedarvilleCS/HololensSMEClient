@@ -134,7 +134,6 @@ namespace ARTAPclient
             _panoramaWindow = new PanoramaWindow(_listener);
             _annotationsWindow = new ScreenshotAnnotationsWindow(_panoramaWindow, _listener);
             PanoramaDisplay();
-
         }
 
         private void PanoramaDisplay()
