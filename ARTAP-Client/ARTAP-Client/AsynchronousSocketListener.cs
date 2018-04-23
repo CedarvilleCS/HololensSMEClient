@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -24,7 +25,6 @@ namespace ARTAPclient
         #region Fields
 
         private Socket _client;
-        private System.Timers.Timer _connectionAliveTimer;
         private readonly IPEndPoint _remoteEndPoint;
 
         private enum MessageType
@@ -168,12 +168,6 @@ namespace ARTAPclient
         private byte[] GetShortBytesFromInt(int i)
         {
             return GetShortBytesFromDouble(i);
-        }
-        
-        public void RequestLocationID(LocatableImage image)
-        {
-            Send(MessageType.PositionIDRequest, new Byte[0]);
-            ReceivePositionID(image);
         }
 
         public void SendIpAddress(PanoramaWindow panoramaWindow, byte[] headPositionData)
@@ -576,15 +570,12 @@ namespace ARTAPclient
             return new List<PanoImage>[] { panoImages, screenshotImages };
         }
 
-        }
-        
         private void SendCallback(IAsyncResult ar)
         {
-            int bytesSent = _client.EndSend(ar);
-            ///
-            /// For testing purposes
-            ///
-            Debug.WriteLine($"Sent {bytesSent} bytes to server.");
+            var bytesSent = _client.EndSend(ar);
+            Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
+        }
+        
         public static byte[] SubArray(byte[] data, int index, int length)
         {
             var result = new byte[length];
