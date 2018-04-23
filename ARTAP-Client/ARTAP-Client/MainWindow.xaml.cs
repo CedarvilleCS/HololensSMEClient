@@ -66,13 +66,12 @@ namespace ARTAPclient
             _rememberMe = (bool)checkBoxRemember.IsChecked;
             _isPanorama = (bool)PanoramaToggle.IsChecked;
 
-            string port = textBoxPort.Text;
+            var port = textBoxPort.Text;
 
             if (ValidateText(_ip, "IP") && ValidateText(port, "port") &&
                 ValidateText(_userName, "user name") && ValidateText(_password, "password"))
             {
-                IPEndPoint hostEndPoint;
-                if (!TryGetIPEndPoint(_ip, port, out hostEndPoint))
+                if (!TryGetIPEndPoint(_ip, port, out IPEndPoint hostEndPoint))
                 {
                     return;
                 }
@@ -97,37 +96,37 @@ namespace ARTAPclient
 
             /// Needed for cross-thread window launch
             Dispatcher.BeginInvoke((Action)(() =>
-           {
-               if (_isPanorama)
-               {
-                   InitializePanorama();
-               }
-               else
-               {
-                   InitializeVideoWindow();
-               }
+            {
+                if (_isPanorama)
+                {
+                    InitializePanorama();
+                }
+                else
+                {
+                    InitializeVideoWindow();
+                }
 
-               if ((bool)checkBoxRemember.IsChecked)
-               {
-                   AppSettings.Default.username = textBoxUserName.Text;
-                   AppSettings.Default.portNum = textBoxPort.Text;
-                   AppSettings.Default.ipAddress = textBoxIP.Text;
-                   AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
-                   AppSettings.Default.rememberMe = true;
-                   AppSettings.Default.showAnnotations = (bool)checkBoxHolograms.IsChecked;
-                   AppSettings.Default.Save();
-               }
-               else
-               {
-                   AppSettings.Default.ipAddress = "";
-                   AppSettings.Default.username = "";
-                   AppSettings.Default.portNum = "";
-                   AppSettings.Default.streamQuality = 0;
-                   AppSettings.Default.rememberMe = false;
-                   AppSettings.Default.showAnnotations = false;
-                   AppSettings.Default.Save();
-               }
-           }));
+                if ((bool)checkBoxRemember.IsChecked)
+                {
+                    AppSettings.Default.username = textBoxUserName.Text;
+                    AppSettings.Default.portNum = textBoxPort.Text;
+                    AppSettings.Default.ipAddress = textBoxIP.Text;
+                    AppSettings.Default.streamQuality = comboBoxStreamQuality.SelectedIndex;
+                    AppSettings.Default.rememberMe = true;
+                    AppSettings.Default.showAnnotations = (bool)checkBoxHolograms.IsChecked;
+                    AppSettings.Default.Save();
+                }
+                else
+                {
+                    AppSettings.Default.ipAddress = "";
+                    AppSettings.Default.username = "";
+                    AppSettings.Default.portNum = "";
+                    AppSettings.Default.streamQuality = 0;
+                    AppSettings.Default.rememberMe = false;
+                    AppSettings.Default.showAnnotations = false;
+                    AppSettings.Default.Save();
+                }
+            }));
         }
 
         private void InitializePanorama()

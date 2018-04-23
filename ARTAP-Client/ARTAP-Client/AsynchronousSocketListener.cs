@@ -128,7 +128,6 @@ namespace ARTAPclient
             {
                 _client.BeginConnect(_remoteEndPoint,
                     new AsyncCallback(ConnectCallback), _client);
-
             }
             catch (Exception e)
             {
