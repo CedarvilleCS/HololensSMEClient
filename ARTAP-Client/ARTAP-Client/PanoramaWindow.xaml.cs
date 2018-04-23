@@ -22,7 +22,7 @@ namespace WpfApplication1
         
         private Bitmap _panoramaBitmap;
         private BitmapImage _panoramaBitmapSource;
-        private System.Drawing.Pen _headPositionPen;
+        private Pen _headPositionPen;
 
         public float[] HeadPositionCoordinates { get; set; }
         public static int test = 0;
@@ -42,7 +42,7 @@ namespace WpfApplication1
             InitializeComponent();
             PollPanoImage();
             HeadPositionCoordinates = new float[2];
-            _headPositionPen = new System.Drawing.Pen(new SolidBrush(System.Drawing.Color.Red), 7);
+            _headPositionPen = new Pen(new SolidBrush(System.Drawing.Color.Red), 7);
 
             _checkHeadData = new DispatcherTimer();
             _checkHeadData.Tick += new EventHandler(CheckIfHeadDataUpdated);

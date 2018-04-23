@@ -665,7 +665,6 @@ namespace ARTAPclient
             var button = (Button)sender;
             var buttons = taskListButtons.Children;
 
-            // crashing here right now
             var taskList = _taskLists.Find(x => x.TaskList.Id == (int)button.Tag);
             if (CurrentTaskList != taskList)
             {
