@@ -134,6 +134,8 @@ namespace ARTAPclient
             _addImageStyle = FindResource("imageButton") as Style;
             _afterImageStyle = FindResource("imageAdded") as Style;
             _userControl = new TaskListUserControl(this);
+            buttonCaptureScreenshot.IsEnabled = false;
+
 
             _listener.SendIpAddress(_panoramaWindow, _headPositionData);
         }
@@ -1088,24 +1090,17 @@ namespace ARTAPclient
                 //Set the first 4 border/images now
                 //only have 4 display images and don't want to loop if we have less than 4 pages
                 //int maxValue = System.Math.Min(4, numPDFPages);
-                for (int i = 1; i < PDF_GALLERY_SIZE && i < numPDFPages; i++)
+                for (int i = 1; i < numPDFPages; i++)
                 {
                     BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
-                    //pdfToCanvas(temp, images[i]);
-                    images[i].Source = temp;
                     Image firstFour = new Image();
                     firstFour.Source = temp;
                     _pdfPages[i] = new ThumbnailImage(firstFour, true, true);
+                    if (i < PDF_GALLERY_SIZE)
+                    {
+                        images[i].Source = temp;
+                    }
 
-                }
-
-                //Get the rest of the pages if there are any
-                for (int i = PDF_GALLERY_SIZE; i < numPDFPages; i++)
-                {
-                    BitmapImage temp = convertDrawiningImageToBitmap(PDFManager.getImage(openFileDialog.FileName, i + 1));
-                    Image rest = new Image();
-                    rest.Source = temp;
-                    _pdfPages[i] = new ThumbnailImage(rest, true, true);
                 }
 
                 if (numPDFPages > PDF_GALLERY_SIZE)
