@@ -446,7 +446,6 @@ namespace ARTAPclient
             SetPlacingMarkers(true);
 
             //Disable all buttons that do not need to be available for this mode
-            buttonChangeColor.IsEnabled = false;
             buttonUploadImage.IsEnabled = false;
             buttonCaptureScreenshot.IsEnabled = false;
 
@@ -638,7 +637,6 @@ namespace ARTAPclient
             if (_isPlacingMarker)
             {
                 SetPlacingMarkers(!_isPlacingMarker);
-                buttonChangeColor.IsEnabled = !_isPlacingMarker;
                 buttonUploadImage.IsEnabled = !_isPlacingMarker;
                 buttonCaptureScreenshot.IsEnabled = !_isPlacingMarker;
                 buttonPlaceArrow.Content = _placeArrowPath;
