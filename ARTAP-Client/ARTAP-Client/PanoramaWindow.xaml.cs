@@ -42,7 +42,7 @@ namespace WpfApplication1
             InitializeComponent();
             PollPanoImage();
             HeadPositionCoordinates = new float[2];
-            _headPositionPen = new Pen(new SolidBrush(System.Drawing.Color.Red), 7);
+            _headPositionPen = new Pen(new SolidBrush(Color.Red), 7);
 
             _checkHeadData = new DispatcherTimer();
             _checkHeadData.Tick += new EventHandler(CheckIfHeadDataUpdated);
@@ -125,8 +125,10 @@ namespace WpfApplication1
 
             using (var graphics = Graphics.FromImage(_panoramaBitmap))
             {
-                var coordinates = AdjustCoordinates((1 - HeadPositionCoordinates[0]), 1 - HeadPositionCoordinates[1]);
-                graphics.DrawRectangle(_headPositionPen, coordinates[0] - 50, coordinates[1] - 18, coordinates[0] + 50, coordinates[1] + 18);
+                var coordinates = AdjustCoordinates(1 - HeadPositionCoordinates[0], 1 - HeadPositionCoordinates[1]);
+                var x = coordinates[0];
+                var y = coordinates[1];
+                graphics.DrawRectangle(_headPositionPen, new Rectangle((int)x, (int)y, 600, 300));
                 return ConvertBitmaptoImageSource();
             }
         }
